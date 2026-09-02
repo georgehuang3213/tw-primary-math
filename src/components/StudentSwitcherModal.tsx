@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, UserCheck, Sparkles, Star, BookOpen, Cloud, Download, Upload, Check, Zap, RefreshCw } from 'lucide-react';
+import { X, Plus, Trash2, Star, BookOpen } from 'lucide-react';
 import { StudentProfile, AccountData, Grade } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { storageService } from '../services/storage';
-import { r2StorageService, R2Config } from '../services/r2Storage';
 import { soundFx } from '../services/audio';
 
 interface StudentSwitcherModalProps {
@@ -22,17 +21,10 @@ export const StudentSwitcherModal: React.FC<StudentSwitcherModalProps> = ({
   onStudentChanged
 }) => {
   const [account, setAccount] = useState<AccountData>(() => storageService.getAccountData());
-  const [r2Config, setR2Config] = useState<R2Config>(() => r2StorageService.getConfig());
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAvatar, setNewAvatar] = useState('👦');
   const [newGrade, setNewGrade] = useState<Grade>(1);
-  const [backupText, setBackupText] = useState('');
-  const [showBackupArea, setShowBackupArea] = useState(false);
-  const [showR2Config, setShowR2Config] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [r2Syncing, setR2Syncing] = useState(false);
-  const [r2Msg, setR2Msg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -63,54 +55,6 @@ export const StudentSwitcherModal: React.FC<StudentSwitcherModalProps> = ({
       setAccount(storageService.getAccountData());
       onStudentChanged();
     }
-  };
-
-  const handleExportBackup = () => {
-    soundFx.playPop();
-    const json = storageService.exportBackup();
-    navigator.clipboard.writeText(json);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
-  };
-
-  const handleSyncToR2 = async () => {
-    soundFx.playPop();
-    setR2Syncing(true);
-    setR2Msg('正在即時同步至 Cloudflare R2 雲端儲存...');
-    const result = await r2StorageService.uploadToR2(account);
-    setR2Syncing(false);
-    setR2Msg(result.message);
-    if (result.success) {
-      soundFx.playCorrect();
-    }
-    setTimeout(() => setR2Msg(null), 3000);
-  };
-
-  const handleFetchFromR2 = async () => {
-    soundFx.playPop();
-    setR2Syncing(true);
-    setR2Msg('正在從 Cloudflare R2 載入最新班級進度...');
-    const result = await r2StorageService.fetchFromR2();
-    setR2Syncing(false);
-    if (result.success && result.data) {
-      soundFx.playCorrect();
-      storageService.saveAccountData(result.data);
-      setAccount(result.data);
-      onStudentChanged();
-      setR2Msg('🎉 成功從 Cloudflare R2 載入全班最新進度！');
-    } else {
-      soundFx.playWrong();
-      setR2Msg(result.message);
-    }
-    setTimeout(() => setR2Msg(null), 3000);
-  };
-
-  const handleSaveR2Config = (e: React.FormEvent) => {
-    e.preventDefault();
-    soundFx.playCorrect();
-    r2StorageService.saveConfig(r2Config);
-    setShowR2Config(false);
-    alert('⚡ Cloudflare R2 雲端儲存設定已更新！');
   };
 
   return (
@@ -268,121 +212,8 @@ export const StudentSwitcherModal: React.FC<StudentSwitcherModalProps> = ({
             })}
           </div>
         </div>
-
-        {/* ⚡ Cloudflare R2 全自動無感即時雲端儲存面板 */}
-        <div className="pt-4 border-t-2 border-slate-100 flex flex-col gap-3">
-          <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 p-4 rounded-2xl border-2 border-orange-300 flex flex-col gap-3 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5">
-                <span className="w-3.5 h-3.5 rounded-full bg-orange-500 animate-ping"></span>
-                <div>
-                  <div className="flex items-center gap-1.5 font-black text-sm text-orange-950">
-                    <Zap size={18} className="text-orange-600 fill-orange-500" />
-                    <span>⚡ Cloudflare R2 雲端儲存：全自動即時同步中</span>
-                  </div>
-                  <div className="text-[11px] text-orange-800 font-bold">
-                    班級檔案：<code className="bg-white/80 px-1.5 py-0.5 rounded border border-orange-300 font-mono text-orange-950 font-black">{r2Config.classroomKey}</code> • 每次答題自動寫入 R2 雲端
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
-                <button
-                  onClick={handleSyncToR2}
-                  disabled={r2Syncing}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-black shadow transition disabled:opacity-50"
-                  title="立即將全班最新資料上傳至 Cloudflare R2"
-                >
-                  <RefreshCw size={13} className={r2Syncing ? 'animate-spin' : ''} />
-                  <span>立即推送到 R2</span>
-                </button>
-                <button
-                  onClick={handleFetchFromR2}
-                  disabled={r2Syncing}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-orange-100 text-orange-900 border border-orange-300 rounded-xl text-xs font-black shadow-sm transition disabled:opacity-50"
-                  title="從 Cloudflare R2 載入最新班級進度"
-                >
-                  <Download size={13} />
-                  <span>從 R2 載入</span>
-                </button>
-                <button
-                  onClick={() => setShowR2Config(!showR2Config)}
-                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
-                  title="設定 Cloudflare R2 連線參數"
-                >
-                  ⚙️ 設定
-                </button>
-              </div>
-            </div>
-
-            {/* 即時反饋訊息 */}
-            {r2Msg && (
-              <div className="p-2 rounded-xl bg-white/90 border border-orange-300 text-xs font-black text-orange-950 animate-bounce-short text-center">
-                {r2Msg}
-              </div>
-            )}
-
-            {/* Cloudflare R2 連線設定表單 */}
-            {showR2Config && (
-              <form onSubmit={handleSaveR2Config} className="p-3.5 bg-white rounded-xl border border-orange-300 flex flex-col gap-2.5 text-xs animate-slide-down">
-                <div className="font-black text-orange-950 flex items-center justify-between">
-                  <span>⚙️ Cloudflare R2 / Worker 連線設定：</span>
-                  <span className="text-[10px] text-slate-500 font-normal">免伺服器 · 零流量費 · 全球加速</span>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-slate-600 font-bold">Cloudflare Worker URL / 端點網址：</label>
-                  <input
-                    type="text"
-                    placeholder="例如: https://math-sync.your-name.workers.dev"
-                    value={r2Config.workerUrl}
-                    onChange={e => setR2Config({ ...r2Config, workerUrl: e.target.value })}
-                    className="p-2 border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-orange-400 bg-slate-50"
-                  />
-                  <span className="text-[10px] text-slate-400">（專案內已附贈一鍵部署腳本 cloudflare-r2-worker.js，貼上 Worker 網址即可）</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-slate-600 font-bold">班級代碼 (Classroom Key)：</label>
-                    <input
-                      type="text"
-                      value={r2Config.classroomKey}
-                      onChange={e => setR2Config({ ...r2Config, classroomKey: e.target.value })}
-                      className="p-2 border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-orange-400 bg-slate-50"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-slate-600 font-bold">同步金鑰 (Access Key)：</label>
-                    <input
-                      type="password"
-                      value={r2Config.accessKey}
-                      onChange={e => setR2Config({ ...r2Config, accessKey: e.target.value })}
-                      className="p-2 border rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-orange-400 bg-slate-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 mt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowR2Config(false)}
-                    className="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-lg font-bold"
-                  >
-                    取消
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-black shadow"
-                  >
-                    儲存 R2 設定
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
+};
 };
