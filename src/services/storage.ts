@@ -1,4 +1,4 @@
-import { UserAccount } from '../types';
+import { UserAccount, Unit } from '../types';
 import { r2StorageService } from './r2Storage';
 
 const ACCOUNT_SESSION_KEY = 'tw_primary_math_current_session';
@@ -112,6 +112,22 @@ export const storageService = {
       lastActiveAt: Date.now()
     };
 
+    this.saveUserAccount(updatedAccount);
+    return updatedAccount;
+  },
+
+  recordLastVisitedUnit(unit: Unit, mode: 'lesson' | 'practice'): UserAccount {
+    const account = this.getUserAccount();
+    const updatedAccount: UserAccount = {
+      ...account,
+      lastUnitId: unit.id,
+      lastUnitTitle: unit.title,
+      lastGrade: unit.grade,
+      lastSemester: unit.semester,
+      lastMode: mode,
+      lastVisitedAt: Date.now(),
+      lastActiveAt: Date.now()
+    };
     this.saveUserAccount(updatedAccount);
     return updatedAccount;
   },

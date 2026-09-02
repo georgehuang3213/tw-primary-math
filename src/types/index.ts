@@ -132,6 +132,12 @@ export interface UserAccount {
   completedUnits: string[];
   unitStars: Record<string, number>;
   mistakes: { questionId: string; unitId: string; timestamp: number }[];
+  lastUnitId?: string;
+  lastUnitTitle?: string;
+  lastGrade?: Grade;
+  lastSemester?: Semester;
+  lastMode?: 'lesson' | 'practice';
+  lastVisitedAt?: number;
   lastActiveAt: number;
   lastCloudSyncAt: number;
 }

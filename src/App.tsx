@@ -35,8 +35,18 @@ export const App: React.FC = () => {
     const acc = storageService.loginAccount(accountName);
     setCurrentAccountName(accountName);
     setUserAccount(acc);
+    if (acc.lastGrade) {
+      setCurrentGrade(acc.lastGrade);
+    }
     setCurrentMode('home');
     setActiveUnit(null);
+
+    // 登入後貼心語音播報上次進度
+    if (acc.lastUnitTitle) {
+      setTimeout(() => {
+        speechService.speak(`歡迎回來 ${accountName}！上次我們看到 ${acc.lastUnitTitle}，點擊按鈕可直接繼續學習喔！`);
+      }, 600);
+    }
   };
 
   const handleLogout = () => {
@@ -96,9 +106,19 @@ export const App: React.FC = () => {
   };
 
   const handleSelectUnit = (unit: Unit, mode: 'lesson' | 'practice') => {
+    const updated = storageService.recordLastVisitedUnit(unit, mode);
+    setUserAccount(updated);
     setActiveUnit(unit);
     setCurrentMode(mode);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleResumeLastUnit = (unitId: string, mode: 'lesson' | 'practice' = 'lesson') => {
+    const found = CURRICULUM_UNITS.find(u => u.id === unitId);
+    if (found) {
+      setCurrentGrade(found.grade);
+      handleSelectUnit(found, mode);
+    }
   };
 
   const handleFinishQuiz = (earnedStars: number, newMistakes: { questionId: string; unitId: string }[]) => {
@@ -189,7 +209,13 @@ export const App: React.FC = () => {
             currentGrade={currentGrade}
             userProgress={userProgress}
             bopomofoEnabled={bopomofoEnabled}
+            accountName={currentAccountName}
+            lastUnitId={userAccount.lastUnitId}
+            lastUnitTitle={userAccount.lastUnitTitle}
+            lastGrade={userAccount.lastGrade}
+            lastMode={userAccount.lastMode}
             onSelectUnit={handleSelectUnit}
+            onResumeLastUnit={handleResumeLastUnit}
           />
         )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, PlayCircle, Dumbbell, ChevronLeft, ChevronRight, LayoutGrid, Maximize2, CheckCircle2 } from 'lucide-react';
+import { Star, PlayCircle, Dumbbell, ChevronLeft, ChevronRight, LayoutGrid, Maximize2, CheckCircle2, Compass, Sparkles, ArrowRight } from 'lucide-react';
 import { Unit, Grade, Semester, UserProgress } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
@@ -9,7 +9,13 @@ interface UnitSelectorProps {
   currentGrade: Grade;
   userProgress: UserProgress;
   bopomofoEnabled: boolean;
+  accountName: string;
+  lastUnitId?: string;
+  lastUnitTitle?: string;
+  lastGrade?: Grade;
+  lastMode?: 'lesson' | 'practice';
   onSelectUnit: (unit: Unit, mode: 'lesson' | 'practice') => void;
+  onResumeLastUnit?: (unitId: string, mode: 'lesson' | 'practice') => void;
 }
 
 export const UnitSelector: React.FC<UnitSelectorProps> = ({
@@ -17,7 +23,13 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   currentGrade,
   userProgress,
   bopomofoEnabled,
-  onSelectUnit
+  accountName,
+  lastUnitId,
+  lastUnitTitle,
+  lastGrade,
+  lastMode = 'lesson',
+  onSelectUnit,
+  onResumeLastUnit
 }) => {
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>('all');
   const [activeUnitIndex, setActiveUnitIndex] = useState<number>(0);
@@ -50,6 +62,54 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6 flex flex-col gap-5 min-h-[85vh] justify-between">
+      {/* 🦁 上次進度智能提示卡片 */}
+      {lastUnitId && lastUnitTitle ? (
+        <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-3xl p-4 sm:p-5 text-white shadow-lg border-4 border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4 animate-scale-up">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/30 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0">
+              🦁
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                  歡迎回來，{accountName}！
+                </span>
+                <span className="text-xs font-bold text-amber-100 flex items-center gap-1">
+                  <Compass size={13} />
+                  <span>上次學習進度</span>
+                </span>
+              </div>
+              <h3 className="text-base sm:text-xl font-black mt-1 drop-shadow flex items-center gap-2">
+                <span>📍</span>
+                <BopomofoText text={lastUnitTitle} showBpmf={bopomofoEnabled} />
+              </h3>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              soundFx.playCorrect();
+              if (onResumeLastUnit) {
+                onResumeLastUnit(lastUnitId, lastMode);
+              }
+            }}
+            className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-amber-50 text-amber-950 font-black rounded-2xl text-sm sm:text-base shadow-md hover:shadow-xl transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shrink-0"
+          >
+            <PlayCircle size={20} className="text-amber-600 fill-amber-500" />
+            <span>一鍵繼續上次進度 ➔</span>
+          </button>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100 rounded-3xl p-3.5 sm:p-4 text-amber-950 border-2 border-amber-300 shadow-sm flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">🌱</span>
+            <div className="text-xs sm:text-sm font-black">
+              歡迎新勇士 <span className="text-amber-700 bg-white/80 px-2 py-0.5 rounded-md">{accountName}</span>！挑選一個單元開始今天的數學探險吧！
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 頂部學期切換與視圖切換 */}
       <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-3.5 rounded-3xl border-4 border-amber-300 shadow-md">
         {/* 學期選擇按鈕 */}
