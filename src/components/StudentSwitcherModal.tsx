@@ -216,4 +216,3 @@ export const StudentSwitcherModal: React.FC<StudentSwitcherModalProps> = ({
     </div>
   );
 };
-};
