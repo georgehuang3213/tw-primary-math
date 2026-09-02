@@ -166,6 +166,11 @@ export const App: React.FC = () => {
     ? QUESTIONS.filter(q => q.unitId === activeUnit.id)
     : [];
 
+  const currentUnitIdx = activeUnit ? CURRICULUM_UNITS.findIndex(u => u.id === activeUnit.id) : -1;
+  const nextUnit = (currentUnitIdx >= 0 && currentUnitIdx + 1 < CURRICULUM_UNITS.length)
+    ? CURRICULUM_UNITS[currentUnitIdx + 1]
+    : undefined;
+
   if (!currentAccountName) {
     return (
       <LoginScreen
@@ -236,6 +241,7 @@ export const App: React.FC = () => {
         {currentMode === 'practice' && activeUnit && (
           <PracticeMode
             unit={activeUnit}
+            nextUnit={nextUnit}
             questions={
               activeQuestions.length > 0
                 ? activeQuestions
@@ -245,6 +251,10 @@ export const App: React.FC = () => {
             onBack={() => {
               setCurrentMode('home');
               setActiveUnit(null);
+            }}
+            onGoToNextUnit={(unit) => {
+              setCurrentGrade(unit.grade);
+              handleSelectUnit(unit, 'lesson');
             }}
             onFinishQuiz={handleFinishQuiz}
           />

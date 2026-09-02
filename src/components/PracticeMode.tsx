@@ -25,17 +25,21 @@ import { UnitLengthLab } from './Manipulatives/UnitLengthLab';
 
 interface PracticeModeProps {
   unit: Unit;
+  nextUnit?: Unit;
   questions: Question[];
   bopomofoEnabled: boolean;
   onBack: () => void;
+  onGoToNextUnit?: (nextUnit: Unit) => void;
   onFinishQuiz: (earnedStars: number, mistakes: { questionId: string; unitId: string }[]) => void;
 }
 
 export const PracticeMode: React.FC<PracticeModeProps> = ({
   unit,
+  nextUnit,
   questions,
   bopomofoEnabled,
   onBack,
+  onGoToNextUnit,
   onFinishQuiz
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -187,15 +191,32 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
             / {totalQ} <BopomofoText text="題" showBpmf={bopomofoEnabled} />
           </div>
 
-          <button
-            onClick={() => {
-              soundFx.playPop();
-              onBack();
-            }}
-            className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-2xl rounded-3xl shadow-lg border-4 border-amber-600 btn-fun"
-          >
-            <BopomofoText text="完成挑戰，返回選單 ➔" showBpmf={bopomofoEnabled} />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {nextUnit && onGoToNextUnit && (
+              <button
+                onClick={() => {
+                  soundFx.playCorrect();
+                  onGoToNextUnit(nextUnit);
+                }}
+                className="flex-1 py-4 sm:py-5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xl sm:text-2xl rounded-3xl shadow-xl border-4 border-emerald-600 btn-fun flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
+              >
+                <span>🚀</span>
+                <BopomofoText text={`前往下一單元：${nextUnit.title} ➔`} showBpmf={bopomofoEnabled} />
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                onBack();
+              }}
+              className={`py-4 sm:py-5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-xl sm:text-2xl rounded-3xl shadow-lg border-4 border-amber-600 btn-fun ${
+                nextUnit ? 'sm:w-1/3' : 'w-full'
+              }`}
+            >
+              <BopomofoText text="返回單元大廳" showBpmf={bopomofoEnabled} />
+            </button>
+          </div>
         </div>
       </div>
     );
