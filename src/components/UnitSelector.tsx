@@ -58,12 +58,29 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
     return <div className="p-8 text-center text-xl font-black text-amber-900">載入單元中...</div>;
   }
 
+  // 智慧自動追蹤與回溯上次學習進度單元
+  let resumeUnitId = lastUnitId;
+  let resumeUnitTitle = lastUnitTitle;
+  let resumeMode = lastMode || 'lesson';
+
+  if (!resumeUnitId || !resumeUnitTitle) {
+    const uEntries = Object.entries(userProgress.unitProgress || {});
+    if (uEntries.length > 0) {
+      const lastPlayedUid = uEntries[uEntries.length - 1][0];
+      const matchedUnit = units.find(u => u.id === lastPlayedUid);
+      if (matchedUnit) {
+        resumeUnitId = matchedUnit.id;
+        resumeUnitTitle = matchedUnit.title;
+      }
+    }
+  }
+
   const currentUnitProgress = userProgress.unitProgress[currentUnit.id] || { stars: 0, attempts: 0 };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6 flex flex-col gap-5 min-h-[85vh] justify-between">
       {/* 🦁 上次進度智能提示卡片 */}
-      {lastUnitId && lastUnitTitle ? (
+      {resumeUnitId && resumeUnitTitle ? (
         <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-3xl p-4 sm:p-5 text-white shadow-lg border-4 border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4 animate-scale-up">
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-white/30 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0">
@@ -81,7 +98,7 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
               </div>
               <h3 className="text-base sm:text-xl font-black mt-1 drop-shadow flex items-center gap-2">
                 <span>📍</span>
-                <BopomofoText text={lastUnitTitle} showBpmf={bopomofoEnabled} />
+                <BopomofoText text={resumeUnitTitle} showBpmf={bopomofoEnabled} />
               </h3>
             </div>
           </div>
@@ -89,8 +106,8 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
           <button
             onClick={() => {
               soundFx.playCorrect();
-              if (onResumeLastUnit) {
-                onResumeLastUnit(lastUnitId, lastMode);
+              if (onResumeLastUnit && resumeUnitId) {
+                onResumeLastUnit(resumeUnitId, resumeMode);
               }
             }}
             className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-amber-50 text-amber-950 font-black rounded-2xl text-sm sm:text-base shadow-md hover:shadow-xl transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shrink-0"

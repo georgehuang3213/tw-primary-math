@@ -1,4 +1,5 @@
 import { UserAccount, Unit } from '../types';
+import { CURRICULUM_UNITS } from '../data/curriculum';
 import { r2StorageService } from './r2Storage';
 
 const ACCOUNT_SESSION_KEY = 'tw_primary_math_current_session';
@@ -103,12 +104,21 @@ export const storageService = {
       .map(m => ({ ...m, timestamp: Date.now() }));
     const updatedMistakes = [...account.mistakes, ...formattedNew];
 
+    // 尋找對應單元資訊以更新上次進度
+    const foundUnit = CURRICULUM_UNITS.find(u => u.id === unitId);
+
     const updatedAccount: UserAccount = {
       ...account,
       completedUnits: Array.from(completedSet),
       unitStars: updatedUnitStars,
       totalStars,
       mistakes: updatedMistakes,
+      lastUnitId: foundUnit ? foundUnit.id : account.lastUnitId || unitId,
+      lastUnitTitle: foundUnit ? foundUnit.title : account.lastUnitTitle,
+      lastGrade: foundUnit ? foundUnit.grade : account.lastGrade,
+      lastSemester: foundUnit ? foundUnit.semester : account.lastSemester,
+      lastMode: 'practice',
+      lastVisitedAt: Date.now(),
       lastActiveAt: Date.now()
     };
 
