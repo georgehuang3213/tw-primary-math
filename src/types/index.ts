@@ -126,22 +126,12 @@ export interface UserProgress {
   unitProgress: Record<string, UnitProgressData>;
 }
 
-export interface StudentProfile {
-  id: string;
-  name: string;
-  avatar: string;
-  grade: Grade;
+export interface UserAccount {
+  accountName: string;
   totalStars: number;
   completedUnits: string[];
   unitStars: Record<string, number>;
   mistakes: { questionId: string; unitId: string; timestamp: number }[];
   lastActiveAt: number;
-}
-
-export interface AccountData {
-  teacherName: string;
-  teacherEmail: string;
-  activeStudentId: string | null;
-  students: StudentProfile[];
   lastCloudSyncAt: number;
 }

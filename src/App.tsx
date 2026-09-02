@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grade, Unit, UserProgress, StudentProfile } from './types';
+import { Grade, Unit, UserProgress, UserAccount } from './types';
 import { CURRICULUM_UNITS } from './data/curriculum';
 import { QUESTIONS } from './data/questions';
 import { Navbar } from './components/Navbar';
@@ -7,7 +7,6 @@ import { UnitSelector } from './components/UnitSelector';
 import { LessonMode } from './components/LessonMode';
 import { PracticeMode } from './components/PracticeMode';
 import { ReviewModal } from './components/ReviewModal';
-import { StudentSwitcherModal } from './components/StudentSwitcherModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
 import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
@@ -17,14 +16,13 @@ import { soundFx } from './services/audio';
 
 export const App: React.FC = () => {
   const [currentAccountName, setCurrentAccountName] = useState<string | null>(() => storageService.getCurrentAccountName());
-  const [activeStudent, setActiveStudent] = useState<StudentProfile>(() => storageService.getActiveStudent());
-  const [currentGrade, setCurrentGrade] = useState<Grade>(activeStudent.grade || 1);
+  const [userAccount, setUserAccount] = useState<UserAccount>(() => storageService.getUserAccount());
+  const [currentGrade, setCurrentGrade] = useState<Grade>(1);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
   const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice'>('home');
   
   // Modals
   const [isReviewOpen, setIsReviewOpen] = useState(false);
-  const [isStudentSwitcherOpen, setIsStudentSwitcherOpen] = useState(false);
   const [isMistakeNotebookOpen, setIsMistakeNotebookOpen] = useState(false);
 
   // 注音開關
@@ -34,11 +32,9 @@ export const App: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   const handleLogin = (accountName: string) => {
-    storageService.loginAccount(accountName);
-    const updatedStudent = storageService.getActiveStudent();
+    const acc = storageService.loginAccount(accountName);
     setCurrentAccountName(accountName);
-    setActiveStudent(updatedStudent);
-    setCurrentGrade(updatedStudent.grade || 1);
+    setUserAccount(acc);
     setCurrentMode('home');
     setActiveUnit(null);
   };
@@ -51,18 +47,18 @@ export const App: React.FC = () => {
     setCurrentMode('home');
   };
 
-  // 多人同時上線：自動背景定時心跳同步（支援 30 台平板/電腦同時作答即時合併）
+  // 多人同時上線：自動背景定時心跳同步（支援多台平板/電腦同時作答即時合併）
   useEffect(() => {
     if (!currentAccountName) return;
 
     const performBackgroundSync = async () => {
       try {
-        const remoteResult = await r2StorageService.fetchFromR2();
+        const remoteResult = await r2StorageService.fetchFromR2(currentAccountName);
         if (remoteResult.success && remoteResult.data) {
-          const currentLocal = storageService.getAccountData();
-          const merged = storageService.mergeAccountData(currentLocal, remoteResult.data);
-          storageService.saveAccountData(merged);
-          setActiveStudent(storageService.getActiveStudent());
+          const currentLocal = storageService.getUserAccount();
+          const merged = storageService.mergeUserAccount(currentLocal, remoteResult.data);
+          storageService.saveUserAccount(merged);
+          setUserAccount(merged);
         }
       } catch (err) {
         console.error('Heartbeat sync error', err);
@@ -72,7 +68,7 @@ export const App: React.FC = () => {
     // 每 15 秒背景檢查一次遠端平板進度
     const interval = setInterval(performBackgroundSync, 15000);
 
-    // 當學生從背景切回此頁面時立即觸發一次同步
+    // 當切回此分頁時立即觸發一次同步
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         performBackgroundSync();
@@ -85,15 +81,6 @@ export const App: React.FC = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [currentAccountName]);
-
-  // 當學生改變時重新載入資料與年級
-  const handleStudentChanged = () => {
-    const updated = storageService.getActiveStudent();
-    setActiveStudent(updated);
-    setCurrentGrade(updated.grade);
-    setCurrentMode('home');
-    setActiveUnit(null);
-  };
 
   const handleToggleBopomofo = () => {
     setBopomofoEnabled(prev => !prev);
@@ -117,30 +104,32 @@ export const App: React.FC = () => {
   const handleFinishQuiz = (earnedStars: number, newMistakes: { questionId: string; unitId: string }[]) => {
     if (!activeUnit) return;
 
-    // 將成績與錯題寫入當前學生的專屬雲端/本地儲存庫
-    storageService.recordQuizCompletion(activeStudent.id, activeUnit.id, earnedStars, newMistakes);
-    setActiveStudent(storageService.getActiveStudent());
+    // 將成績與錯題寫入當前帳號的雲端/本地儲存庫
+    const updated = storageService.recordQuizCompletion(activeUnit.id, earnedStars, newMistakes);
+    setUserAccount(updated);
   };
 
   const handleResetProgress = () => {
-    storageService.updateStudent(activeStudent.id, {
+    const resetAcc: UserAccount = {
+      ...userAccount,
       totalStars: 0,
       completedUnits: [],
       unitStars: {},
       mistakes: []
-    });
-    setActiveStudent(storageService.getActiveStudent());
+    };
+    storageService.saveUserAccount(resetAcc);
+    setUserAccount(resetAcc);
     setIsReviewOpen(false);
   };
 
-  // 將當前學生的資料轉為 UnitSelector 所需的 UserProgress 結構
+  // 將當前帳號的資料轉為 UnitSelector 所需的 UserProgress 結構
   const userProgress: UserProgress = {
-    totalStars: activeStudent.totalStars,
-    unitProgress: Object.entries(activeStudent.unitStars).reduce((acc, [uid, stars]) => {
+    totalStars: userAccount.totalStars,
+    unitProgress: Object.entries(userAccount.unitStars).reduce((acc, [uid, stars]) => {
       acc[uid] = { stars, attempts: 1 };
       return acc;
     }, {} as UserProgress['unitProgress']),
-    mistakeHistory: activeStudent.mistakes.map(m => ({
+    mistakeHistory: userAccount.mistakes.map(m => ({
       questionId: m.questionId,
       unitId: m.unitId,
       wrongCount: 1,
@@ -168,7 +157,7 @@ export const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-amber-50/50 flex flex-col font-sans ${bopomofoEnabled ? '' : 'bopomofo-off'}`}>
-      {/* 頂部導覽列（包含多學生頭像、切換與錯題本入口） */}
+      {/* 頂部導覽列 */}
       <Navbar
         currentGrade={currentGrade}
         onGradeChange={g => {
@@ -180,9 +169,9 @@ export const App: React.FC = () => {
         onToggleBopomofo={handleToggleBopomofo}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
-        activeStudent={activeStudent}
         accountName={currentAccountName}
-        onOpenStudentSwitcher={() => setIsStudentSwitcherOpen(true)}
+        totalStars={userAccount.totalStars}
+        mistakeCount={userAccount.mistakes.length}
         onOpenMistakeNotebook={() => setIsMistakeNotebookOpen(true)}
         onOpenReview={() => setIsReviewOpen(true)}
         onLogout={handleLogout}
@@ -236,22 +225,14 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* 學生切換大廳與班級管理視窗 */}
-      <StudentSwitcherModal
-        isOpen={isStudentSwitcherOpen}
-        onClose={() => setIsStudentSwitcherOpen(false)}
-        bopomofoEnabled={bopomofoEnabled}
-        onStudentChanged={handleStudentChanged}
-      />
-
       {/* 專屬錯題本與針對性弱點複習視窗 */}
       <MistakeNotebookModal
         isOpen={isMistakeNotebookOpen}
         onClose={() => setIsMistakeNotebookOpen(false)}
         bopomofoEnabled={bopomofoEnabled}
-        student={activeStudent}
+        userAccount={userAccount}
         onMistakeResolved={() => {
-          setActiveStudent(storageService.getActiveStudent());
+          setUserAccount(storageService.getUserAccount());
         }}
       />
 

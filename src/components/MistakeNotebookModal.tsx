@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, BookOpen, RotateCcw, CheckCircle2, AlertTriangle, ChevronRight, Volume2, Sparkles, Trophy } from 'lucide-react';
-import { StudentProfile, Question } from '../types';
+import { UserAccount, Question } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { QUESTIONS } from '../data/questions';
 import { storageService } from '../services/storage';
@@ -11,7 +11,7 @@ interface MistakeNotebookModalProps {
   isOpen: boolean;
   onClose: () => void;
   bopomofoEnabled: boolean;
-  student: StudentProfile;
+  userAccount: UserAccount;
   onMistakeResolved: () => void;
 }
 
@@ -19,7 +19,7 @@ export const MistakeNotebookModal: React.FC<MistakeNotebookModalProps> = ({
   isOpen,
   onClose,
   bopomofoEnabled,
-  student,
+  userAccount,
   onMistakeResolved
 }) => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -29,8 +29,8 @@ export const MistakeNotebookModal: React.FC<MistakeNotebookModalProps> = ({
 
   if (!isOpen) return null;
 
-  // 取得學生所有的錯題清單
-  const mistakeQuestionIds = new Set(student.mistakes.map(m => m.questionId));
+  // 取得該帳號所有的錯題清單
+  const mistakeQuestionIds = new Set((userAccount.mistakes || []).map(m => m.questionId));
   const mistakeQuestions = QUESTIONS.filter(q => mistakeQuestionIds.has(q.id));
 
   const handleStartReviewQuestion = (q: Question) => {
@@ -54,7 +54,7 @@ export const MistakeNotebookModal: React.FC<MistakeNotebookModalProps> = ({
       soundFx.playCorrect();
       speechService.speak('太棒了！這次答對了，已從錯題本中移出！');
       // 從錯題本移除
-      storageService.removeStudentMistake(student.id, selectedQuestion.id);
+      storageService.removeMistake(selectedQuestion.id);
       onMistakeResolved();
     } else {
       soundFx.playWrong();
@@ -79,9 +79,8 @@ export const MistakeNotebookModal: React.FC<MistakeNotebookModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-2xl font-black text-slate-900">
-                  <BopomofoText text={`${student.name} 的專屬錯題本`} showBpmf={bopomofoEnabled} />
+                  <BopomofoText text={`${userAccount.accountName} 的專屬錯題本`} showBpmf={bopomofoEnabled} />
                 </h3>
-                <span className="text-2xl">{student.avatar}</span>
               </div>
               <p className="text-xs text-rose-600 font-bold">
                 目前尚有 {mistakeQuestions.length} 道錯題需要複習消滅

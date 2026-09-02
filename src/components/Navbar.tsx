@@ -1,6 +1,6 @@
 import React from 'react';
-import { Star, Volume2, VolumeX, BookOpen, Users, AlertCircle, Cloud, LogOut } from 'lucide-react';
-import { Grade, StudentProfile } from '../types';
+import { Star, Volume2, VolumeX, LogOut, User } from 'lucide-react';
+import { Grade } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
 
@@ -11,9 +11,9 @@ interface NavbarProps {
   onToggleBopomofo: () => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
-  activeStudent: StudentProfile;
   accountName: string;
-  onOpenStudentSwitcher: () => void;
+  totalStars: number;
+  mistakeCount: number;
   onOpenMistakeNotebook: () => void;
   onOpenReview: () => void;
   onLogout: () => void;
@@ -27,9 +27,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleBopomofo,
   soundEnabled,
   onToggleSound,
-  activeStudent,
   accountName,
-  onOpenStudentSwitcher,
+  totalStars,
+  mistakeCount,
   onOpenMistakeNotebook,
   onOpenReview,
   onLogout,
@@ -89,32 +89,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* 右側輔助控制與學生檔案 */}
+        {/* 右側輔助控制與帳號狀態 */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {/* 當前學生個人檔案徽章（點擊切換學生） */}
-          <button
-            onClick={() => {
-              soundFx.playPop();
-              onOpenStudentSwitcher();
-            }}
-            title="點擊切換學生或管理班級檔案"
-            className="flex items-center gap-2 bg-white/95 hover:bg-white px-3 py-1.5 rounded-2xl border-2 border-amber-600 shadow-sm transition transform active:scale-95 group"
-          >
-            <span className="text-xl group-hover:scale-110 transition">{activeStudent.avatar}</span>
-            <div className="text-left hidden sm:block">
-              <div className="font-black text-xs text-amber-950 flex items-center gap-1">
-                <span>{activeStudent.name}</span>
-                <span className="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-black">
-                  {activeStudent.grade}年級
-                </span>
+          {/* 當前登入帳號徽章 */}
+          <div className="flex items-center gap-2 bg-white/95 px-3 py-1.5 rounded-2xl border-2 border-amber-600 shadow-sm">
+            <User size={16} className="text-amber-700" />
+            <div className="text-left">
+              <div className="font-black text-xs text-amber-950">
+                {accountName}
               </div>
               <div className="text-[10px] font-bold text-amber-800 flex items-center gap-0.5 font-mono">
                 <Star className="w-3 h-3 text-amber-500 fill-amber-400" />
-                <span>{activeStudent.totalStars} 顆星</span>
+                <span>{totalStars} 顆星</span>
               </div>
             </div>
-            <Users size={14} className="text-amber-700 ml-0.5" />
-          </button>
+          </div>
 
           {/* 專屬錯題本入口 */}
           <button
@@ -129,9 +118,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden md:inline">
               <BopomofoText text="錯題本" showBpmf={false} />
             </span>
-            {activeStudent.mistakes.length > 0 && (
+            {mistakeCount > 0 && (
               <span className="px-1.5 py-0.2 bg-white text-rose-600 text-[10px] font-black rounded-full font-mono shadow-sm">
-                {activeStudent.mistakes.length}
+                {mistakeCount}
               </span>
             )}
           </button>
