@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grade, Unit, UserProgress } from './types';
+import { Grade, Unit, UserProgress, StudentProfile } from './types';
 import { CURRICULUM_UNITS } from './data/curriculum';
 import { QUESTIONS } from './data/questions';
 import { Navbar } from './components/Navbar';
@@ -7,69 +7,40 @@ import { UnitSelector } from './components/UnitSelector';
 import { LessonMode } from './components/LessonMode';
 import { PracticeMode } from './components/PracticeMode';
 import { ReviewModal } from './components/ReviewModal';
+import { StudentSwitcherModal } from './components/StudentSwitcherModal';
+import { MistakeNotebookModal } from './components/MistakeNotebookModal';
+import { storageService } from './services/storage';
 import { speechService } from './services/speech';
 import { soundFx } from './services/audio';
 
-const STORAGE_KEY = 'tw_primary_math_v115_progress';
-
-const initialProgress: UserProgress = {
-  totalStars: 12,
-  unitProgress: {
-    'g1-split-ten': { stars: 3, highScore: 100, attempts: 2 },
-    'g1-clock-intro': { stars: 2, highScore: 80, attempts: 1 }
-  },
-  mistakeHistory: [],
-  preferences: {
-    bopomofo: true,
-    speechAudio: true,
-    soundFx: true
-  }
-};
-
 export const App: React.FC = () => {
-  const [currentGrade, setCurrentGrade] = useState<Grade>(1);
+  const [activeStudent, setActiveStudent] = useState<StudentProfile>(() => storageService.getActiveStudent());
+  const [currentGrade, setCurrentGrade] = useState<Grade>(activeStudent.grade || 1);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
   const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice'>('home');
+  
+  // Modals
   const [isReviewOpen, setIsReviewOpen] = useState(false);
-
-  // 使用者進度儲存
-  const [userProgress, setUserProgress] = useState<UserProgress>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    return initialProgress;
-  });
+  const [isStudentSwitcherOpen, setIsStudentSwitcherOpen] = useState(false);
+  const [isMistakeNotebookOpen, setIsMistakeNotebookOpen] = useState(false);
 
   // 注音開關
-  const [bopomofoEnabled, setBopomofoEnabled] = useState<boolean>(
-    userProgress.preferences?.bopomofo ?? true
-  );
+  const [bopomofoEnabled, setBopomofoEnabled] = useState<boolean>(true);
 
   // 音效開關
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(
-    userProgress.preferences?.soundFx ?? true
-  );
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress));
-  }, [userProgress]);
+  // 當學生改變時重新載入資料與年級
+  const handleStudentChanged = () => {
+    const updated = storageService.getActiveStudent();
+    setActiveStudent(updated);
+    setCurrentGrade(updated.grade);
+    setCurrentMode('home');
+    setActiveUnit(null);
+  };
 
   const handleToggleBopomofo = () => {
-    setBopomofoEnabled(prev => {
-      const next = !prev;
-      setUserProgress(up => ({
-        ...up,
-        preferences: { ...up.preferences, bopomofo: next }
-      }));
-      return next;
-    });
+    setBopomofoEnabled(prev => !prev);
   };
 
   const handleToggleSound = () => {
@@ -77,10 +48,6 @@ export const App: React.FC = () => {
       const next = !prev;
       soundFx.enabled = next;
       speechService.enabled = next;
-      setUserProgress(up => ({
-        ...up,
-        preferences: { ...up.preferences, soundFx: next, speechAudio: next }
-      }));
       return next;
     });
   };
@@ -94,56 +61,40 @@ export const App: React.FC = () => {
   const handleFinishQuiz = (earnedStars: number, newMistakes: { questionId: string; unitId: string }[]) => {
     if (!activeUnit) return;
 
-    setUserProgress(prev => {
-      const existing = prev.unitProgress[activeUnit.id] || { stars: 0, highScore: 0, attempts: 0 };
-      const starDiff = Math.max(0, earnedStars - existing.stars);
-
-      // 更新錯題歷史
-      const updatedMistakes = [...prev.mistakeHistory];
-      newMistakes.forEach(nm => {
-        const idx = updatedMistakes.findIndex(m => m.questionId === nm.questionId);
-        if (idx >= 0) {
-          updatedMistakes[idx].wrongCount += 1;
-          updatedMistakes[idx].lastWrongTime = new Date().toISOString();
-        } else {
-          updatedMistakes.push({
-            questionId: nm.questionId,
-            unitId: nm.unitId,
-            wrongCount: 1,
-            lastWrongTime: new Date().toISOString()
-          });
-        }
-      });
-
-      return {
-        ...prev,
-        totalStars: prev.totalStars + starDiff,
-        unitProgress: {
-          ...prev.unitProgress,
-          [activeUnit.id]: {
-            stars: Math.max(existing.stars, earnedStars),
-            highScore: Math.max(existing.highScore ?? 0, Math.round(earnedStars * 33.4)),
-            attempts: existing.attempts + 1,
-            completedAt: new Date().toISOString()
-          }
-        },
-        mistakeHistory: updatedMistakes
-      };
-    });
+    // 將成績與錯題寫入當前學生的專屬雲端/本地儲存庫
+    storageService.recordQuizCompletion(activeStudent.id, activeUnit.id, earnedStars, newMistakes);
+    setActiveStudent(storageService.getActiveStudent());
   };
 
   const handleResetProgress = () => {
-    setUserProgress({
+    storageService.updateStudent(activeStudent.id, {
       totalStars: 0,
-      unitProgress: {},
-      mistakeHistory: [],
-      preferences: {
-        bopomofo: bopomofoEnabled,
-        speechAudio: soundEnabled,
-        soundFx: soundEnabled
-      }
+      completedUnits: [],
+      unitStars: {},
+      mistakes: []
     });
+    setActiveStudent(storageService.getActiveStudent());
     setIsReviewOpen(false);
+  };
+
+  // 將當前學生的資料轉為 UnitSelector 所需的 UserProgress 結構
+  const userProgress: UserProgress = {
+    totalStars: activeStudent.totalStars,
+    unitProgress: Object.entries(activeStudent.unitStars).reduce((acc, [uid, stars]) => {
+      acc[uid] = { stars, attempts: 1 };
+      return acc;
+    }, {} as UserProgress['unitProgress']),
+    mistakeHistory: activeStudent.mistakes.map(m => ({
+      questionId: m.questionId,
+      unitId: m.unitId,
+      wrongCount: 1,
+      lastWrongTime: new Date(m.timestamp).toISOString()
+    })),
+    preferences: {
+      bopomofo: bopomofoEnabled,
+      speechAudio: soundEnabled,
+      soundFx: soundEnabled
+    }
   };
 
   const activeQuestions = activeUnit
@@ -152,7 +103,7 @@ export const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-amber-50/50 flex flex-col font-sans ${bopomofoEnabled ? '' : 'bopomofo-off'}`}>
-      {/* 頂部導覽列 */}
+      {/* 頂部導覽列（包含多學生頭像、切換與錯題本入口） */}
       <Navbar
         currentGrade={currentGrade}
         onGradeChange={g => {
@@ -164,7 +115,9 @@ export const App: React.FC = () => {
         onToggleBopomofo={handleToggleBopomofo}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
-        totalStars={userProgress.totalStars}
+        activeStudent={activeStudent}
+        onOpenStudentSwitcher={() => setIsStudentSwitcherOpen(true)}
+        onOpenMistakeNotebook={() => setIsMistakeNotebookOpen(true)}
         onOpenReview={() => setIsReviewOpen(true)}
         onGoHome={() => {
           setCurrentMode('home');
@@ -204,7 +157,7 @@ export const App: React.FC = () => {
             questions={
               activeQuestions.length > 0
                 ? activeQuestions
-                : QUESTIONS.slice(0, 3) // 預設備用題
+                : QUESTIONS.slice(0, 3)
             }
             bopomofoEnabled={bopomofoEnabled}
             onBack={() => {
@@ -216,7 +169,26 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* 學習報告與錯題本視窗 */}
+      {/* 學生切換大廳與班級管理視窗 */}
+      <StudentSwitcherModal
+        isOpen={isStudentSwitcherOpen}
+        onClose={() => setIsStudentSwitcherOpen(false)}
+        bopomofoEnabled={bopomofoEnabled}
+        onStudentChanged={handleStudentChanged}
+      />
+
+      {/* 專屬錯題本與針對性弱點複習視窗 */}
+      <MistakeNotebookModal
+        isOpen={isMistakeNotebookOpen}
+        onClose={() => setIsMistakeNotebookOpen(false)}
+        bopomofoEnabled={bopomofoEnabled}
+        student={activeStudent}
+        onMistakeResolved={() => {
+          setActiveStudent(storageService.getActiveStudent());
+        }}
+      />
+
+      {/* 學習報告視窗 */}
       <ReviewModal
         isOpen={isReviewOpen}
         onClose={() => setIsReviewOpen(false)}
