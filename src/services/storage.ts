@@ -37,13 +37,52 @@ const DEFAULT_ACCOUNT: AccountData = {
   lastCloudSyncAt: Date.now()
 };
 
+const ACCOUNT_SESSION_KEY = 'tw_primary_math_current_session';
+
 export const storageService = {
+  getCurrentAccountName(): string | null {
+    return localStorage.getItem(ACCOUNT_SESSION_KEY);
+  },
+
+  loginAccount(accountName: string): AccountData {
+    const trimmed = accountName.trim() || '一年級與二年級數學導師';
+    localStorage.setItem(ACCOUNT_SESSION_KEY, trimmed);
+
+    const accountStorageKey = `tw_primary_math_acc_${trimmed}`;
+    const saved = localStorage.getItem(accountStorageKey);
+    if (saved) {
+      try {
+        const parsed: AccountData = JSON.parse(saved);
+        if (parsed.students && parsed.students.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const newAccount: AccountData = {
+      teacherName: trimmed,
+      teacherEmail: `${trimmed}@math.tw`,
+      activeStudentId: 'student-1',
+      students: DEFAULT_STUDENTS,
+      lastCloudSyncAt: Date.now()
+    };
+    this.saveAccountData(newAccount);
+    return newAccount;
+  },
+
+  logoutAccount(): void {
+    localStorage.removeItem(ACCOUNT_SESSION_KEY);
+  },
+
   getAccountData(): AccountData {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const currentName = this.getCurrentAccountName() || '預設班級';
+      const accountStorageKey = `tw_primary_math_acc_${currentName}`;
+      const data = localStorage.getItem(accountStorageKey) || localStorage.getItem(STORAGE_KEY);
       if (!data) {
-        this.saveAccountData(DEFAULT_ACCOUNT);
-        return DEFAULT_ACCOUNT;
+        return this.loginAccount(currentName);
       }
       const parsed: AccountData = JSON.parse(data);
       if (!parsed.students || parsed.students.length === 0) {
@@ -59,7 +98,10 @@ export const storageService = {
 
   saveAccountData(account: AccountData): void {
     try {
+      const currentName = this.getCurrentAccountName() || account.teacherName || '預設班級';
+      const accountStorageKey = `tw_primary_math_acc_${currentName}`;
       account.lastCloudSyncAt = Date.now();
+      localStorage.setItem(accountStorageKey, JSON.stringify(account));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
       // 全自動無感即時推送到 Cloudflare R2 雲端儲存
       r2StorageService.uploadToR2(account).catch(err => {

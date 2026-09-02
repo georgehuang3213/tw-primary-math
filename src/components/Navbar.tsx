@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Volume2, VolumeX, BookOpen, Users, AlertCircle, Cloud } from 'lucide-react';
+import { Star, Volume2, VolumeX, BookOpen, Users, AlertCircle, Cloud, LogOut } from 'lucide-react';
 import { Grade, StudentProfile } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
@@ -12,9 +12,11 @@ interface NavbarProps {
   soundEnabled: boolean;
   onToggleSound: () => void;
   activeStudent: StudentProfile;
+  accountName: string;
   onOpenStudentSwitcher: () => void;
   onOpenMistakeNotebook: () => void;
   onOpenReview: () => void;
+  onLogout: () => void;
   onGoHome: () => void;
 }
 
@@ -26,9 +28,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   soundEnabled,
   onToggleSound,
   activeStudent,
+  accountName,
   onOpenStudentSwitcher,
   onOpenMistakeNotebook,
   onOpenReview,
+  onLogout,
   onGoHome
 }) => {
   return (
@@ -159,6 +163,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="p-1.5 sm:p-2 rounded-xl bg-white/80 hover:bg-white text-amber-900 border border-amber-300 shadow-sm"
           >
             {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} className="text-slate-400" />}
+          </button>
+
+          {/* 登出 / 切換帳號 */}
+          <button
+            onClick={() => {
+              soundFx.playPop();
+              onLogout();
+            }}
+            title={`目前帳號：${accountName}（點擊登出切換帳號）`}
+            className="p-1.5 sm:p-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-sm border border-amber-800 transition"
+          >
+            <LogOut size={16} />
           </button>
         </div>
       </div>

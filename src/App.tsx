@@ -9,11 +9,13 @@ import { PracticeMode } from './components/PracticeMode';
 import { ReviewModal } from './components/ReviewModal';
 import { StudentSwitcherModal } from './components/StudentSwitcherModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
+import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
 import { speechService } from './services/speech';
 import { soundFx } from './services/audio';
 
 export const App: React.FC = () => {
+  const [currentAccountName, setCurrentAccountName] = useState<string | null>(() => storageService.getCurrentAccountName());
   const [activeStudent, setActiveStudent] = useState<StudentProfile>(() => storageService.getActiveStudent());
   const [currentGrade, setCurrentGrade] = useState<Grade>(activeStudent.grade || 1);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
@@ -29,6 +31,24 @@ export const App: React.FC = () => {
 
   // 音效開關
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+
+  const handleLogin = (accountName: string) => {
+    storageService.loginAccount(accountName);
+    const updatedStudent = storageService.getActiveStudent();
+    setCurrentAccountName(accountName);
+    setActiveStudent(updatedStudent);
+    setCurrentGrade(updatedStudent.grade || 1);
+    setCurrentMode('home');
+    setActiveUnit(null);
+  };
+
+  const handleLogout = () => {
+    soundFx.playPop();
+    storageService.logoutAccount();
+    setCurrentAccountName(null);
+    setActiveUnit(null);
+    setCurrentMode('home');
+  };
 
   // 當學生改變時重新載入資料與年級
   const handleStudentChanged = () => {
@@ -101,6 +121,15 @@ export const App: React.FC = () => {
     ? QUESTIONS.filter(q => q.unitId === activeUnit.id)
     : [];
 
+  if (!currentAccountName) {
+    return (
+      <LoginScreen
+        onLogin={handleLogin}
+        bopomofoEnabled={bopomofoEnabled}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen bg-amber-50/50 flex flex-col font-sans ${bopomofoEnabled ? '' : 'bopomofo-off'}`}>
       {/* 頂部導覽列（包含多學生頭像、切換與錯題本入口） */}
@@ -116,9 +145,11 @@ export const App: React.FC = () => {
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         activeStudent={activeStudent}
+        accountName={currentAccountName}
         onOpenStudentSwitcher={() => setIsStudentSwitcherOpen(true)}
         onOpenMistakeNotebook={() => setIsMistakeNotebookOpen(true)}
         onOpenReview={() => setIsReviewOpen(true)}
+        onLogout={handleLogout}
         onGoHome={() => {
           setCurrentMode('home');
           setActiveUnit(null);
