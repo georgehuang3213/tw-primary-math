@@ -161,7 +161,7 @@ export const CURRICULUM_UNITS: Unit[] = [
     }
   },
   {
-    id: 'g1-u4-split10',
+    id: 'g1-u9-review',
     grade: 1,
     semester: 1,
     category: 'operations',
@@ -265,7 +265,7 @@ export const CURRICULUM_UNITS: Unit[] = [
     }
   },
   {
-    id: 'g1-u6-add10',
+    id: 'g1-u4-add10',
     grade: 1,
     semester: 1,
     category: 'operations',
@@ -317,7 +317,7 @@ export const CURRICULUM_UNITS: Unit[] = [
     }
   },
   {
-    id: 'g1-u7-sub10',
+    id: 'g1-u6-sub10',
     grade: 1,
     semester: 1,
     category: 'operations',
@@ -421,7 +421,7 @@ export const CURRICULUM_UNITS: Unit[] = [
     }
   },
   {
-    id: 'g1-u9-time',
+    id: 'g1-u7-time-clock',
     grade: 1,
     semester: 1,
     category: 'measurement',
