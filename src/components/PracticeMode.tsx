@@ -105,7 +105,8 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
         origin: { y: 0.5 }
       });
 
-      const accuracy = (correctCount + (isCorrect ? 1 : 0)) / questions.length;
+      const totalQ = questions.length || 1;
+      const accuracy = (correctCount + (isCorrect ? 1 : 0)) / totalQ;
       let stars = 1;
       if (accuracy >= 0.9) stars = 3;
       else if (accuracy >= 0.6) stars = 2;
