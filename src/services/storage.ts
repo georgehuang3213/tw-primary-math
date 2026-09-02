@@ -1,4 +1,6 @@
 import { AccountData, StudentProfile, Grade } from '../types';
+import { cloudSyncService } from './cloudSync';
+import { r2StorageService } from './r2Storage';
 
 const STORAGE_KEY = 'tw_primary_math_account_v2';
 
@@ -59,6 +61,13 @@ export const storageService = {
     try {
       account.lastCloudSyncAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
+      // 全自動無感即時推送到 Cloudflare R2 雲端儲存
+      r2StorageService.uploadToR2(account).catch(err => {
+        console.error('Auto Cloudflare R2 sync error', err);
+      });
+      cloudSyncService.pushToCloud(account).catch(err => {
+        console.error('Auto cloud sync background error', err);
+      });
     } catch (e) {
       console.error('Failed to save account data to localStorage', e);
     }
