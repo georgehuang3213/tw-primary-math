@@ -41,11 +41,11 @@ export const App: React.FC = () => {
     setCurrentMode('home');
     setActiveUnit(null);
 
-    // 登入後貼心語音播報上次進度
+    // 登入後貼心語音播報上次進度（親切溫柔老師風格）
     if (acc.lastUnitTitle) {
       setTimeout(() => {
-        speechService.speak(`歡迎回來 ${accountName}！上次我們看到 ${acc.lastUnitTitle}，點擊按鈕可直接繼續學習喔！`);
-      }, 600);
+        speechService.speak(`歡迎回來，${accountName}。上次我們學到${acc.lastUnitTitle}，點一下按鈕就可以繼續學習囉。`);
+      }, 500);
     }
   };
 
