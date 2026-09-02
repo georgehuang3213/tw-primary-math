@@ -968,7 +968,7 @@ export const COMPREHENSIVE_BPMF_DICT: Record<string, string> = {
   '敬': 'ㄐㄧㄥˋ',
   '敲': 'ㄑㄧㄠ',
   '整': 'ㄓㄥˇ',
-  '數': 'ㄕㄨˋ',
+  '數': 'ㄕㄨˇ',
   '文': 'ㄨㄣˊ',
   '斑': 'ㄅㄢ',
   '斗': 'ㄉㄡˇ',
@@ -2467,11 +2467,92 @@ export function getCharBpmf(char: string): string | undefined {
   return COMPREHENSIVE_BPMF_DICT[char];
 }
 
+// 🎯 台灣教育部標準多音詞彙精準庫（解決「數數看」ㄕㄨˇ 與「數字」ㄕㄨˋ、「量長度」ㄌㄧㄤˊ 與「容量」ㄌㄧㄤˋ 等多音字）
+export const COMPOUND_PHRASE_DICT: Record<string, string[]> = {
+  // 「數」動詞 ㄕㄨˇ vs 名詞 ㄕㄨˋ
+  '數數看': ['ㄕㄨˇ', 'ㄕㄨˇ', 'ㄎㄢˋ'],
+  '數數': ['ㄕㄨˇ', 'ㄕㄨˇ'],
+  '數一數': ['ㄕㄨˇ', 'ㄧ', 'ㄕㄨˇ'],
+  '數出': ['ㄕㄨˇ', 'ㄔㄨ'],
+  '數出來': ['ㄕㄨˇ', 'ㄔㄨ', 'ㄌㄞˊ'],
+  '數動物': ['ㄕㄨˇ', 'ㄉㄨㄥˋ', 'ㄨˋ'],
+  '數手指': ['ㄕㄨˇ', 'ㄕㄡˇ', 'ㄓˇ'],
+  '數蘋果': ['ㄕㄨˇ', 'ㄆㄧㄥˊ', 'ㄍㄨㄛˇ'],
+  '數積木': ['ㄕㄨˇ', 'ㄐㄧ', 'ㄇㄨˋ'],
+  '數方格': ['ㄕㄨˇ', 'ㄈㄤ', 'ㄍㄜˊ'],
+  '數草莓': ['ㄕㄨˇ', 'ㄘㄠˇ', 'ㄇㄟˊ'],
+  '數花瓣': ['ㄕㄨˇ', 'ㄏㄨㄚ', 'ㄅㄢˋ'],
+  '點數': ['ㄉㄧㄢˇ', 'ㄕㄨˇ'],
+  
+  // 「數」名詞 ㄕㄨˋ
+  '數字': ['ㄕㄨˋ', 'ㄗˋ'],
+  '數量': ['ㄕㄨˋ', 'ㄌㄧㄤˋ'],
+  '數線': ['ㄕㄨˋ', 'ㄒㄧㄢˋ'],
+  '數學': ['ㄕㄨˋ', 'ㄒㄩㄝˊ'],
+  '位數': ['ㄨㄟˋ', 'ㄕㄨˋ'],
+  '個位數': ['ㄍㄜˋ', 'ㄨㄟˋ', 'ㄕㄨˋ'],
+  '十位數': ['ㄕˊ', 'ㄨㄟˋ', 'ㄕㄨˋ'],
+  '百位數': ['ㄅㄞˇ', 'ㄨㄟˋ', 'ㄕㄨˋ'],
+  '雙數': ['ㄕㄨㄤ', 'ㄕㄨˋ'],
+  '單數': ['ㄉㄢ', 'ㄕㄨˋ'],
+  '被加數': ['ㄅㄟˋ', 'ㄐㄧㄚ', 'ㄕㄨˋ'],
+  '加數': ['ㄐㄧㄚ', 'ㄕㄨˋ'],
+  '被減數': ['ㄅㄟˋ', 'ㄐㄧㄢˇ', 'ㄕㄨˋ'],
+  '減數': ['ㄐㄧㄢˇ', 'ㄕㄨˋ'],
+  '被乘數': ['ㄅㄟˋ', 'ㄔㄥˊ', 'ㄕㄨˋ'],
+  '乘數': ['ㄔㄥˊ', 'ㄕㄨˋ'],
+  
+  // 「量」動詞 ㄌㄧㄤˊ vs 名詞 ㄌㄧㄤˋ
+  '量量看': ['ㄌㄧㄤˊ', 'ㄌㄧㄤˊ', 'ㄎㄢˋ'],
+  '量一量': ['ㄌㄧㄤˊ', 'ㄧ', 'ㄌㄧㄤˊ'],
+  '測量': ['ㄘㄜˋ', 'ㄌㄧㄤˊ'],
+  '量長度': ['ㄌㄧㄤˊ', 'ㄔㄤˊ', 'ㄉㄨˋ'],
+  '容量': ['ㄖㄨㄥˊ', 'ㄌㄧㄤˋ'],
+  '重量': ['ㄓㄨㄥˋ', 'ㄌㄧㄤˋ'],
+  
+  // 「長」長度 ㄔㄤˊ vs 長大 ㄓㄤˇ
+  '長度': ['ㄔㄤˊ', 'ㄉㄨˋ'],
+  '長短': ['ㄔㄤˊ', 'ㄉㄨㄢˇ'],
+  '長方形': ['ㄔㄤˊ', 'ㄈㄤ', 'ㄒㄧㄥˊ'],
+  '長條圖': ['ㄔㄤˊ', 'ㄊㄧㄠˊ', 'ㄊㄨˊ'],
+  '長條': ['ㄔㄤˊ', 'ㄊㄧㄠˊ'],
+  '長大': ['ㄓㄤˇ', 'ㄉㄚˋ'],
+  
+  // 「看」
+  '看一看': ['ㄎㄢˋ', 'ㄧ', 'ㄎㄢˋ'],
+  '算算看': ['ㄙㄨㄢˋ', 'ㄙㄨㄢˋ', 'ㄎㄢˋ'],
+  '比比看': ['ㄅㄧˇ', 'ㄅㄧˇ', 'ㄎㄢˋ'],
+  '鋪鋪看': ['ㄆㄨ', 'ㄆㄨ', 'ㄎㄢˋ'],
+  '切切看': ['ㄑㄧㄝ', 'ㄑㄧㄝ', 'ㄎㄢˋ'],
+  '分分看': ['ㄈㄣ', 'ㄈㄣ', 'ㄎㄢˋ'],
+  '連連看': ['ㄌㄧㄢˊ', 'ㄌㄧㄢˊ', 'ㄎㄢˋ'],
+  '塗塗看': ['ㄊㄨˊ', 'ㄊㄨˊ', 'ㄎㄢˋ'],
+  '找找看': ['ㄓㄠˇ', 'ㄓㄠˇ', 'ㄎㄢˋ'],
+  '排排看': ['ㄆㄞˊ', 'ㄆㄞˊ', 'ㄎㄢˋ'],
+  '做做看': ['ㄗㄨㄛˋ', 'ㄗㄨㄛˋ', 'ㄎㄢˋ'],
+  '動動腦': ['ㄉㄨㄥˋ', 'ㄉㄨㄥˋ', 'ㄋㄠˇ'],
+  
+  // 「行」
+  '一行': ['ㄧ', 'ㄏㄤˊ'],
+  '兩行': ['ㄌㄧㄤˇ', 'ㄏㄤˊ'],
+  '直行': ['ㄓˊ', 'ㄏㄤˊ'],
+  '每行': ['ㄇㄟˇ', 'ㄏㄤˊ'],
+  
+  // 「倒」
+  '倒水': ['ㄉㄠˋ', 'ㄕㄨㄟˇ'],
+  '倒茶': ['ㄉㄠˋ', 'ㄔㄚˊ'],
+  '倒滿': ['ㄉㄠˋ', 'ㄇㄢˇ'],
+  '倒出來': ['ㄉㄠˋ', 'ㄔㄨ', 'ㄌㄞˊ'],
+  '倒進': ['ㄉㄠˋ', 'ㄐㄧㄣˋ']
+};
+
 export function parseToBopomofoChars(rawText: string): CharWithBpmf[] {
   if (!rawText) return [];
   const results: CharWithBpmf[] = [];
   const regex = /\[([^\]|]+)\|([^\]]+)\]|([^\[]+)/g;
   let match;
+
+  const phraseKeys = Object.keys(COMPOUND_PHRASE_DICT).sort((a, b) => b.length - a.length);
 
   while ((match = regex.exec(rawText)) !== null) {
     if (match[1] && match[2]) {
@@ -2495,15 +2576,41 @@ export function parseToBopomofoChars(rawText: string): CharWithBpmf[] {
         });
       }
     } else if (match[3]) {
-      const plainChars = match[3].split('');
-      plainChars.forEach(c => {
-        const isChinese = /[\u4e00-\u9fa5]/.test(c);
-        results.push({
-          char: c,
-          bpmf: isChinese ? getCharBpmf(c) : undefined,
-          isChinese
-        });
-      });
+      const textChunk = match[3];
+      let pos = 0;
+
+      while (pos < textChunk.length) {
+        let matchedPhrase = false;
+
+        // 1. 優先匹配多字詞彙片語（例如「數數看」ㄕㄨˇ ㄕㄨˇ ㄎㄢˋ、「數字」ㄕㄨˋ ㄗˋ）
+        for (const phrase of phraseKeys) {
+          if (textChunk.startsWith(phrase, pos)) {
+            const bpmfs = COMPOUND_PHRASE_DICT[phrase];
+            for (let pi = 0; pi < phrase.length; pi++) {
+              results.push({
+                char: phrase[pi],
+                bpmf: bpmfs[pi],
+                isChinese: true
+              });
+            }
+            pos += phrase.length;
+            matchedPhrase = true;
+            break;
+          }
+        }
+
+        // 2. 單字解析
+        if (!matchedPhrase) {
+          const c = textChunk[pos];
+          const isChinese = /[\u4e00-\u9fa5]/.test(c);
+          results.push({
+            char: c,
+            bpmf: isChinese ? getCharBpmf(c) : undefined,
+            isChinese
+          });
+          pos++;
+        }
+      }
     }
   }
 
