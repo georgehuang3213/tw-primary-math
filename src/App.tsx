@@ -11,6 +11,7 @@ import { StudentSwitcherModal } from './components/StudentSwitcherModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
 import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
+import { r2StorageService } from './services/r2Storage';
 import { speechService } from './services/speech';
 import { soundFx } from './services/audio';
 
@@ -49,6 +50,41 @@ export const App: React.FC = () => {
     setActiveUnit(null);
     setCurrentMode('home');
   };
+
+  // 多人同時上線：自動背景定時心跳同步（支援 30 台平板/電腦同時作答即時合併）
+  useEffect(() => {
+    if (!currentAccountName) return;
+
+    const performBackgroundSync = async () => {
+      try {
+        const remoteResult = await r2StorageService.fetchFromR2();
+        if (remoteResult.success && remoteResult.data) {
+          const currentLocal = storageService.getAccountData();
+          const merged = storageService.mergeAccountData(currentLocal, remoteResult.data);
+          storageService.saveAccountData(merged);
+          setActiveStudent(storageService.getActiveStudent());
+        }
+      } catch (err) {
+        console.error('Heartbeat sync error', err);
+      }
+    };
+
+    // 每 15 秒背景檢查一次遠端平板進度
+    const interval = setInterval(performBackgroundSync, 15000);
+
+    // 當學生從背景切回此頁面時立即觸發一次同步
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        performBackgroundSync();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [currentAccountName]);
 
   // 當學生改變時重新載入資料與年級
   const handleStudentChanged = () => {

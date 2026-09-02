@@ -96,6 +96,63 @@ export const storageService = {
     }
   },
 
+  // 多人同時上線智慧合併演算法（防止多台平板同時答題時互相覆蓋）
+  mergeAccountData(local: AccountData, remote: AccountData): AccountData {
+    const mergedStudentsMap = new Map<string, StudentProfile>();
+
+    // 1. 先加入遠端學生資料
+    (remote.students || []).forEach(rs => {
+      mergedStudentsMap.set(rs.id, { ...rs });
+    });
+
+    // 2. 智慧合併本地學生資料（保留最佳星級、合併已完成單元、合併錯題）
+    (local.students || []).forEach(ls => {
+      if (!mergedStudentsMap.has(ls.id)) {
+        mergedStudentsMap.set(ls.id, { ...ls });
+      } else {
+        const rs = mergedStudentsMap.get(ls.id)!;
+        // 合併已完成單元 (Set union)
+        const completedSet = new Set([...(ls.completedUnits || []), ...(rs.completedUnits || [])]);
+        
+        // 合併星級 (取最高星級)
+        const allUnitKeys = new Set([...Object.keys(ls.unitStars || {}), ...Object.keys(rs.unitStars || {})]);
+        const mergedUnitStars: Record<string, number> = {};
+        allUnitKeys.forEach(uk => {
+          mergedUnitStars[uk] = Math.max(ls.unitStars?.[uk] || 0, rs.unitStars?.[uk] || 0);
+        });
+
+        // 重新計算總星數
+        const totalStars = Object.values(mergedUnitStars).reduce((sum, s) => sum + s, 0);
+
+        // 合併錯題本 (以 questionId 去重)
+        const mistakeMap = new Map<string, { questionId: string; unitId: string; timestamp: number }>();
+        [...(rs.mistakes || []), ...(ls.mistakes || [])].forEach(m => {
+          mistakeMap.set(m.questionId, m);
+        });
+
+        mergedStudentsMap.set(ls.id, {
+          ...rs,
+          name: ls.name || rs.name,
+          avatar: ls.avatar || rs.avatar,
+          grade: ls.grade || rs.grade,
+          completedUnits: Array.from(completedSet),
+          unitStars: mergedUnitStars,
+          totalStars,
+          mistakes: Array.from(mistakeMap.values()),
+          lastActiveAt: Math.max(ls.lastActiveAt || 0, rs.lastActiveAt || 0)
+        });
+      }
+    });
+
+    return {
+      teacherName: local.teacherName || remote.teacherName,
+      teacherEmail: local.teacherEmail || remote.teacherEmail,
+      activeStudentId: local.activeStudentId || remote.activeStudentId,
+      students: Array.from(mergedStudentsMap.values()),
+      lastCloudSyncAt: Date.now()
+    };
+  },
+
   saveAccountData(account: AccountData): void {
     try {
       const currentName = this.getCurrentAccountName() || account.teacherName || '預設班級';
