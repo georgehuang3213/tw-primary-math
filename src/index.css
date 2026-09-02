@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Noto Sans TC", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    font-weight: 700;
+  }
+}
+
+/* 台灣國小注音標註 (Ruby) 與右側注音加粗樣式 */
+.bopomofo-off rt,
+.bopomofo-off .bpmf-col {
+  display: none !important;
+}
+
+/* 擬真教具卡片與按鈕 3D 質感效果 */
+.btn-fun {
+  @apply transition-all duration-150 active:translate-y-1 active:shadow-none select-none cursor-pointer font-black;
+}
+
+.card-kid {
+  @apply rounded-3xl bg-white border-4 border-amber-300 shadow-[0_8px_0_0_#fcd34d];
+}
+
+.card-kid-blue {
+  @apply rounded-3xl bg-white border-4 border-sky-300 shadow-[0_8px_0_0_#bae6fd];
+}
+
+.card-kid-green {
+  @apply rounded-3xl bg-white border-4 border-emerald-300 shadow-[0_8px_0_0_#a7f3d0];
+}
+
+.card-kid-purple {
+  @apply rounded-3xl bg-white border-4 border-purple-300 shadow-[0_8px_0_0_#e9d5ff];
+}
+
+/* 自訂捲軸 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fef3c7;
+  border-radius: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #f59e0b;
+  border-radius: 12px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}
