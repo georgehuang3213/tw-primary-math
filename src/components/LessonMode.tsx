@@ -90,7 +90,14 @@ export const LessonMode: React.FC<LessonModeProps> = ({
           />
         );
       case 'mult_grid':
-        return <MultiplicationGrid initialFactor1={6} initialFactor2={4} bopomofoEnabled={bopomofoEnabled} />;
+        return (
+          <MultiplicationGrid
+            initialFactor1={unit.id === 'g2-u9-mult-part2' ? 9 : 6}
+            initialFactor2={unit.id === 'g2-u9-mult-part2' ? 7 : 4}
+            unitId={unit.id}
+            bopomofoEnabled={bopomofoEnabled}
+          />
+        );
       case 'ruler':
         return <VirtualRuler bopomofoEnabled={bopomofoEnabled} />;
       case 'ten_split':
