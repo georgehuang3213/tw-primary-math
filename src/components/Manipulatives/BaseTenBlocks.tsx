@@ -21,14 +21,23 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   unitId,
   grade = 1
 }) => {
-  // 當前子分頁：'placeValue'（位值積木板）或 'tenPack'（10顆拼成一條十與跳數點數）
-  const [activeTab, setActiveTab] = useState<'placeValue' | 'tenPack'>(
-    unitId === 'g1-u8-num30' ? 'tenPack' : 'placeValue'
-  );
+  // 當前子分頁：'money'（百元紙鈔與錢幣換算）、'placeValue'（位值積木板）或 'tenPack'（10顆拼成一條十與跳數點數）
+  // 若是二上第一單元 (g2-u1-num200)，任務明確指明「操作百位板與百元紙鈔，挑戰 200 以內點數與錢幣換算大滿貫！」，預設 'money'！
+  const initialTab = unitId === 'g2-u1-num200' ? 'money' : (unitId === 'g1-u8-num30' ? 'tenPack' : 'placeValue');
+  const [activeTab, setActiveTab] = useState<'money' | 'placeValue' | 'tenPack'>(initialTab);
 
   const [hundreds, setHundreds] = useState(initialHundreds);
   const [tens, setTens] = useState(initialTens);
   const [ones, setOnes] = useState(initialOnes);
+
+  // 錢幣模式專屬狀態（百元鈔、50元、10元、5元、1元）
+  const [bills100, setBills100] = useState<number>(unitId === 'g2-u1-num200' ? 1 : 0);
+  const [coins50, setCoins50] = useState<number>(0);
+  const [coins10, setCoins10] = useState<number>(unitId === 'g2-u1-num200' ? 4 : 2);
+  const [coins5, setCoins5] = useState<number>(1);
+  const [coins1, setCoins1] = useState<number>(unitId === 'g2-u1-num200' ? 2 : 5);
+
+  const totalMoney = bills100 * 100 + coins50 * 50 + coins10 * 10 + coins5 * 5 + coins1 * 1;
 
   // 跳數模式設定 (2個一數、5個一數、10個一數)
   const [skipStep, setSkipStep] = useState<2 | 5 | 10>(2);
@@ -49,6 +58,11 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   const handleReset = () => {
     soundFx.playPop();
     updateBlocks(0, 0, 0);
+    setBills100(0);
+    setCoins50(0);
+    setCoins10(0);
+    setCoins5(0);
+    setCoins1(0);
   };
 
   // 滿 10 顆個位積木打包組合成 1 條十
@@ -60,23 +74,24 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-amber-50/80 p-4 sm:p-6 rounded-3xl border-2 border-amber-200 max-w-xl mx-auto w-full">
-      {/* 頂部切換模式按鈕（支援任務要求的：10顆拼成一條十與跳數點數） */}
+    <div className="flex flex-col gap-4 bg-amber-50/80 p-4 sm:p-6 rounded-3xl border-2 border-amber-200 max-w-2xl mx-auto w-full">
+      {/* 頂部切換模式按鈕 */}
       <div className="flex items-center justify-between flex-wrap gap-2 bg-white/90 p-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {/* 錢幣與百元紙鈔換算分頁（二上第一單元核心） */}
           <button
             onClick={() => {
               soundFx.playPop();
-              setActiveTab('tenPack');
+              setActiveTab('money');
             }}
             className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
-              activeTab === 'tenPack'
-                ? 'bg-amber-500 text-amber-950 shadow-md'
-                : 'text-slate-600 hover:bg-amber-100'
+              activeTab === 'money'
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'text-slate-600 hover:bg-emerald-50'
             }`}
           >
-            <span>📦</span>
-            <span>滿10顆拼成一條十與跳數</span>
+            <span>💵</span>
+            <span>百元紙鈔與錢幣換算</span>
           </button>
 
           <button
@@ -93,25 +108,166 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <span>🧱</span>
             <span>十進位積木定位板</span>
           </button>
+
+          <button
+            onClick={() => {
+              soundFx.playPop();
+              setActiveTab('tenPack');
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+              activeTab === 'tenPack'
+                ? 'bg-amber-500 text-amber-950 shadow-md'
+                : 'text-slate-600 hover:bg-amber-100'
+            }`}
+          >
+            <span>📦</span>
+            <span>滿10顆拼成一條十</span>
+          </button>
         </div>
 
-        {activeTab === 'placeValue' && (
-          <div className="flex items-center gap-2">
-            <div className="text-xl sm:text-2xl font-black text-amber-600 font-mono">
-              = {total}
-            </div>
-            {interactive && (
-              <button
-                onClick={handleReset}
-                className="p-1.5 text-slate-400 hover:text-amber-700 rounded-lg"
-                title="清空"
-              >
-                <RotateCcw size={16} />
-              </button>
-            )}
+        <div className="flex items-center gap-2">
+          <div className="text-xl sm:text-2xl font-black text-amber-600 font-mono">
+            = {activeTab === 'money' ? totalMoney : total}
           </div>
-        )}
+          {interactive && (
+            <button
+              onClick={handleReset}
+              className="p-1.5 text-slate-400 hover:text-amber-700 rounded-lg"
+              title="清空重置"
+            >
+              <RotateCcw size={16} />
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* ================= 模式零：百元紙鈔與錢幣換算（二上第一單元核心任務） ================= */}
+      {activeTab === 'money' && (
+        <div className="flex flex-col gap-4 animate-fade-in">
+          {/* 百元紙鈔與錢幣展示與換算看板 */}
+          <div className="bg-white p-5 rounded-3xl border-3 border-emerald-300 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
+                <span>🏦</span>
+                <span>操作百元紙鈔與硬幣，觀察三位數百位、十位、個位定位板：</span>
+              </span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                💡 10 個 10 元 ＝ 1 張 100 元！2 個 50 元 ＝ 1 張 100 元！
+              </span>
+            </div>
+
+            {/* 定位板三欄（百位：百元鈔 / 十位：50元與10元 / 個位：5元與1元） */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center border-2 border-emerald-100 rounded-2xl p-3 bg-emerald-50/40">
+              {/* 百位欄 (100元紙鈔) */}
+              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
+                <span className="text-xs font-black text-rose-700 mb-2">百位（100元紙鈔）</span>
+                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
+                  {Array.from({ length: bills100 }).map((_, i) => (
+                    <div key={i} className="px-3 py-1.5 bg-red-600 border-2 border-red-800 text-white font-black text-xs rounded-lg shadow-sm">
+                      💵 100元
+                    </div>
+                  ))}
+                  {bills100 === 0 && <span className="text-xs text-slate-300 font-bold">0 張</span>}
+                </div>
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => { soundFx.playPop(); setBills100(p => Math.max(0, p - 1)); }}
+                    className="w-6 h-6 bg-slate-100 rounded font-black text-xs"
+                  >
+                    -
+                  </button>
+                  <span className="font-mono font-black text-sm text-red-600">{bills100}</span>
+                  <button
+                    onClick={() => { soundFx.playCoin(); setBills100(p => Math.min(2, p + 1)); }}
+                    className="w-6 h-6 bg-red-500 text-white rounded font-black text-xs"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* 十位欄 (50元與10元硬幣) */}
+              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
+                <span className="text-xs font-black text-sky-700 mb-2">十位（50元 / 10元硬幣）</span>
+                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
+                  {Array.from({ length: coins50 }).map((_, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-amber-400 border border-amber-600 text-amber-950 font-black text-[10px] flex items-center justify-center shadow-sm">
+                      50
+                    </div>
+                  ))}
+                  {Array.from({ length: coins10 }).map((_, i) => (
+                    <div key={i} className="w-7 h-7 rounded-full bg-slate-200 border border-slate-400 text-slate-800 font-black text-[10px] flex items-center justify-center shadow-sm">
+                      10
+                    </div>
+                  ))}
+                  {coins50 === 0 && coins10 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
+                </div>
+                <div className="flex items-center justify-around w-full mt-2 pt-2 border-t border-slate-100 text-[11px] font-bold">
+                  <div className="flex items-center gap-1">
+                    <span className="text-amber-700">50:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins50(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
+                    <span className="font-mono">{coins50}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins50(p => Math.min(2, p + 1)); }} className="w-5 h-5 bg-amber-400 text-amber-950 rounded">+</button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600">10:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins10(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
+                    <span className="font-mono">{coins10}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins10(p => Math.min(9, p + 1)); }} className="w-5 h-5 bg-slate-300 text-slate-900 rounded">+</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 個位欄 (5元與1元硬幣) */}
+              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
+                <span className="text-xs font-black text-amber-800 mb-2">個位（5元 / 1元硬幣）</span>
+                <div className="flex flex-wrap gap-1 justify-center min-h-[64px] items-center">
+                  {Array.from({ length: coins5 }).map((_, i) => (
+                    <div key={i} className="w-6 h-6 rounded-full bg-slate-300 border border-slate-400 text-slate-800 font-black text-[9px] flex items-center justify-center shadow-sm">
+                      5
+                    </div>
+                  ))}
+                  {Array.from({ length: coins1 }).map((_, i) => (
+                    <div key={i} className="w-5 h-5 rounded-full bg-amber-700 border border-amber-900 text-amber-100 font-black text-[8px] flex items-center justify-center shadow-sm">
+                      1
+                    </div>
+                  ))}
+                  {coins5 === 0 && coins1 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
+                </div>
+                <div className="flex items-center justify-around w-full mt-2 pt-2 border-t border-slate-100 text-[11px] font-bold">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600">5:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins5(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
+                    <span className="font-mono">{coins5}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins5(p => Math.min(1, p + 1)); }} className="w-5 h-5 bg-slate-300 text-slate-800 rounded">+</button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-amber-800">1:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins1(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
+                    <span className="font-mono">{coins1}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins1(p => Math.min(9, p + 1)); }} className="w-5 h-5 bg-amber-700 text-white rounded">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 換算結算橫幅 */}
+            <div className="bg-emerald-100/70 p-3.5 rounded-2xl border border-emerald-300 flex items-center justify-between flex-wrap gap-2 text-xs sm:text-sm font-black text-emerald-950">
+              <div className="flex items-center gap-1">
+                <span>💰 錢幣點數總金額：</span>
+                <span className="text-emerald-700 font-mono text-base">{bills100}張百元</span>
+                <span>＋</span>
+                <span className="text-sky-700 font-mono text-base">{coins50 * 50 + coins10 * 10}元</span>
+                <span>＋</span>
+                <span className="text-amber-700 font-mono text-base">{coins5 * 5 + coins1 * 1}元</span>
+              </div>
+              <div className="text-base sm:text-lg font-mono text-rose-600 font-black">
+                ＝ {totalMoney} 元
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= 模式一：滿10顆拼成一條十與跳數（完全對齊任務） ================= */}
       {activeTab === 'tenPack' && (
