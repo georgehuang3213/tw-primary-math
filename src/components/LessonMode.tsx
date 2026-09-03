@@ -20,6 +20,7 @@ import { FractionPieLab } from './Manipulatives/FractionPieLab';
 import { CalendarLab } from './Manipulatives/CalendarLab';
 import { UnitLengthLab } from './Manipulatives/UnitLengthLab';
 import { soundFx } from '../services/audio';
+import { speechService } from '../services/speech';
 
 interface LessonModeProps {
   unit: Unit;
@@ -39,6 +40,14 @@ export const LessonMode: React.FC<LessonModeProps> = ({
   const [activeTab, setActiveTab] = useState<LessonTab>('story');
   const [warmupSelected, setWarmupSelected] = useState<number | null>(null);
   const [warmupAnswered, setWarmupAnswered] = useState<boolean>(false);
+
+  // 切換課堂分頁或離開課堂時，立即停止任何進行中的語音朗讀
+  React.useEffect(() => {
+    speechService.stop();
+    return () => {
+      speechService.stop();
+    };
+  }, [activeTab]);
 
   const renderManipulative = () => {
     switch (unit.manipulativeType) {

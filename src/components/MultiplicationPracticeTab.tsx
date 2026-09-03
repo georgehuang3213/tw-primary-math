@@ -51,6 +51,14 @@ export const MultiplicationPracticeTab: React.FC<MultiplicationPracticeTabProps>
   const [selectedBase, setSelectedBase] = useState<number>(2); // 預設 2 的乘法
   const [hoveredCell, setHoveredCell] = useState<{ r: number; c: number } | null>(null);
 
+  // 切換分頁或切換段數，以及離開九九乘法時，立即停止任何語音朗讀
+  useEffect(() => {
+    speechService.stop();
+    return () => {
+      speechService.stop();
+    };
+  }, [activeTab, selectedBase]);
+
   const handleSpeakRow = (base: number) => {
     soundFx.playCorrect();
     const chantList: string[] = [];

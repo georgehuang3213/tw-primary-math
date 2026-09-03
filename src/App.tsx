@@ -62,7 +62,13 @@ export const App: React.FC = () => {
     setCurrentAccountName(null);
     setActiveUnit(null);
     setCurrentMode('home');
+    speechService.stop();
   };
+
+  // 當切換頁面模式（主頁、課堂、練習、九九乘法、國語）或切換單元時，立即停止任何進行中的語音朗讀
+  useEffect(() => {
+    speechService.stop();
+  }, [currentMode, activeUnit, currentGrade, currentSubject]);
 
   // 多人同時上線：自動背景定時心跳同步（支援多台平板/電腦同時作答即時合併）
   useEffect(() => {

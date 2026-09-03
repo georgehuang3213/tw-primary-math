@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   Volume2, 
@@ -44,6 +44,15 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
   const [activeTab, setActiveTab] = useState<'text' | 'vocab' | 'quiz'>('text');
 
   const currentLesson = currentLessons.find(l => l.id === selectedLessonId) || currentLessons[0];
+
+  // 切換年級、學期、課文、分頁以及離開國語平台時，立即停止任何進行中的語音朗讀
+  useEffect(() => {
+    speechService.stop();
+    setActiveLineIdx(null);
+    return () => {
+      speechService.stop();
+    };
+  }, [selectedGrade, selectedSemester, selectedLessonId, activeTab]);
 
   // ==========================================
   // 課文朗讀與逐句高亮

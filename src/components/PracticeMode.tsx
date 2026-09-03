@@ -5,6 +5,7 @@ import { Unit, Question } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { VoiceButton } from './VoiceButton';
 import { soundFx } from '../services/audio';
+import { speechService } from '../services/speech';
 
 import { ClockSimulator } from './Manipulatives/ClockSimulator';
 import { TaiwanCoins } from './Manipulatives/TaiwanCoins';
@@ -54,6 +55,14 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   const currentQ = questions[currentIndex] || questions[0];
+
+  // 切換題目或離開測驗時，立即停止任何進行中的題目語音朗讀
+  React.useEffect(() => {
+    speechService.stop();
+    return () => {
+      speechService.stop();
+    };
+  }, [currentIndex]);
 
   const handleSelectOption = (optionId: string) => {
     if (isAnswerChecked) return;
