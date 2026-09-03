@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Check, ArrowRight, Trophy } from 'lucide-react';
+import { RotateCcw, Check, ArrowRight, Trophy, Sparkles, Coins, RefreshCw } from 'lucide-react';
 import { soundFx } from '../../services/audio';
 import { BopomofoText } from '../BopomofoText';
 
@@ -24,14 +24,16 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   unitId,
   bopomofoEnabled
 }) => {
-  // 支援手動切換「加法」、「減法」、「＜＝＞符號填空」與「加減互逆驗算」模式
-  const [tabMode, setTabMode] = useState<TabMode>(initialOp);
+  // 自動判定初始模式：若為 g2-u4 (加減應用互逆) 或 g2-u6 (加減兩步驟)，預設直接進入 'inverse' 互逆模式！
+  const defaultMode: TabMode =
+    unitId === 'g2-u4-app-add-sub' || unitId === 'g2-u6-two-steps-add-sub'
+      ? 'inverse'
+      : initialOp;
+
+  const [tabMode, setTabMode] = useState<TabMode>(defaultMode);
   const isAddition = tabMode === 'add';
 
   // 根據加法/減法與單元自適應預設數值：
-  // 若是一下第八單元 (g1-u17-two-digit-add-sub)：加法為 24 + 13 = 37，減法為 48 - 25 = 23
-  // 若是二年級二上第二單元 (g2-u2-add-sub-vertical)：
-  // 加法為紅隊 38 + 25 = 63，減法為 52 - 27 = 25
   const defaultNum1 = isAddition
     ? (unitId === 'g1-u17-two-digit-add-sub' ? 24 : 38)
     : (unitId === 'g1-u17-two-digit-add-sub' ? 48 : 52);
@@ -42,7 +44,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   const [num1, setNum1] = useState<number>(propNum1 || defaultNum1);
   const [num2, setNum2] = useState<number>(propNum2 || defaultNum2);
 
-  // 當切換加法或減法時，更新對應預設題型
   const handleSwitchTab = (newMode: TabMode) => {
     soundFx.playPop();
     setTabMode(newMode);
@@ -66,15 +67,15 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
     : n1Ones < n2Ones;
 
   // 使用者輸入狀態（直式黑板）
-  const [carry, setCarry] = useState<string>(''); // 進位 1
-  const [borrowTens, setBorrowTens] = useState<string>(''); // 十位被借位後的值
-  const [borrowOnes, setBorrowOnes] = useState<string>(''); // 個位拿到的 10
+  const [carry, setCarry] = useState<string>('');
+  const [borrowTens, setBorrowTens] = useState<string>('');
+  const [borrowOnes, setBorrowOnes] = useState<string>('');
   const [ansOnes, setAnsOnes] = useState<string>('');
   const [ansTens, setAnsTens] = useState<string>('');
   const [feedback, setFeedback] = useState<string | null>(null);
 
   // -------------------------------------------------------------
-  // ＜、＝、＞ 符號填空挑戰狀態
+  // ＜、＝、＞ 符號填空挑戰狀態 (g2-u2)
   // -------------------------------------------------------------
   const compareQuestions = [
     {
@@ -139,7 +140,118 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   // -------------------------------------------------------------
-  // 加減互逆驗算狀態 (二上第四/六單元)
+  // 互動加減互逆小偵探題庫與操作狀態 (g2-u4 / g2-u6)
+  // -------------------------------------------------------------
+  const inverseQuestions = [
+    {
+      id: 'piggy',
+      icon: '👛',
+      tag: '求被減數（原來有多少）',
+      title: '小明的零用錢存錢筒',
+      story: '小明買了 35 元的鉛筆盒後，存錢筒裡還剩下 48 元。原來存錢筒裡有多少元？',
+      step1: '□ － 35 ＝ 48',
+      step2Rule: '加減互逆：差 ＋ 減數 ＝ 被減數（原來有的錢）',
+      calcExpr: '48 ＋ 35',
+      partA: 48,
+      partALabel: '剩下的錢',
+      partB: 35,
+      partBLabel: '買鉛筆盒用去',
+      totalLabel: '原來存錢筒的錢',
+      expectedAns: 83,
+      unit: '元',
+      verifyFormula: '83 － 35 ＝ 48'
+    },
+    {
+      id: 'paint',
+      icon: '🎨',
+      tag: '求減數（用去了多少）',
+      title: '小華的美術材料費',
+      story: '小華原本有 80 元，買了一盒水彩顏料後，錢包裡剩下 28 元。水彩顏料是多少元？',
+      step1: '80 － □ ＝ 28',
+      step2Rule: '加減互逆：被減數 － 差 ＝ 減數（用去的錢）',
+      calcExpr: '80 － 28',
+      partA: 80,
+      partALabel: '原來的錢',
+      partB: 28,
+      partBLabel: '剩下的錢',
+      totalLabel: '買水彩用去的錢',
+      expectedAns: 52,
+      unit: '元',
+      verifyFormula: '52 ＋ 28 ＝ 80'
+    },
+    {
+      id: 'shoes',
+      icon: '👟',
+      tag: '求加數（還要存多少）',
+      title: '小美的買鞋儲蓄計畫',
+      story: '小美已經存了 45 元，想買一雙 92 元的運動鞋，還要再存多少元才夠？',
+      step1: '45 ＋ □ ＝ 92',
+      step2Rule: '加減互逆：和 － 加數 ＝ 另一個加數（還要存的錢）',
+      calcExpr: '92 － 45',
+      partA: 92,
+      partALabel: '鞋子總價',
+      partB: 45,
+      partBLabel: '已經存的錢',
+      totalLabel: '還要再存的錢',
+      expectedAns: 47,
+      unit: '元',
+      verifyFormula: '45 ＋ 47 ＝ 92'
+    },
+    {
+      id: 'library',
+      icon: '📚',
+      tag: '加法驗算（檢查算得對不對）',
+      title: '森林圖書館圖書驗算',
+      story: '圖書館有 64 本童話書，借出 26 本後剩下 38 本。請利用加法進行驗算！',
+      step1: '64 － 26 ＝ 38',
+      step2Rule: '利用加法驗算：差 ＋ 減數 ＝ 被減數（原本的總書量）',
+      calcExpr: '38 ＋ 26',
+      partA: 38,
+      partALabel: '架上剩下的書',
+      partB: 26,
+      partBLabel: '借出去的書',
+      totalLabel: '原本全部的書',
+      expectedAns: 64,
+      unit: '本',
+      verifyFormula: '64 － 26 ＝ 38'
+    }
+  ];
+
+  const [inverseQIdx, setInverseQIdx] = useState<number>(0);
+  const [isCoinsCombined, setIsCoinsCombined] = useState<boolean>(false);
+  const [inverseUserAns, setInverseUserAns] = useState<string>('');
+  const [inverseFeedback, setInverseFeedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+
+  const currentInverseQ = inverseQuestions[inverseQIdx];
+
+  const handleCheckInverse = () => {
+    const val = parseInt(inverseUserAns, 10);
+    if (val === currentInverseQ.expectedAns) {
+      soundFx.playCorrect();
+      setIsCoinsCombined(true);
+      setInverseFeedback({
+        isCorrect: true,
+        text: `🎉 太棒了！算式 ${currentInverseQ.calcExpr} ＝ ${currentInverseQ.expectedAns} ${currentInverseQ.unit}！用 ${currentInverseQ.verifyFormula} 驗算完全正確！`
+      });
+    } else {
+      soundFx.playWrong();
+      setInverseFeedback({
+        isCorrect: false,
+        text: `💡 再動手算算看：${currentInverseQ.calcExpr} ＝ 多少呢？加油！`
+      });
+    }
+  };
+
+  const handleSwitchInverseQ = (idx: number) => {
+    soundFx.playPop();
+    setInverseQIdx(idx);
+    setIsCoinsCombined(false);
+    setInverseUserAns('');
+    setInverseFeedback(null);
+  };
+
+  // -------------------------------------------------------------
+  // 重設直式加減黑板
   // -------------------------------------------------------------
   const handleReset = () => {
     setCarry('');
@@ -173,10 +285,10 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   const showCompareTab = unitId === 'g2-u2-add-sub-vertical' || unitId?.includes('compare');
-  const showInverseTab = unitId === 'g2-u4-app-add-sub' || unitId === 'g2-u6-two-steps-add-sub';
+  const showInverseTab = unitId === 'g2-u4-app-add-sub' || unitId === 'g2-u6-two-steps-add-sub' || true;
 
   return (
-    <div className="flex flex-col items-center bg-white p-4 sm:p-6 rounded-3xl border-4 border-amber-300 shadow-md max-w-lg mx-auto w-full">
+    <div className="flex flex-col items-center bg-white p-4 sm:p-6 rounded-3xl border-4 border-amber-300 shadow-md max-w-xl mx-auto w-full">
       {/* 頂部切換標籤列 */}
       <div className="flex items-center justify-between w-full border-b-2 border-amber-100 pb-3 mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-1.5 bg-amber-50 p-1 rounded-2xl border border-amber-200 flex-wrap">
@@ -247,7 +359,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
       {/* ======================= 分頁 1 & 2：標準直式加法/減法黑板 ======================= */}
       {(tabMode === 'add' || tabMode === 'sub') && (
         <>
-          {/* 台灣國小直式算則黑板 */}
           <div className="relative bg-slate-900 text-white font-mono p-6 rounded-2xl shadow-inner w-56 flex flex-col items-center">
             {/* 位值標題：十位、個位 */}
             <div className="grid grid-cols-2 w-36 text-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-1 mb-2">
@@ -255,9 +366,8 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               <span><BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /></span>
             </div>
 
-            {/* 頂端標記區（進位 1 或借位 10 與劃掉標記） */}
+            {/* 頂端標記區 */}
             <div className="grid grid-cols-2 w-36 text-center h-7 items-center mb-1 text-sm">
-              {/* 十位頂端標記 */}
               <div>
                 {isAddition ? (
                   requiresRegroup && (
@@ -284,7 +394,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
                 )}
               </div>
 
-              {/* 個位頂端借位 10 標記 */}
               <div>
                 {!isAddition && requiresRegroup && (
                   <input
@@ -299,7 +408,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </div>
             </div>
 
-            {/* 第一行：被加數 / 被減數 */}
+            {/* 第一行 */}
             <div className="relative flex justify-end w-36 text-3xl font-black tracking-widest text-slate-100 py-1">
               <span className={`w-16 text-center ${!isAddition && borrowTens ? 'line-through text-slate-500' : ''}`}>
                 {n1Tens}
@@ -307,7 +416,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               <span className="w-16 text-center">{n1Ones}</span>
             </div>
 
-            {/* 第二行：運算符號 + 加數 / 減數 */}
+            {/* 第二行 */}
             <div className="relative flex items-center justify-between w-44 text-3xl font-black tracking-widest text-slate-100 py-1">
               <span className="text-amber-400 font-sans text-2xl font-black">{isAddition ? '＋' : '－'}</span>
               <div className="flex w-36 justify-end">
@@ -316,7 +425,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </div>
             </div>
 
-            {/* 直式橫線 */}
             <div className="w-44 border-b-4 border-amber-400 my-2"></div>
 
             {/* 答案填寫格 */}
@@ -340,7 +448,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           </div>
 
-          {/* 提示解說與步驟引導 */}
           <div className="mt-4 w-full text-xs bg-amber-50 p-3 rounded-xl border border-amber-200 text-slate-700">
             {isAddition ? (
               <div>
@@ -367,7 +474,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             )}
           </div>
 
-          {/* 檢查按鈕 */}
           {interactive && (
             <button
               onClick={checkAnswer}
@@ -378,7 +484,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </button>
           )}
 
-          {/* 回饋訊息 */}
           {feedback && (
             <div className="mt-3 text-center text-sm font-black text-amber-900 animate-bounce-short flex flex-col items-center gap-2">
               <BopomofoText text={feedback} showBpmf={bopomofoEnabled ?? false} />
@@ -398,7 +503,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
       {/* ======================= 分頁 3：＜、＝、＞ 符號填空挑戰 ======================= */}
       {tabMode === 'compare' && (
         <div className="w-full flex flex-col items-center gap-4">
-          {/* 題號與說明 */}
           <div className="w-full bg-indigo-50 border border-indigo-200 rounded-2xl p-3 text-center">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-black px-2.5 py-1 bg-indigo-600 text-white rounded-full">
@@ -413,9 +517,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </p>
           </div>
 
-          {/* 比較式子卡片 */}
           <div className="flex items-center justify-center gap-3 sm:gap-5 my-2 w-full">
-            {/* 左邊算式 */}
             <div className="flex flex-col items-center p-3 sm:p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl min-w-[100px] text-center shadow-sm">
               <span className="text-xl sm:text-2xl font-black text-amber-950 font-mono">
                 {compareQuestions[compareIdx].leftExpr}
@@ -425,7 +527,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </span>
             </div>
 
-            {/* 中間填空圓圈 */}
             <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center text-2xl sm:text-3xl font-black shadow-inner transition ${
               selectedOp
                 ? (selectedOp === compareQuestions[compareIdx].correctOp
@@ -436,7 +537,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               {selectedOp || '？'}
             </div>
 
-            {/* 右邊算式 */}
             <div className="flex flex-col items-center p-3 sm:p-4 bg-sky-50 border-2 border-sky-300 rounded-2xl min-w-[100px] text-center shadow-sm">
               <span className="text-xl sm:text-2xl font-black text-sky-950 font-mono">
                 {compareQuestions[compareIdx].rightExpr}
@@ -447,7 +547,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           </div>
 
-          {/* 符號選擇按鈕列 */}
           <div className="w-full">
             <p className="text-xs text-center font-bold text-slate-600 mb-2">
               <BopomofoText text="點擊選擇合適的大小關係符號：" showBpmf={bopomofoEnabled ?? false} />
@@ -491,7 +590,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           </div>
 
-          {/* 符號口訣提示卡 */}
           <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-950">
             <p className="font-bold flex items-center gap-1 mb-0.5">
               <span>💡</span>
@@ -502,7 +600,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </p>
           </div>
 
-          {/* 回饋與下一題按鈕 */}
           {compareFeedback && (
             <div className={`w-full p-3 rounded-2xl text-xs sm:text-sm font-black text-center ${
               compareFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
@@ -522,41 +619,163 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
         </div>
       )}
 
-      {/* ======================= 分頁 4：加減互逆與兩步驟驗算 ======================= */}
+      {/* ========================================================================= */}
+      {/* 分頁 4：🌟 加減互逆動態偵探實驗室（豐富變化性與互動操作） */}
+      {/* ========================================================================= */}
       {tabMode === 'inverse' && (
         <div className="w-full flex flex-col items-center gap-4">
-          <div className="w-full bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center">
-            <span className="text-xs font-black px-2.5 py-1 bg-emerald-600 text-white rounded-full inline-block mb-1">
-              <BopomofoText text="加減互逆小偵探" showBpmf={bopomofoEnabled ?? false} />
-            </span>
-            <p className="text-xs sm:text-sm font-black text-emerald-950">
-              <BopomofoText text="👛 小明買了 35 元的鉛筆盒後，存錢筒裡還剩下 48 元。原來有多少元？" showBpmf={bopomofoEnabled ?? false} />
+          {/* 4 大情境題切換膠囊按鈕（多樣化題型） */}
+          <div className="w-full bg-emerald-50/90 border-2 border-emerald-300 rounded-2xl p-2.5 shadow-sm">
+            <p className="text-xs font-black text-emerald-900 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Sparkles size={14} className="text-amber-500" />
+                <BopomofoText text="選擇加減互逆偵探情境題：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] font-bold text-emerald-700">
+                {inverseQIdx + 1} / {inverseQuestions.length}
+              </span>
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {inverseQuestions.map((q, idx) => (
+                <button
+                  key={q.id}
+                  onClick={() => handleSwitchInverseQ(idx)}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    inverseQIdx === idx
+                      ? 'bg-emerald-600 text-white shadow-md font-black scale-102'
+                      : 'bg-white text-emerald-950 hover:bg-emerald-100 border border-emerald-200'
+                  }`}
+                >
+                  <span>{q.icon}</span>
+                  <span className="truncate">{q.title.replace('小明的', '').replace('小華的', '').replace('小美的', '')}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 題目故事卡 */}
+          <div className="w-full bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-black px-2.5 py-0.5 bg-emerald-600 text-white rounded-full flex items-center gap-1">
+                <span>{currentInverseQ.icon}</span>
+                <BopomofoText text={currentInverseQ.tag} showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-xs font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                {currentInverseQ.step1}
+              </span>
+            </div>
+            <p className="text-sm sm:text-base font-black text-slate-800 leading-relaxed mt-1">
+              <BopomofoText text={currentInverseQ.story} showBpmf={bopomofoEnabled ?? false} />
             </p>
           </div>
 
-          {/* 互逆算式展示 */}
-          <div className="w-full bg-white border-2 border-emerald-300 rounded-2xl p-4 shadow-sm text-center flex flex-col gap-3">
-            <div>
-              <p className="text-xs text-slate-500 font-bold mb-1">
-                <BopomofoText text="步驟 1：依題意列出減法算式" showBpmf={bopomofoEnabled ?? false} />
-              </p>
-              <div className="text-xl sm:text-2xl font-mono font-black text-slate-800 bg-slate-100 py-1.5 px-4 rounded-xl inline-block">
-                □ － 35 ＝ 48
+          {/* 🌟 具象化線段圖與動手放回操作板 */}
+          <div className="w-full bg-amber-50/80 border-2 border-amber-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
+            <div className="w-full flex items-center justify-between text-xs font-black text-amber-950">
+              <span className="flex items-center gap-1">
+                <Coins size={15} className="text-amber-600" />
+                <BopomofoText text="線段關係與動態圖解：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] text-amber-800 font-normal">
+                {currentInverseQ.step2Rule}
+              </span>
+            </div>
+
+            {/* 視覺動態條：部分 A ＋ 部分 B ＝ 全部 */}
+            <div className="w-full flex flex-col gap-1.5 my-1">
+              <div className="w-full h-10 bg-white border-2 border-slate-300 rounded-xl overflow-hidden flex shadow-inner relative">
+                {/* 部分 A */}
+                <div
+                  className="h-full bg-sky-400 flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500"
+                  style={{ width: `${(currentInverseQ.partA / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
+                >
+                  <span className="truncate">{currentInverseQ.partALabel} ({currentInverseQ.partA})</span>
+                </div>
+
+                {/* 部分 B（動態結合） */}
+                <div
+                  className={`h-full flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500 ${
+                    isCoinsCombined ? 'bg-amber-500 ring-2 ring-amber-300' : 'bg-rose-400'
+                  }`}
+                  style={{ width: `${(currentInverseQ.partB / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
+                >
+                  <span className="truncate">{currentInverseQ.partBLabel} ({currentInverseQ.partB})</span>
+                </div>
+              </div>
+
+              {/* 線段下方總計標記 */}
+              <div className="w-full flex items-center justify-between text-xs font-bold text-slate-600 px-1">
+                <span className="text-sky-700">▲ {currentInverseQ.partA} {currentInverseQ.unit}</span>
+                <span className="text-amber-800 font-black">
+                  {isCoinsCombined ? `✨ 合起來共 ${currentInverseQ.expectedAns} ${currentInverseQ.unit}` : '▲ 兩部分互逆合在一起'}
+                </span>
+                <span className="text-rose-700">▲ {currentInverseQ.partB} {currentInverseQ.unit}</span>
               </div>
             </div>
 
-            <div className="border-t border-emerald-100 pt-2">
-              <p className="text-xs text-emerald-800 font-bold mb-1">
-                <BopomofoText text="步驟 2：利用加減互逆（差 ＋ 減數 ＝ 被減數）倒推原來的錢" showBpmf={bopomofoEnabled ?? false} />
-              </p>
-              <div className="text-xl sm:text-2xl font-mono font-black text-emerald-700 bg-emerald-50 py-1.5 px-4 rounded-xl inline-block">
-                48 ＋ 35 ＝ 83
-              </div>
+            {/* 互動按鈕：模擬把錢放回/動手合併 */}
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setIsCoinsCombined(!isCoinsCombined);
+              }}
+              className="px-4 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition border border-amber-300 shadow-sm"
+            >
+              <span>{isCoinsCombined ? '↩️ 重新分開' : '🪙 點我把兩部分合併倒推總數！'}</span>
+            </button>
+          </div>
+
+          {/* 🌟 學生動手直式算則填答區 */}
+          <div className="w-full bg-white border-2 border-emerald-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
+            <p className="text-xs font-black text-emerald-950 text-center">
+              <BopomofoText text={`動手填入互逆算式求解答：`} showBpmf={bopomofoEnabled ?? false} />
+            </p>
+
+            <div className="flex items-center justify-center gap-2 font-mono text-2xl font-black text-slate-800 flex-wrap">
+              <span className="bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 text-emerald-900">
+                {currentInverseQ.calcExpr}
+              </span>
+              <span>＝</span>
+              <input
+                type="text"
+                maxLength={3}
+                value={inverseUserAns}
+                onChange={e => setInverseUserAns(e.target.value)}
+                placeholder="?"
+                className="w-16 h-12 text-center text-2xl font-black bg-emerald-50 text-emerald-950 rounded-xl border-2 border-emerald-400 focus:outline-none focus:ring-4 ring-emerald-300/50"
+              />
+              <span className="text-base font-sans font-black text-slate-700">
+                <BopomofoText text={currentInverseQ.unit} showBpmf={bopomofoEnabled ?? false} />
+              </span>
             </div>
 
-            <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-xs text-emerald-900 font-bold">
-              <BopomofoText text="💡 結論：存錢筒原來有 83 元！算完再用 83 - 35 = 48 驗算一遍，完全吻合！" showBpmf={bopomofoEnabled ?? false} />
-            </div>
+            <button
+              onClick={handleCheckInverse}
+              disabled={!inverseUserAns}
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm"
+            >
+              <Check size={16} />
+              <BopomofoText text="檢查答案並進行驗算" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+
+            {/* 回饋訊息 */}
+            {inverseFeedback && (
+              <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
+                inverseFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
+              }`}>
+                <BopomofoText text={inverseFeedback.text} showBpmf={bopomofoEnabled ?? false} />
+              </div>
+            )}
+
+            {/* 下一題按鈕 */}
+            {inverseFeedback?.isCorrect && (
+              <button
+                onClick={() => handleSwitchInverseQ((inverseQIdx + 1) % inverseQuestions.length)}
+                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-xl shadow-md btn-fun flex items-center justify-center gap-1 text-xs sm:text-sm"
+              >
+                <BopomofoText text="挑戰下一道互逆偵探題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
+              </button>
+            )}
           </div>
         </div>
       )}

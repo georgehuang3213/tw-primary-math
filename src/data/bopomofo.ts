@@ -2599,16 +2599,18 @@ export function parseToBopomofoChars(rawText: string): CharWithBpmf[] {
           }
         }
 
-        // 2. 單字解析
+        // 2. 單字解析（正確處理 UTF-16 surrogate pairs 表情符號，避免出現菱形問號亂碼）
         if (!matchedPhrase) {
-          const c = textChunk[pos];
+          const codePoint = textChunk.codePointAt(pos)!;
+          const charLength = codePoint > 0xffff ? 2 : 1;
+          const c = textChunk.slice(pos, pos + charLength);
           const isChinese = /[\u4e00-\u9fa5]/.test(c);
           results.push({
             char: c,
             bpmf: isChinese ? getCharBpmf(c) : undefined,
             isChinese
           });
-          pos++;
+          pos += charLength;
         }
       }
     }
