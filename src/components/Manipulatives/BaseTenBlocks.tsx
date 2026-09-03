@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, RotateCcw, Sparkles, ArrowRight } from 'lucide-react';
+import { Plus, Minus, RotateCcw, Sparkles, ArrowRight, Check, ShoppingBag, Target } from 'lucide-react';
 import { soundFx } from '../../services/audio';
 import { BopomofoText } from '../BopomofoText';
 
@@ -14,6 +14,8 @@ interface BaseTenBlocksProps {
   bopomofoEnabled?: boolean;
 }
 
+type TabType = 'money' | 'placeValue' | 'tenPack' | 'estimate';
+
 export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   initialHundreds = 0,
   initialTens = 2,
@@ -24,10 +26,21 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   grade = 1,
   bopomofoEnabled
 }) => {
-  // 當前子分頁：'money'（百元紙鈔與錢幣換算）、'placeValue'（位值積木板）或 'tenPack'（10顆拼成一條十與跳數點數）
-  // 若是二上第一單元 (g2-u1-num200)，任務明確指明「操作百位板與百元紙鈔，挑戰 200 以內點數與錢幣換算大滿貫！」，預設 'money'！
-  const initialTab = unitId === 'g2-u1-num200' ? 'money' : (unitId === 'g1-u8-num30' ? 'tenPack' : 'placeValue');
-  const [activeTab, setActiveTab] = useState<'money' | 'placeValue' | 'tenPack'>(initialTab);
+  const isEstimateUnit = unitId === 'g2-s2-u7-add-sub-estimate' || unitId?.includes('estimate');
+
+  // 初始分頁：
+  // 若為加減估算單元 (g2-s2-u7)，預設直接進入 'estimate' 估算實驗室！
+  // 若為二上第一單元 (g2-u1-num200)，預設 'money'！
+  // 若為一年級 (g1-u8-num30)，預設 'tenPack'！
+  const initialTab: TabType = isEstimateUnit
+    ? 'estimate'
+    : unitId === 'g2-u1-num200'
+    ? 'money'
+    : unitId === 'g1-u8-num30'
+    ? 'tenPack'
+    : 'placeValue';
+
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
 
   const [hundreds, setHundreds] = useState(initialHundreds);
   const [tens, setTens] = useState(initialTens);
@@ -60,20 +73,127 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
 
   const handleReset = () => {
     soundFx.playPop();
-    updateBlocks(0, 0, 0);
-    setBills100(0);
+    setHundreds(initialHundreds);
+    setTens(initialTens);
+    setOnes(initialOnes);
+    setBills100(unitId === 'g2-u1-num200' ? 1 : 0);
     setCoins50(0);
-    setCoins10(0);
-    setCoins5(0);
-    setCoins1(0);
+    setCoins10(unitId === 'g2-u1-num200' ? 4 : 2);
+    setCoins5(1);
+    setCoins1(unitId === 'g2-u1-num200' ? 2 : 5);
+    setSkipCount(skipStep);
   };
 
-  // 滿 10 顆個位積木打包組合成 1 條十
   const handlePackTen = () => {
     if (ones >= 10) {
       soundFx.playCorrect();
-      updateBlocks(hundreds, tens + 1, ones - 10);
+      setTens(prev => prev + 1);
+      setOnes(prev => prev - 10);
     }
+  };
+
+  // =========================================================================
+  // 🌟 模式：加減估算與超市購物實驗室 (g2-s2-u7)
+  // =========================================================================
+  const estimateQuestions = [
+    {
+      id: 'breakfast',
+      icon: '🥐',
+      title: '小美的超市早餐估算',
+      story: '小美推著購物車，買了麵包 28 元和果汁 45 元。她帶了 100 元，用估算判斷帶的錢夠不夠？',
+      item1: '麵包 28 元',
+      item1Price: 28,
+      item1Estimate: 30,
+      item1Tip: '28 的個位是 8，四捨五入進位成 30 元',
+      item2: '果汁 45 元',
+      item2Price: 45,
+      item2Estimate: 50,
+      item2Tip: '45 的個位是 5，四捨五入進位成 50 元',
+      estimateTotal: 80,
+      exactTotal: 73,
+      budget: 100,
+      isEnough: true,
+      explanation: '估算約 30 ＋ 50 ＝ 80 元！帶 100 元大於 80 元，所以【夠買】！精算只要 28 ＋ 45 ＝ 73 元，完全足夠！'
+    },
+    {
+      id: 'stationery',
+      icon: '📚',
+      title: '文具店買故事書估算',
+      story: '小明想買一本精裝故事書 188 元和一個鉛筆盒 92 元。他口袋只有 250 元，夠不夠買？',
+      item1: '精裝故事書 188 元',
+      item1Price: 188,
+      item1Estimate: 190,
+      item1Tip: '188 大約是 190 元',
+      item2: '精緻鉛筆盒 92 元',
+      item2Price: 92,
+      item2Estimate: 90,
+      item2Tip: '92 大約是 90 元',
+      estimateTotal: 280,
+      exactTotal: 280,
+      budget: 250,
+      isEnough: false,
+      explanation: '估算約 190 ＋ 90 ＝ 280 元！帶 250 元小於 280 元，所以【不夠買】！還差約 30 元！'
+    },
+    {
+      id: 'backpack',
+      icon: '🎒',
+      title: '買書包找零大數估算',
+      story: '媽媽帶了 500 元，買一個書包花了 298 元。估算看看大約剩下多少元？',
+      item1: '準備的錢 500 元',
+      item1Price: 500,
+      item1Estimate: 500,
+      item1Tip: '500 整百不用換',
+      item2: '書包 298 元',
+      item2Price: 298,
+      item2Estimate: 300,
+      item2Tip: '298 靠近 300，估為 300 元',
+      estimateTotal: 200,
+      exactTotal: 202,
+      budget: 500,
+      isEnough: true,
+      explanation: '估算剩下：500 － 300 ＝ 200 元！精算剩下 500 － 298 ＝ 202 元，估算非常精準！'
+    }
+  ];
+
+  const [estQIdx, setEstQIdx] = useState<number>(0);
+  const [selectedEnough, setSelectedEnough] = useState<boolean | null>(null);
+  const [userEstimateInput, setUserEstimateInput] = useState<string>('');
+  const [estFeedback, setEstFeedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+
+  const currentEstQ = estimateQuestions[estQIdx];
+
+  const handleCheckEstimate = () => {
+    const val = parseInt(userEstimateInput, 10);
+    const isValCorrect = Math.abs(val - currentEstQ.estimateTotal) <= 10;
+    const isChoiceCorrect = selectedEnough === currentEstQ.isEnough;
+
+    if (isValCorrect && isChoiceCorrect) {
+      soundFx.playCorrect();
+      setEstFeedback({
+        isCorrect: true,
+        text: `🎉 太厲害了！估算與判斷完全正確！${currentEstQ.explanation}`
+      });
+    } else if (!isChoiceCorrect) {
+      soundFx.playWrong();
+      setEstFeedback({
+        isCorrect: false,
+        text: `💡 帶的錢有 ${currentEstQ.budget} 元，估算總共約 ${currentEstQ.estimateTotal} 元，比比看夠不夠呢？`
+      });
+    } else {
+      soundFx.playWrong();
+      setEstFeedback({
+        isCorrect: false,
+        text: `💡 再估算看看：${currentEstQ.item1Estimate} ＋ ${currentEstQ.item2Estimate} 大約是多少元呢？`
+      });
+    }
+  };
+
+  const handleNextEstimate = () => {
+    soundFx.playPop();
+    setEstQIdx((prev) => (prev + 1) % estimateQuestions.length);
+    setSelectedEnough(null);
+    setUserEstimateInput('');
+    setEstFeedback(null);
   };
 
   return (
@@ -81,21 +201,23 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
       {/* 頂部切換模式按鈕 */}
       <div className="flex items-center justify-between flex-wrap gap-2 bg-white/90 p-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
         <div className="flex items-center gap-1.5 flex-wrap">
-          {/* 錢幣與百元紙鈔換算分頁（二上第一單元核心） */}
-          <button
-            onClick={() => {
-              soundFx.playPop();
-              setActiveTab('money');
-            }}
-            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
-              activeTab === 'money'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-600 hover:bg-emerald-50'
-            }`}
-          >
-            <span>💵</span>
-            <span><BopomofoText text="百元紙鈔與錢幣換算" showBpmf={bopomofoEnabled ?? false} /></span>
-          </button>
+          {/* 若為估算單元，優先顯示「加減估算」分頁 */}
+          {isEstimateUnit && (
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setActiveTab('estimate');
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+                activeTab === 'estimate'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-blue-950 hover:bg-blue-50'
+              }`}
+            >
+              <span>🎯</span>
+              <BopomofoText text="超市購物加減估算" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+          )}
 
           <button
             onClick={() => {
@@ -109,44 +231,250 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             }`}
           >
             <span>🧱</span>
-            <span><BopomofoText text="十進位積木定位板" showBpmf={bopomofoEnabled ?? false} /></span>
+            <BopomofoText text="十進位積木定位板" showBpmf={bopomofoEnabled ?? false} />
           </button>
 
           <button
             onClick={() => {
               soundFx.playPop();
-              setActiveTab('tenPack');
+              setActiveTab('money');
             }}
             className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
-              activeTab === 'tenPack'
-                ? 'bg-amber-500 text-amber-950 shadow-md'
-                : 'text-slate-600 hover:bg-amber-100'
+              activeTab === 'money'
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'text-slate-600 hover:bg-emerald-50'
             }`}
           >
-            <span>📦</span>
-            <span><BopomofoText text="滿10顆拼成一條十" showBpmf={bopomofoEnabled ?? false} /></span>
+            <span>💵</span>
+            <BopomofoText text="百元紙鈔與錢幣換算" showBpmf={bopomofoEnabled ?? false} />
           </button>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <div className="text-xl sm:text-2xl font-black text-amber-600 font-mono">
-            = {activeTab === 'money' ? totalMoney : total}
-          </div>
-          {interactive && (
+          {!isEstimateUnit && (
             <button
-              onClick={handleReset}
-              className="p-1.5 text-slate-400 hover:text-amber-700 rounded-lg"
+              onClick={() => {
+                soundFx.playPop();
+                setActiveTab('tenPack');
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+                activeTab === 'tenPack'
+                  ? 'bg-amber-500 text-amber-950 shadow-md'
+                  : 'text-slate-600 hover:bg-amber-100'
+              }`}
             >
-              <RotateCcw size={16} />
+              <span>📦</span>
+              <BopomofoText text="滿10顆拼成一條十" showBpmf={bopomofoEnabled ?? false} />
             </button>
           )}
         </div>
+
+        {activeTab !== 'estimate' && (
+          <div className="flex items-center gap-2">
+            <div className="text-xl sm:text-2xl font-black text-amber-600 font-mono">
+              = {activeTab === 'money' ? totalMoney : total}
+            </div>
+            {interactive && (
+              <button
+                onClick={handleReset}
+                className="p-1.5 text-slate-400 hover:text-amber-700 rounded-lg"
+              >
+                <RotateCcw size={16} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ================= 模式零：百元紙鈔與錢幣換算（二上第一單元核心任務） ================= */}
+      {/* ========================================================================= */}
+      {/* 🌟 模式：加減估算與超市購物實驗室 (二下第七單元專屬) */}
+      {/* ========================================================================= */}
+      {activeTab === 'estimate' && (
+        <div className="flex flex-col gap-4 animate-fade-in w-full">
+          {/* 題目切換膠囊按鈕 */}
+          <div className="w-full bg-blue-50 border-2 border-blue-200 rounded-2xl p-2.5 shadow-sm">
+            <p className="text-xs font-black text-blue-950 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Target size={15} className="text-blue-600" />
+                <BopomofoText text="選擇估算購物情境題：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] font-bold text-blue-700">
+                {estQIdx + 1} / {estimateQuestions.length}
+              </span>
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+              {estimateQuestions.map((q, idx) => (
+                <button
+                  key={q.id}
+                  onClick={() => {
+                    soundFx.playPop();
+                    setEstQIdx(idx);
+                    setSelectedEnough(null);
+                    setUserEstimateInput('');
+                    setEstFeedback(null);
+                  }}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    estQIdx === idx
+                      ? 'bg-blue-600 text-white shadow-md font-black scale-102'
+                      : 'bg-white text-blue-950 hover:bg-blue-100 border border-blue-200'
+                  }`}
+                >
+                  <span>{q.icon}</span>
+                  <span className="truncate">{q.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 情境故事卡 */}
+          <div className="w-full bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-black px-2.5 py-0.5 bg-blue-600 text-white rounded-full flex items-center gap-1">
+                <span>{currentEstQ.icon}</span>
+                <BopomofoText text={currentEstQ.title} showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-xs font-bold text-slate-500">
+                錢包裡有：${currentEstQ.budget} 元
+              </span>
+            </div>
+            <p className="text-sm sm:text-base font-black text-slate-800 leading-relaxed mt-1">
+              <BopomofoText text={currentEstQ.story} showBpmf={bopomofoEnabled ?? false} />
+            </p>
+          </div>
+
+          {/* 🌟 四捨五入數線尺與物品估算對比 */}
+          <div className="bg-gradient-to-r from-blue-100 via-sky-50 to-indigo-100 p-4 sm:p-5 rounded-3xl border-3 border-blue-300 shadow-sm flex flex-col gap-3">
+            <div className="flex items-center justify-between text-xs font-black text-blue-950">
+              <span className="flex items-center gap-1">
+                <span>📏</span>
+                <BopomofoText text="四捨五入取近似值（估算）：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] text-blue-800 font-bold bg-white/80 px-2 py-0.5 rounded-full border border-blue-200">
+                0,1,2,3,4 捨去 | 5,6,7,8,9 進位
+              </span>
+            </div>
+
+            {/* 兩件商品估算卡片 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-1">
+              <div className="bg-white p-3.5 rounded-2xl border-2 border-blue-200 shadow-sm flex flex-col">
+                <span className="text-xs font-black text-slate-700">{currentEstQ.item1}</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-xs text-slate-500 font-bold">大約估為：</span>
+                  <span className="text-2xl font-black font-mono text-blue-600">${currentEstQ.item1Estimate}</span>
+                  <span className="text-xs text-slate-600 font-bold">元</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">💡 {currentEstQ.item1Tip}</p>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-2xl border-2 border-blue-200 shadow-sm flex flex-col">
+                <span className="text-xs font-black text-slate-700">{currentEstQ.item2}</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-xs text-slate-500 font-bold">大約估為：</span>
+                  <span className="text-2xl font-black font-mono text-blue-600">${currentEstQ.item2Estimate}</span>
+                  <span className="text-xs text-slate-600 font-bold">元</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">💡 {currentEstQ.item2Tip}</p>
+              </div>
+            </div>
+
+            {/* 估算口訣 */}
+            <div className="w-full bg-white/90 p-2.5 rounded-xl border border-blue-200 text-xs text-blue-950 font-bold text-center">
+              <span>💡 </span>
+              <BopomofoText text="估算好處：去超市買東西不用拿出筆紙精算，先在心裡四捨五入加一加，立刻知道錢夠不夠！" showBpmf={bopomofoEnabled ?? false} />
+            </div>
+          </div>
+
+          {/* 🌟 學生動手判斷與填答區 */}
+          <div className="w-full bg-white p-4 sm:p-5 rounded-2xl border-2 border-blue-300 shadow-sm flex flex-col items-center gap-4">
+            <div className="w-full text-center">
+              <p className="text-xs sm:text-sm font-black text-blue-950 mb-2">
+                <BopomofoText text="步驟 1：估算合起來大約是多少元？" showBpmf={bopomofoEnabled ?? false} />
+              </p>
+              <div className="flex items-center justify-center gap-2 font-mono text-xl sm:text-2xl font-black text-slate-800 flex-wrap">
+                <span>{currentEstQ.item1Estimate} ＋ {currentEstQ.item2Estimate}</span>
+                <span>＝</span>
+                <span className="text-xs font-sans font-bold text-slate-500"><BopomofoText text="大約" showBpmf={bopomofoEnabled ?? false} /></span>
+                <input
+                  type="text"
+                  maxLength={3}
+                  value={userEstimateInput}
+                  onChange={(e) => setUserEstimateInput(e.target.value)}
+                  placeholder="?"
+                  className="w-18 h-12 text-center text-2xl font-black bg-blue-50 text-blue-950 rounded-xl border-2 border-blue-400 focus:outline-none focus:ring-4 ring-blue-300/50"
+                />
+                <span className="text-base font-sans font-black text-slate-700">
+                  <BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full border-t border-slate-100 pt-3 text-center">
+              <p className="text-xs sm:text-sm font-black text-blue-950 mb-2">
+                <BopomofoText text={`步驟 2：錢包帶了 ${currentEstQ.budget} 元，用估算判斷夠不夠買？`} showBpmf={bopomofoEnabled ?? false} />
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => {
+                    soundFx.playPop();
+                    setSelectedEnough(true);
+                  }}
+                  className={`px-6 py-2.5 rounded-2xl font-black text-sm sm:text-base border-3 transition-all flex items-center gap-1.5 shadow-sm ${
+                    selectedEnough === true
+                      ? 'bg-emerald-600 border-emerald-700 text-white scale-105 shadow-md'
+                      : 'bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-50'
+                  }`}
+                >
+                  <span>✅ </span>
+                  <BopomofoText text="夠買！" showBpmf={bopomofoEnabled ?? false} />
+                </button>
+
+                <button
+                  onClick={() => {
+                    soundFx.playPop();
+                    setSelectedEnough(false);
+                  }}
+                  className={`px-6 py-2.5 rounded-2xl font-black text-sm sm:text-base border-3 transition-all flex items-center gap-1.5 shadow-sm ${
+                    selectedEnough === false
+                      ? 'bg-rose-600 border-rose-700 text-white scale-105 shadow-md'
+                      : 'bg-white border-rose-300 text-rose-900 hover:bg-rose-50'
+                  }`}
+                >
+                  <span>❌ </span>
+                  <BopomofoText text="不夠買！" showBpmf={bopomofoEnabled ?? false} />
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleCheckEstimate}
+              disabled={!userEstimateInput || selectedEnough === null}
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm"
+            >
+              <Check size={16} />
+              <BopomofoText text="檢查估算與判定結果" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+
+            {estFeedback && (
+              <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
+                estFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
+              }`}>
+                <BopomofoText text={estFeedback.text} showBpmf={bopomofoEnabled ?? false} />
+              </div>
+            )}
+
+            {estFeedback?.isCorrect && (
+              <button
+                onClick={handleNextEstimate}
+                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-xl shadow-md btn-fun flex items-center justify-center gap-1 text-xs sm:text-sm"
+              >
+                <BopomofoText text="挑戰下一道超市估算題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= 模式零：百元紙鈔與錢幣換算 ================= */}
       {activeTab === 'money' && (
         <div className="flex flex-col gap-4 animate-fade-in">
-          {/* 百元紙鈔與錢幣展示與換算看板 */}
           <div className="bg-white p-5 rounded-3xl border-3 border-emerald-300 shadow-sm flex flex-col gap-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
@@ -158,9 +486,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               </span>
             </div>
 
-            {/* 定位板三欄（百位：百元鈔 / 十位：50元與10元 / 個位：5元與1元） */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center border-2 border-emerald-100 rounded-2xl p-3 bg-emerald-50/40">
-              {/* 百位欄 (100元紙鈔) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
                 <span className="text-xs font-black text-rose-700 mb-2"><BopomofoText text="百位（100元紙鈔）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
@@ -188,7 +514,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 </div>
               </div>
 
-              {/* 十位欄 (50元與10元硬幣) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
                 <span className="text-xs font-black text-sky-700 mb-2"><BopomofoText text="十位（50元 / 10元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
@@ -220,7 +545,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 </div>
               </div>
 
-              {/* 個位欄 (5元與1元硬幣) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
                 <span className="text-xs font-black text-amber-800 mb-2"><BopomofoText text="個位（5元 / 1元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1 justify-center min-h-[64px] items-center">
@@ -253,7 +577,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               </div>
             </div>
 
-            {/* 換算結算橫幅 */}
             <div className="bg-emerald-100/70 p-3.5 rounded-2xl border border-emerald-300 flex items-center justify-between flex-wrap gap-2 text-xs sm:text-sm font-black text-emerald-950">
               <div className="flex items-center gap-1">
                 <span><BopomofoText text="💰 錢幣點數總金額：" showBpmf={bopomofoEnabled ?? false} /></span>
@@ -271,10 +594,9 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
         </div>
       )}
 
-      {/* ================= 模式一：滿10顆拼成一條十與跳數（完全對齊任務） ================= */}
+      {/* ================= 模式一：滿10顆拼成一條十與跳數 ================= */}
       {activeTab === 'tenPack' && (
         <div className="flex flex-col gap-4 animate-fade-in">
-          {/* 滿10拼成一條十操作區 */}
           <div className="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-black text-amber-950 flex items-center gap-1.5">
@@ -287,7 +609,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             </div>
 
             <div className="flex items-center gap-4 bg-amber-50/60 p-3 rounded-xl border border-amber-200 justify-around">
-              {/* 十的條數 */}
               <div className="flex flex-col items-center">
                 <span className="text-xs font-bold text-sky-700 mb-1">十位（條十）</span>
                 <div className="flex gap-1 items-end min-h-[70px]">
@@ -306,7 +627,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 </div>
               </div>
 
-              {/* 打包箭頭按鈕 */}
               <div className="flex flex-col items-center gap-1">
                 <button
                   onClick={handlePackTen}
@@ -320,172 +640,99 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   <span>滿10顆拼成一條十</span>
                   <ArrowRight size={14} />
                 </button>
-                <span className="text-[10px] text-slate-500 font-bold">
-                  {ones >= 10 ? '✨ 滿 10 個了，點我打包！' : `還差 ${10 - ones} 個滿 10`}
+                <span className="text-[10px] text-amber-800">
+                  {ones >= 10 ? '✨ 滿十了！快點擊打包！' : `還差 ${10 - ones} 顆可打包`}
                 </span>
               </div>
 
-              {/* 一的個數 */}
               <div className="flex flex-col items-center">
-                <span className="text-xs font-bold text-amber-700 mb-1">個位（單獨小積木）</span>
-                <div className="flex flex-wrap gap-1 w-28 min-h-[70px] content-start">
+                <span className="text-xs font-bold text-amber-800 mb-1">個位（散裝一）</span>
+                <div className="flex flex-wrap gap-1 w-28 min-h-[70px] items-center p-1 bg-white rounded-lg border border-amber-200">
                   {Array.from({ length: ones }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-4 h-4 bg-amber-400 border border-amber-600 rounded-sm shadow-sm"
-                      title="1個"
-                    ></div>
+                    <div key={i} className="w-4 h-4 bg-amber-400 border border-amber-600 rounded-sm shadow-sm"></div>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            {/* 個位增減控制 */}
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-xs font-bold text-slate-600">手動增加或減少單獨積木：</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setOnes(p => Math.max(0, p - 1))}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-rose-100 text-slate-700 rounded-lg text-xs font-black"
-                >
-                  - 1 個
-                </button>
-                <button
-                  onClick={() => setOnes(p => (tens * 10 + p < 30 ? p + 1 : p))}
-                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black"
-                >
-                  + 1 個
-                </button>
-                <button
-                  onClick={() => setOnes(p => (tens * 10 + p + 5 <= 30 ? p + 5 : p))}
-                  className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded-lg text-xs font-black"
-                >
-                  + 5 個
-                </button>
+                <div className="flex items-center gap-2 mt-1">
+                  <button onClick={() => setOnes(p => Math.max(0, p - 1))} className="w-5 h-5 bg-slate-100 rounded text-xs font-black">-</button>
+                  <span className="text-xs font-bold font-mono">{ones}</span>
+                  <button onClick={() => setOnes(p => p + 1)} className="w-5 h-5 bg-amber-400 text-amber-950 rounded text-xs font-black">+</button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 2、5、10 跳數點數挑戰區 */}
-          <div className="bg-white p-4 rounded-2xl border-2 border-emerald-300 shadow-sm flex flex-col gap-3">
+          <div className="bg-white p-4 rounded-2xl border-2 border-indigo-200 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
-                <span>🏃</span>
-                <span><BopomofoText text="練習 2、5、10 跳數點數：" showBpmf={bopomofoEnabled ?? false} /></span>
+              <span className="text-sm font-black text-indigo-950 flex items-center gap-1.5">
+                <span>🔢</span>
+                <BopomofoText text="跳數練習：" showBpmf={bopomofoEnabled ?? false} />
               </span>
-
-              {/* 切換跳數間隔 */}
               <div className="flex gap-1">
-                {([2, 5, 10] as const).map(step => (
+                {[2, 5, 10].map(step => (
                   <button
                     key={step}
                     onClick={() => {
                       soundFx.playPop();
-                      setSkipStep(step);
+                      setSkipStep(step as 2 | 5 | 10);
                       setSkipCount(step);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-black transition ${
+                    className={`px-2 py-0.5 rounded-lg text-xs font-black transition ${
                       skipStep === step
-                        ? 'bg-emerald-600 text-white shadow-sm'
-                        : 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'bg-indigo-50 text-indigo-900 hover:bg-indigo-100'
                     }`}
                   >
-                    {step} 個一數
+                    {step}個一數
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 跳數軌道動畫與當前數字 */}
-            <div className="bg-emerald-50/80 p-3.5 rounded-xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-800">當前數到：</span>
-                <span className="text-3xl font-black text-emerald-700 font-mono">
-                  {skipCount}
-                </span>
-                <span className="text-xs text-slate-500 font-bold">
-                  （{skipStep === 2 ? '雙雙對對數' : skipStep === 5 ? '五十五十數' : '滿十快速數'}）
-                </span>
+            <div className="flex items-center justify-around bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+              <button
+                onClick={() => {
+                  soundFx.playPop();
+                  setSkipCount(p => Math.max(skipStep, p - skipStep));
+                }}
+                disabled={skipCount <= skipStep}
+                className="px-3 py-1.5 bg-white hover:bg-rose-50 text-slate-700 rounded-xl border border-slate-200 text-xs font-black disabled:opacity-30"
+              >
+                倒數 -{skipStep}
+              </button>
+
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-slate-500">目前數到</span>
+                <span className="text-3xl font-black font-mono text-indigo-600">{skipCount}</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    soundFx.playPop();
-                    setSkipCount(p => Math.max(skipStep, p - skipStep));
-                  }}
-                  disabled={skipCount <= skipStep}
-                  className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-900 rounded-xl text-xs font-black hover:bg-emerald-100 disabled:opacity-40"
-                >
-                  <BopomofoText text="倒數" showBpmf={bopomofoEnabled ?? false} /> -{skipStep}
-                </button>
-                <button
-                  onClick={() => {
-                    soundFx.playCorrect();
-                    setSkipCount(p => (p + skipStep <= 30 ? p + skipStep : p));
-                  }}
-                  disabled={skipCount >= 30}
-                  className="px-4 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-black shadow hover:bg-emerald-700 disabled:opacity-40"
-                >
-                  <BopomofoText text="跳數" showBpmf={bopomofoEnabled ?? false} /> +{skipStep} ➔
-                </button>
-                <button
-                  onClick={() => {
-                    soundFx.playPop();
-                    setSkipCount(skipStep);
-                  }}
-                  className="p-1.5 text-slate-400 hover:text-emerald-700 rounded-lg"
-                  title="重新從頭數"
-                >
-                  <RotateCcw size={14} />
-                </button>
-              </div>
-            </div>
-
-            {/* 30 以內跳數軌道標記 */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {Array.from({ length: 30 / skipStep }).map((_, i) => {
-                const val = (i + 1) * skipStep;
-                const isReached = val <= skipCount;
-                const isCurrent = val === skipCount;
-                return (
-                  <button
-                    key={val}
-                    onClick={() => {
-                      soundFx.playPop();
-                      setSkipCount(val);
-                    }}
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-black flex items-center justify-center transition-all ${
-                      isCurrent
-                        ? 'bg-emerald-600 text-white scale-110 shadow ring-2 ring-emerald-300'
-                        : isReached
-                        ? 'bg-emerald-200 text-emerald-900'
-                        : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                    }`}
-                  >
-                    {val}
-                  </button>
-                );
-              })}
+              <button
+                onClick={() => {
+                  soundFx.playCoin();
+                  setSkipCount(p => Math.min(100, p + skipStep));
+                }}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow btn-fun"
+              >
+                跳數 +{skipStep} ➡
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= 模式二：十進位積木定位板 ================= */}
+      {/* ================= 模式二：十進位積木定位板（百位、十位、個位） ================= */}
       {activeTab === 'placeValue' && (
-        <div className="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl border-2 border-slate-200 shadow-inner min-h-[220px]">
-          {/* 百位 (100) */}
-          <div className="flex flex-col items-center border-r-2 border-dashed border-slate-200 pr-2">
-            <div className="text-xs font-black text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full mb-2">
-              <BopomofoText text="百位" showBpmf={bopomofoEnabled ?? false} /> ({hundreds})
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex flex-col items-center bg-white p-3.5 rounded-2xl border-2 border-emerald-300 shadow-sm min-h-[220px]">
+            <div className="font-bold text-xs text-emerald-800 mb-2 flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <BopomofoText text={`百位 (${hundreds})`} showBpmf={bopomofoEnabled ?? false} />
             </div>
-            <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
+            <div className="flex-1 flex flex-wrap gap-2 justify-center items-center overflow-y-auto max-h-44 p-1">
               {Array.from({ length: hundreds }).map((_, i) => (
                 <div
                   key={i}
-                  className="w-14 h-14 bg-emerald-500 border-2 border-emerald-700 rounded shadow-md grid grid-cols-5 grid-rows-5 gap-0.5 p-0.5"
-                  title="100個積木大方板"
+                  className="w-14 h-14 bg-emerald-500 border-2 border-emerald-700 rounded-md shadow-sm grid grid-cols-5 grid-rows-5 gap-[1px] p-[1px]"
+                  title="100格大板"
                 >
                   {Array.from({ length: 25 }).map((_, j) => (
                     <div key={j} className="bg-emerald-300/40 rounded-[1px]"></div>
@@ -505,8 +752,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 <span className="font-bold text-xs">{hundreds}</span>
                 <button
                   onClick={() => updateBlocks(Math.min(9, hundreds + 1), tens, ones)}
-                  disabled={hundreds >= 9}
-                  className="p-1 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700 disabled:opacity-30"
+                  className="p-1 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700"
                 >
                   <Plus size={12} />
                 </button>
@@ -514,17 +760,17 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             )}
           </div>
 
-          {/* 十位 (10) */}
-          <div className="flex flex-col items-center border-r-2 border-dashed border-slate-200 pr-2">
-            <div className="text-xs font-black text-sky-800 bg-sky-100 px-2.5 py-1 rounded-full mb-2">
-              <BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /> ({tens})
+          <div className="flex flex-col items-center bg-white p-3.5 rounded-2xl border-2 border-sky-300 shadow-sm min-h-[220px]">
+            <div className="font-bold text-xs text-sky-800 mb-2 flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+              <BopomofoText text={`十位 (${tens})`} showBpmf={bopomofoEnabled ?? false} />
             </div>
-            <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
+            <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-center overflow-y-auto max-h-44 p-1">
               {Array.from({ length: tens }).map((_, i) => (
                 <div
                   key={i}
                   className="w-3.5 h-16 bg-sky-500 border border-sky-700 rounded shadow-sm flex flex-col justify-between py-0.5 px-[1px]"
-                  title="10個積木長條"
+                  title="1條十"
                 >
                   {Array.from({ length: 5 }).map((_, j) => (
                     <div key={j} className="h-2 bg-sky-300/50 rounded-[1px]"></div>
@@ -552,10 +798,10 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             )}
           </div>
 
-          {/* 個位 (1) */}
-          <div className="flex flex-col items-center">
-            <div className="text-xs font-black text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full mb-2">
-              <BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /> ({ones})
+          <div className="flex flex-col items-center bg-white p-3.5 rounded-2xl border-2 border-amber-300 shadow-sm min-h-[220px]">
+            <div className="font-bold text-xs text-amber-800 mb-2 flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <BopomofoText text={`個位 (${ones})`} showBpmf={bopomofoEnabled ?? false} />
             </div>
             <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
               {Array.from({ length: ones }).map((_, i) => (
@@ -590,4 +836,3 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
     </div>
   );
 };
-
