@@ -258,9 +258,12 @@ export const LessonMode: React.FC<LessonModeProps> = ({
                 <BopomofoText text={unit.story.scene} showBpmf={bopomofoEnabled} />
               </div>
 
-              <div className="p-4 bg-rose-500 text-white rounded-2xl shadow font-black text-lg sm:text-2xl leading-relaxed flex items-start gap-3">
+              {/* 對話氣泡：採用高對比度的白底卡片搭配溫暖邊框，確保國字與注音聲調 100% 清晰好辨識 */}
+              <div className="p-5 bg-white text-slate-900 rounded-3xl border-3 border-rose-300 shadow-md font-black text-lg sm:text-2xl leading-relaxed flex items-start gap-3">
                 <span className="text-2xl sm:text-3xl shrink-0">💬</span>
-                <BopomofoText text={unit.story.dialogue} showBpmf={bopomofoEnabled} />
+                <div className="flex-1 text-slate-900">
+                  <BopomofoText text={unit.story.dialogue} showBpmf={bopomofoEnabled} />
+                </div>
               </div>
             </div>
 
