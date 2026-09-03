@@ -84,7 +84,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'ruler':
         return <VirtualRuler />;
       case 'ten_split':
-        return <TenSplitBoard totalCount={10} />;
+        return <TenSplitBoard totalCount={10} unitId={unit.id} />;
       default:
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
     }
