@@ -10,6 +10,8 @@ interface UnitSelectorProps {
   userProgress: UserProgress;
   bopomofoEnabled: boolean;
   accountName: string;
+  initialUnitId?: string | null;
+  initialSemester?: Semester | 'all';
   lastUnitId?: string;
   lastUnitTitle?: string;
   lastGrade?: Grade;
@@ -24,6 +26,8 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   userProgress,
   bopomofoEnabled,
   accountName,
+  initialUnitId,
+  initialSemester = 'all',
   lastUnitId,
   lastUnitTitle,
   lastGrade,
@@ -31,8 +35,7 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   onSelectUnit,
   onResumeLastUnit
 }) => {
-  const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>('all');
-  const [activeUnitIndex, setActiveUnitIndex] = useState<number>(0);
+  const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>(initialSemester);
   const [viewMode, setViewMode] = useState<'stage' | 'grid'>('stage');
 
   const filteredUnits = units
@@ -45,6 +48,39 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
       if (a.semester !== b.semester) return a.semester - b.semester;
       return a.order - b.order;
     });
+
+  // 計算初始頁碼：若有傳入上次觀看/返回的單元 id，直接精準對齊該單元所在位置！
+  const getIndexForUnit = (unitId?: string | null, semesterVal?: Semester | 'all') => {
+    if (!unitId) return 0;
+    const targetList = units
+      .filter(u => {
+        if (u.grade !== currentGrade) return false;
+        if (semesterVal && semesterVal !== 'all' && u.semester !== semesterVal) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.semester !== b.semester) return a.semester - b.semester;
+        return a.order - b.order;
+      });
+    const foundIdx = targetList.findIndex(u => u.id === unitId);
+    return foundIdx >= 0 ? foundIdx : 0;
+  };
+
+  const [activeUnitIndex, setActiveUnitIndex] = useState<number>(() => getIndexForUnit(initialUnitId, initialSemester));
+
+  // 當從課程或練習返回時，精準定位回先前查看的單元與學期
+  React.useEffect(() => {
+    if (initialUnitId) {
+      const matchedUnit = units.find(u => u.id === initialUnitId);
+      if (matchedUnit) {
+        if (matchedUnit.semester !== selectedSemester && selectedSemester !== 'all') {
+          setSelectedSemester(matchedUnit.semester);
+        }
+        const idx = getIndexForUnit(initialUnitId, selectedSemester);
+        setActiveUnitIndex(idx);
+      }
+    }
+  }, [initialUnitId, currentGrade]);
 
   const safeIndex = Math.min(activeUnitIndex, Math.max(0, filteredUnits.length - 1));
   const currentUnit = filteredUnits[safeIndex] || filteredUnits[0];

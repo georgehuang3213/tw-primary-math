@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grade, Unit, UserProgress, UserAccount } from './types';
+import { Grade, Semester, Unit, UserProgress, UserAccount } from './types';
 import { CURRICULUM_UNITS } from './data/curriculum';
 import { QUESTIONS } from './data/questions';
 import { Navbar } from './components/Navbar';
@@ -18,6 +18,8 @@ export const App: React.FC = () => {
   const [currentAccountName, setCurrentAccountName] = useState<string | null>(() => storageService.getCurrentAccountName());
   const [userAccount, setUserAccount] = useState<UserAccount>(() => storageService.getUserAccount());
   const [currentGrade, setCurrentGrade] = useState<Grade>(1);
+  const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>('all');
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
   const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice'>('home');
   
@@ -108,6 +110,8 @@ export const App: React.FC = () => {
   const handleSelectUnit = (unit: Unit, mode: 'lesson' | 'practice') => {
     const updated = storageService.recordLastVisitedUnit(unit, mode);
     setUserAccount(updated);
+    setSelectedUnitId(unit.id);
+    setSelectedSemester(unit.semester);
     setActiveUnit(unit);
     setCurrentMode(mode);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -215,6 +219,8 @@ export const App: React.FC = () => {
             userProgress={userProgress}
             bopomofoEnabled={bopomofoEnabled}
             accountName={currentAccountName}
+            initialUnitId={selectedUnitId}
+            initialSemester={selectedSemester}
             lastUnitId={userAccount.lastUnitId}
             lastUnitTitle={userAccount.lastUnitTitle}
             lastGrade={userAccount.lastGrade}
