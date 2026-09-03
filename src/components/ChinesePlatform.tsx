@@ -17,6 +17,7 @@ import { ChineseLesson, ChineseVocabulary, ChineseQuizQuestion, Grade } from '..
 import { KANG_HSUAN_G1_CHINESE } from '../data/chineseCurriculum';
 import { KANG_HSUAN_G1_S2_CHINESE } from '../data/chineseCurriculumS2';
 import { HANLIN_G2_S1_CHINESE } from '../data/hanlinG2S1Chinese';
+import { HANLIN_G2_S2_CHINESE } from '../data/hanlinG2S2Chinese';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
 import { speechService } from '../services/speech';
@@ -31,17 +32,15 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
   onBackToMath
 }) => {
   const [selectedGrade, setSelectedGrade] = useState<Grade>(2); // 預設二年級
-  const [selectedSemester, setSelectedSemester] = useState<1 | 2>(1); // 預設上學期
+  const [selectedSemester, setSelectedSemester] = useState<1 | 2>(2); // 預設二下
 
   // 依據 年級 與 學期 取得對應課文清單
   const currentLessons = 
     selectedGrade === 2 
-      ? HANLIN_G2_S1_CHINESE 
-      : selectedSemester === 1 
-        ? KANG_HSUAN_G1_CHINESE 
-        : KANG_HSUAN_G1_S2_CHINESE;
+      ? (selectedSemester === 1 ? HANLIN_G2_S1_CHINESE : HANLIN_G2_S2_CHINESE)
+      : (selectedSemester === 1 ? KANG_HSUAN_G1_CHINESE : KANG_HSUAN_G1_S2_CHINESE);
 
-  const [selectedLessonId, setSelectedLessonId] = useState<string>(HANLIN_G2_S1_CHINESE[0].id);
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(HANLIN_G2_S2_CHINESE[0].id);
   const [activeTab, setActiveTab] = useState<'text' | 'vocab' | 'quiz'>('text');
 
   const currentLesson = currentLessons.find(l => l.id === selectedLessonId) || currentLessons[0];
@@ -134,7 +133,7 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
                 <span>📖</span>
                 <span>
                   {selectedGrade === 2 
-                    ? '翰林版 國小國語 二年級上學期' 
+                    ? `翰林版 國小國語 ${selectedSemester === 1 ? '二年級上學期' : '二年級下學期'}` 
                     : `康軒版 國小國語 ${selectedSemester === 1 ? '一年級上學期' : '一年級下學期'}`}
                 </span>
               </h1>
@@ -144,10 +143,12 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
             </div>
             <p className="text-xs text-emerald-100 font-bold mt-0.5">
               {selectedGrade === 2 
-                ? '翰林版二上：第1課至第12課 ＋ 統整活動一～四 ＋ 閱讀開門一、二（全冊完整收錄）'
-                : selectedSemester === 1 
-                  ? '康軒版一上：首冊注音符號統整 ＋ 第一課至第八課精編課文朗讀、生字筆順與測驗'
-                  : '康軒版一下：第一課至第十二課完整課文朗讀、生字筆順與生活應用測驗'}
+                ? (selectedSemester === 1
+                    ? '翰林版二上：第1課至第12課 ＋ 統整活動一～四 ＋ 閱讀開門一、二（全冊完整收錄）'
+                    : '翰林版二下：第1課至第12課（種子旅行、一場雨、孵蛋男孩、點亮世界的人、醜小鴨、蜘蛛救蛋等完整收錄）')
+                : (selectedSemester === 1 
+                    ? '康軒版一上：首冊注音符號統整 ＋ 第一課至第八課精編課文朗讀、生字筆順與測驗'
+                    : '康軒版一下：第一課至第十二課完整課文朗讀、生字筆順與生活應用測驗')}
             </p>
           </div>
         </div>
@@ -181,10 +182,10 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
               onClick={() => {
                 soundFx.playPop();
                 setSelectedGrade(2);
-                setSelectedSemester(1);
-                setSelectedLessonId(HANLIN_G2_S1_CHINESE[0].id);
+                setSelectedSemester(2); // 預設進二下
+                setSelectedLessonId(HANLIN_G2_S2_CHINESE[0].id);
                 setActiveLineIdx(null);
-                setSelectedVocab(HANLIN_G2_S1_CHINESE[0].vocabularies[0] || null);
+                setSelectedVocab(HANLIN_G2_S2_CHINESE[0].vocabularies[0] || null);
                 setQuizIdx(0);
                 setSelectedOption(null);
                 setScore(0);
@@ -200,51 +201,51 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
             </button>
           </div>
 
-          {/* 若為一年級，顯示 一上 / 一下 切換 */}
-          {selectedGrade === 1 && (
-            <div className="flex items-center bg-black/20 p-1 rounded-2xl border border-white/20">
-              <button
-                onClick={() => {
-                  soundFx.playPop();
-                  setSelectedSemester(1);
-                  setSelectedLessonId(KANG_HSUAN_G1_CHINESE[1].id);
-                  setActiveLineIdx(null);
-                  setSelectedVocab(KANG_HSUAN_G1_CHINESE[1].vocabularies[0] || null);
-                  setQuizIdx(0);
-                  setSelectedOption(null);
-                  setScore(0);
-                  setQuizFinished(false);
-                }}
-                className={`px-2.5 py-1.5 rounded-xl font-black text-xs transition ${
-                  selectedSemester === 1
-                    ? 'bg-white text-emerald-950 shadow-md scale-105'
-                    : 'text-emerald-100 hover:text-white'
-                }`}
-              >
-                一上
-              </button>
-              <button
-                onClick={() => {
-                  soundFx.playPop();
-                  setSelectedSemester(2);
-                  setSelectedLessonId(KANG_HSUAN_G1_S2_CHINESE[0].id);
-                  setActiveLineIdx(null);
-                  setSelectedVocab(KANG_HSUAN_G1_S2_CHINESE[0].vocabularies[0] || null);
-                  setQuizIdx(0);
-                  setSelectedOption(null);
-                  setScore(0);
-                  setQuizFinished(false);
-                }}
-                className={`px-2.5 py-1.5 rounded-xl font-black text-xs transition ${
-                  selectedSemester === 2
-                    ? 'bg-white text-emerald-950 shadow-md scale-105'
-                    : 'text-emerald-100 hover:text-white'
-                }`}
-              >
-                一下
-              </button>
-            </div>
-          )}
+          {/* 上學期 / 下學期 切換 */}
+          <div className="flex items-center bg-black/20 p-1 rounded-2xl border border-white/20">
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setSelectedSemester(1);
+                const firstLesson = selectedGrade === 1 ? KANG_HSUAN_G1_CHINESE[1] : HANLIN_G2_S1_CHINESE[0];
+                setSelectedLessonId(firstLesson.id);
+                setActiveLineIdx(null);
+                setSelectedVocab(firstLesson.vocabularies[0] || null);
+                setQuizIdx(0);
+                setSelectedOption(null);
+                setScore(0);
+                setQuizFinished(false);
+              }}
+              className={`px-2.5 py-1.5 rounded-xl font-black text-xs transition ${
+                selectedSemester === 1
+                  ? 'bg-white text-emerald-950 shadow-md scale-105'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              {selectedGrade === 1 ? '一上' : '二上'}
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setSelectedSemester(2);
+                const firstLesson = selectedGrade === 1 ? KANG_HSUAN_G1_S2_CHINESE[0] : HANLIN_G2_S2_CHINESE[0];
+                setSelectedLessonId(firstLesson.id);
+                setActiveLineIdx(null);
+                setSelectedVocab(firstLesson.vocabularies[0] || null);
+                setQuizIdx(0);
+                setSelectedOption(null);
+                setScore(0);
+                setQuizFinished(false);
+              }}
+              className={`px-2.5 py-1.5 rounded-xl font-black text-xs transition ${
+                selectedSemester === 2
+                  ? 'bg-white text-emerald-950 shadow-md scale-105'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              {selectedGrade === 1 ? '一下' : '二下'}
+            </button>
+          </div>
 
           <button
             onClick={handleSpeakFullLesson}
