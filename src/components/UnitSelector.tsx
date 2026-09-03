@@ -247,10 +247,10 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
                 soundFx.playCorrect();
                 onOpenMultiplication();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun whitespace-nowrap"
             >
               <span>⚡</span>
-              <BopomofoText text="九九乘法表" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="九九乘法" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
             </button>
           )}
 
@@ -260,10 +260,10 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
                 soundFx.playCorrect();
                 onOpenChinese();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-emerald-700 transition btn-fun"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-emerald-700 transition btn-fun whitespace-nowrap"
             >
               <span>📖</span>
-              <BopomofoText text="康軒國語天地" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="國語天地" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
             </button>
           )}
 

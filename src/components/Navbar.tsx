@@ -69,33 +69,35 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* 年級切換按鈕 */}
-        <div className="flex items-center bg-amber-500/60 p-1 rounded-2xl border border-amber-600/40">
+        {/* 年級與學科快捷按鈕列 */}
+        <div className="flex items-center gap-1.5 sm:gap-2 bg-amber-500/60 p-1 sm:p-1.5 rounded-2xl border border-amber-600/40 shrink-0">
           <button
             onClick={() => {
               soundFx.playPop();
               onGradeChange(1);
             }}
-            className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
-              currentGrade === 1
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1 shrink-0 ${
+              currentGrade === 1 && currentSubject === 'math' && currentMode !== 'multiplication'
                 ? 'bg-white text-amber-950 shadow-md scale-105'
                 : 'text-amber-900 hover:text-white'
             }`}
           >
-            🌱 <BopomofoText text="一年級" showBpmf={bopomofoEnabled} />
+            <span>🌱</span>
+            <BopomofoText text="一年級" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
           </button>
           <button
             onClick={() => {
               soundFx.playPop();
               onGradeChange(2);
             }}
-            className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
-              currentGrade === 2 && currentSubject === 'math'
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1 shrink-0 ${
+              currentGrade === 2 && currentSubject === 'math' && currentMode !== 'multiplication'
                 ? 'bg-white text-amber-950 shadow-md scale-105'
                 : 'text-amber-900 hover:text-white'
             }`}
           >
-            🚀 <BopomofoText text="二年級" showBpmf={bopomofoEnabled} />
+            <span>🚀</span>
+            <BopomofoText text="二年級" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
           </button>
 
           {/* ⚡ 九九乘法表專屬分頁按鈕 */}
@@ -105,32 +107,32 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundFx.playPop();
                 onOpenMultiplication();
               }}
-              className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-1 ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 currentMode === 'multiplication'
                   ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md scale-105 ring-2 ring-violet-300'
                   : 'bg-violet-100 hover:bg-violet-200 text-violet-950 border border-violet-300'
               }`}
             >
               <span>⚡</span>
-              <BopomofoText text="九九乘法表" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="九九乘法" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
             </button>
           )}
 
-          {/* 📖 康軒國語專區按鈕 */}
+          {/* 📖 國語專區按鈕 */}
           {onSubjectChange && (
             <button
               onClick={() => {
                 soundFx.playCorrect();
                 onSubjectChange('chinese');
               }}
-              className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 currentSubject === 'chinese'
                   ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md scale-105 ring-2 ring-emerald-300'
                   : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300'
               }`}
             >
               <span>📖</span>
-              <BopomofoText text="康軒國語" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="國語天地" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
             </button>
           )}
         </div>

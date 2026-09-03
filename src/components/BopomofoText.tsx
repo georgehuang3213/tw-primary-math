@@ -6,19 +6,26 @@ interface BopomofoTextProps {
   bpmfText?: string;
   className?: string;
   showBpmf?: boolean;
+  nowrap?: boolean;
+  compact?: boolean;
 }
 
 export const BopomofoText: React.FC<BopomofoTextProps> = ({
   text,
   bpmfText,
   className = '',
-  showBpmf = true
+  showBpmf = true,
+  nowrap = false,
+  compact = false
 }) => {
   const contentToParse = bpmfText || text;
   const charList = parseToBopomofoChars(contentToParse);
 
+  const wrapClass = nowrap ? 'flex-nowrap whitespace-nowrap' : 'flex-wrap';
+  const gapClass = compact ? 'gap-x-0.5 gap-y-0.5' : 'gap-x-1 gap-y-1.5';
+
   return (
-    <span className={`inline-flex flex-wrap items-center align-middle gap-x-1.5 gap-y-2 ${className}`}>
+    <span className={`inline-flex ${wrapClass} items-center align-middle ${gapClass} ${className}`}>
       {charList.map((item, idx) => {
         // 非中文字（如數字、運算符號、標點、英文字母）直接輸出
         if (!item.isChinese || !showBpmf || !item.bpmf) {
