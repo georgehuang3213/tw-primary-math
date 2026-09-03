@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Check, ArrowRight, Trophy, Sparkles, Coins, RefreshCw } from 'lucide-react';
+import { RotateCcw, Check, ArrowRight, Trophy, Sparkles, Coins, Bus, ArrowDown, BookOpen } from 'lucide-react';
 import { soundFx } from '../../services/audio';
 import { BopomofoText } from '../BopomofoText';
 
@@ -13,7 +13,7 @@ interface VerticalArithmeticProps {
   bopomofoEnabled?: boolean;
 }
 
-type TabMode = 'add' | 'sub' | 'compare' | 'inverse';
+type TabMode = 'add' | 'sub' | 'compare' | 'inverse' | 'two_step';
 
 export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   operation: initialOp = 'add',
@@ -24,9 +24,14 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   unitId,
   bopomofoEnabled
 }) => {
-  // 自動判定初始模式：若為 g2-u4 (加減應用互逆) 或 g2-u6 (加減兩步驟)，預設直接進入 'inverse' 互逆模式！
+  // 自動判定初始模式：
+  // 若為 g2-u6 (加減兩步驟)，直接預設 'two_step' 兩步驟解題站！
+  // 若為 g2-u4 (加減應用互逆)，直接預設 'inverse' 互逆模式！
+  // 若為 g2-u2 (二位數加減直式與符號)，可自由切換 add/sub/compare！
   const defaultMode: TabMode =
-    unitId === 'g2-u4-app-add-sub' || unitId === 'g2-u6-two-steps-add-sub'
+    unitId === 'g2-u6-two-steps-add-sub'
+      ? 'two_step'
+      : unitId === 'g2-u4-app-add-sub'
       ? 'inverse'
       : initialOp;
 
@@ -140,7 +145,129 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   // -------------------------------------------------------------
-  // 互動加減互逆小偵探題庫與操作狀態 (g2-u4 / g2-u6)
+  // 🌟 二上第六單元專屬：加減兩步驟解題站 (g2-u6)
+  // -------------------------------------------------------------
+  const twoStepQuestions = [
+    {
+      id: 'bus',
+      icon: '🚌',
+      tag: '連加兩步驟（小公車情境）',
+      title: '動物小公車載客記',
+      story: '公車上原本有 24 隻動物，第一站上車 18 隻，第二站又上車 15 隻。現在公車上一共有幾隻動物？',
+      step1Desc: '步驟 1：先算第一站上車後，車上一共有幾隻動物？',
+      step1Expr: '24 ＋ 18',
+      step1Ans: 42,
+      step2Desc: '步驟 2：拿第一步算出的 42 隻，加上第二站又上車的 15 隻！',
+      step2Expr: '42 ＋ 15',
+      step2Ans: 57,
+      unit: '隻',
+      finalAnswer: 57,
+      commuteTip: '💡 加法交換律：18 ＋ 24 ＝ 42，前後順序調換，算出來答案一模一樣喔！'
+    },
+    {
+      id: 'snack',
+      icon: '🍪',
+      tag: '連減兩步驟（超市買點心）',
+      title: '小熊買野餐點心',
+      story: '小熊帶了 60 元去森林超市，買蘋果花了 25 元，買餅乾又花了 15 元。小熊還剩下多少元？',
+      step1Desc: '步驟 1：先算買完蘋果後，還剩下多少元？',
+      step1Expr: '60 － 25',
+      step1Ans: 35,
+      step2Desc: '步驟 2：拿剩下的 35 元，再扣掉買餅乾花掉的 15 元！',
+      step2Expr: '35 － 15',
+      step2Ans: 20,
+      unit: '元',
+      finalAnswer: 20,
+      commuteTip: '💡 連減也可以先把花掉的加起來：25 ＋ 15 ＝ 40，再用 60 － 40 ＝ 20 元！'
+    },
+    {
+      id: 'books',
+      icon: '📚',
+      tag: '先加後減（圖書館借還書）',
+      title: '圖書館圖書流通',
+      story: '借書桌上原本有 32 本書，同學還回 18 本，老師又借走 14 本。現在桌上有幾本書？',
+      step1Desc: '步驟 1：先算同學還書後，桌上一共有幾本書？',
+      step1Expr: '32 ＋ 18',
+      step1Ans: 50,
+      step2Desc: '步驟 2：拿湊滿的 50 本書，扣掉老師借走的 14 本！',
+      step2Expr: '50 － 14',
+      step2Ans: 36,
+      unit: '本',
+      finalAnswer: 36,
+      commuteTip: '💡 兩步驟依序算：32 ＋ 18 ＝ 50，50 － 14 ＝ 36 本，條理清楚絕不混淆！'
+    },
+    {
+      id: 'sandwich',
+      icon: '🥪',
+      tag: '先減後加（烘焙野餐盒）',
+      title: '松鼠媽媽做三明治',
+      story: '餐盒裡原本有 40 塊三明治，小松鼠吃掉 16 塊，媽媽又補放進 25 塊。現在餐盒裡有幾塊？',
+      step1Desc: '步驟 1：先算小松鼠吃掉後，餐盒裡還剩幾塊？',
+      step1Expr: '40 － 16',
+      step1Ans: 24,
+      step2Desc: '步驟 2：拿剩下的 24 塊，加上媽媽補放進來的 25 塊！',
+      step2Expr: '24 ＋ 25',
+      step2Ans: 49,
+      unit: '塊',
+      finalAnswer: 49,
+      commuteTip: '💡 先減再加：40 － 16 ＝ 24，24 ＋ 25 ＝ 49 塊，一步一步算最準確！'
+    }
+  ];
+
+  const [twoStepIdx, setTwoStepIdx] = useState<number>(0);
+  const [step1Input, setStep1Input] = useState<string>('');
+  const [step1Done, setStep1Done] = useState<boolean>(false);
+  const [step2Input, setStep2Input] = useState<string>('');
+  const [twoStepFeedback, setTwoStepFeedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+
+  const currentTwoStep = twoStepQuestions[twoStepIdx];
+
+  const handleCheckStep1 = () => {
+    const val = parseInt(step1Input, 10);
+    if (val === currentTwoStep.step1Ans) {
+      soundFx.playCorrect();
+      setStep1Done(true);
+      setTwoStepFeedback({
+        isCorrect: true,
+        text: `🎉 第一步驟算對了（${currentTwoStep.step1Expr} ＝ ${currentTwoStep.step1Ans}）！請拿著這個答案繼續完成第二步驟！`
+      });
+    } else {
+      soundFx.playWrong();
+      setTwoStepFeedback({
+        isCorrect: false,
+        text: `💡 第一步驟算算看：${currentTwoStep.step1Expr} ＝ 多少呢？加油！`
+      });
+    }
+  };
+
+  const handleCheckStep2 = () => {
+    const val = parseInt(step2Input, 10);
+    if (val === currentTwoStep.step2Ans) {
+      soundFx.playCorrect();
+      setTwoStepFeedback({
+        isCorrect: true,
+        text: `🎊 太厲害了！兩步驟全部解開！最終答案是一共有 ${currentTwoStep.finalAnswer} ${currentTwoStep.unit}！`
+      });
+    } else {
+      soundFx.playWrong();
+      setTwoStepFeedback({
+        isCorrect: false,
+        text: `💡 第二步驟算算看：${currentTwoStep.step2Expr} ＝ 多少呢？`
+      });
+    }
+  };
+
+  const handleSwitchTwoStepQ = (idx: number) => {
+    soundFx.playPop();
+    setTwoStepIdx(idx);
+    setStep1Input('');
+    setStep1Done(false);
+    setStep2Input('');
+    setTwoStepFeedback(null);
+  };
+
+  // -------------------------------------------------------------
+  // 二上第四單元專屬：加減互逆小偵探 (g2-u4)
   // -------------------------------------------------------------
   const inverseQuestions = [
     {
@@ -250,9 +377,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
     setInverseFeedback(null);
   };
 
-  // -------------------------------------------------------------
   // 重設直式加減黑板
-  // -------------------------------------------------------------
   const handleReset = () => {
     setCarry('');
     setBorrowTens('');
@@ -284,14 +409,46 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
     }
   };
 
-  const showCompareTab = unitId === 'g2-u2-add-sub-vertical' || unitId?.includes('compare');
-  const showInverseTab = unitId === 'g2-u4-app-add-sub' || unitId === 'g2-u6-two-steps-add-sub' || true;
+  // 各單元專屬分頁顯示控制
+  const isG2U6 = unitId === 'g2-u6-two-steps-add-sub';
+  const isG2U4 = unitId === 'g2-u4-app-add-sub';
+  const isG2U2 = unitId === 'g2-u2-add-sub-vertical';
 
   return (
     <div className="flex flex-col items-center bg-white p-4 sm:p-6 rounded-3xl border-4 border-amber-300 shadow-md max-w-xl mx-auto w-full">
       {/* 頂部切換標籤列 */}
       <div className="flex items-center justify-between w-full border-b-2 border-amber-100 pb-3 mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-1.5 bg-amber-50 p-1 rounded-2xl border border-amber-200 flex-wrap">
+          {/* 若為 g2-u6，第一個且最醒目分頁是「兩步驟加減解題站」 */}
+          {isG2U6 && (
+            <button
+              onClick={() => handleSwitchTab('two_step')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
+                tabMode === 'two_step'
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'text-orange-950 hover:bg-orange-100'
+              }`}
+            >
+              <span>🚌</span>
+              <BopomofoText text="兩步驟加減解題站" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+          )}
+
+          {/* 若為 g2-u4，第一個且最醒目分頁是「加減互逆驗算」 */}
+          {isG2U4 && (
+            <button
+              onClick={() => handleSwitchTab('inverse')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
+                tabMode === 'inverse'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-emerald-700 hover:bg-emerald-50'
+              }`}
+            >
+              <span>🔄</span>
+              <BopomofoText text="加減互逆驗算" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+          )}
+
           <button
             onClick={() => handleSwitchTab('add')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -303,6 +460,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             <span>➕</span>
             <BopomofoText text="兩位數加法" showBpmf={bopomofoEnabled ?? false} />
           </button>
+
           <button
             onClick={() => handleSwitchTab('sub')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -316,7 +474,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
           </button>
 
           {/* g2-u2 專屬：＜、＝、＞ 符號比大小挑戰分頁 */}
-          {showCompareTab && (
+          {isG2U2 && (
             <button
               onClick={() => handleSwitchTab('compare')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -330,8 +488,8 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </button>
           )}
 
-          {/* g2-u4 / g2-u6 專屬：加減互逆驗算分頁 */}
-          {showInverseTab && (
+          {/* 若不是 g2-u6 也不是 g2-u4，但想查看互逆驗算 */}
+          {!isG2U6 && !isG2U4 && !isG2U2 && (
             <button
               onClick={() => handleSwitchTab('inverse')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -356,17 +514,350 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
         )}
       </div>
 
-      {/* ======================= 分頁 1 & 2：標準直式加法/減法黑板 ======================= */}
+      {/* ========================================================================= */}
+      {/* 🌟 模式 A：二上第六單元專屬【加減兩步驟解題站】(g2-u6 預設) */}
+      {/* ========================================================================= */}
+      {tabMode === 'two_step' && (
+        <div className="w-full flex flex-col items-center gap-4">
+          {/* 題型切換膠囊按鈕列 */}
+          <div className="w-full bg-orange-50 border-2 border-orange-200 rounded-2xl p-2.5 shadow-sm">
+            <p className="text-xs font-black text-orange-950 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Bus size={15} className="text-orange-600" />
+                <BopomofoText text="選擇兩步驟加減生活情境題：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] font-bold text-orange-700">
+                {twoStepIdx + 1} / {twoStepQuestions.length}
+              </span>
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {twoStepQuestions.map((q, idx) => (
+                <button
+                  key={q.id}
+                  onClick={() => handleSwitchTwoStepQ(idx)}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    twoStepIdx === idx
+                      ? 'bg-orange-500 text-white shadow-md font-black scale-102'
+                      : 'bg-white text-orange-950 hover:bg-orange-100 border border-orange-200'
+                  }`}
+                >
+                  <span>{q.icon}</span>
+                  <span className="truncate">{q.title.replace('動物', '').replace('小熊', '').replace('松鼠', '')}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 題目故事卡 */}
+          <div className="w-full bg-white border-2 border-orange-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-black px-2.5 py-0.5 bg-orange-500 text-white rounded-full flex items-center gap-1">
+                <span>{currentTwoStep.icon}</span>
+                <BopomofoText text={currentTwoStep.tag} showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-xs text-orange-800 font-bold">
+                {currentTwoStep.title}
+              </span>
+            </div>
+            <p className="text-sm sm:text-base font-black text-slate-800 leading-relaxed mt-1">
+              <BopomofoText text={currentTwoStep.story} showBpmf={bopomofoEnabled ?? false} />
+            </p>
+          </div>
+
+          {/* 兩步驟動手操作卡片 */}
+          <div className="w-full flex flex-col gap-3">
+            {/* 第一步驟卡 */}
+            <div className={`p-4 rounded-2xl border-2 transition-all ${
+              step1Done
+                ? 'bg-emerald-50 border-emerald-300 shadow-sm'
+                : 'bg-amber-50 border-amber-300 shadow-md ring-2 ring-amber-200'
+            }`}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-black px-2 py-0.5 bg-amber-500 text-white rounded-md">
+                  <BopomofoText text="第一步驟" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                {step1Done && (
+                  <span className="text-xs font-black text-emerald-700 flex items-center gap-1">
+                    <Check size={14} /> <BopomofoText text="已完成第一步！" showBpmf={bopomofoEnabled ?? false} />
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-bold text-slate-700 mb-2">
+                <BopomofoText text={currentTwoStep.step1Desc} showBpmf={bopomofoEnabled ?? false} />
+              </p>
+
+              <div className="flex items-center justify-center gap-2 font-mono text-xl sm:text-2xl font-black text-slate-800 flex-wrap">
+                <span className="bg-white px-3 py-1 rounded-xl border border-amber-200 text-amber-950">
+                  {currentTwoStep.step1Expr}
+                </span>
+                <span>＝</span>
+                <input
+                  type="text"
+                  maxLength={3}
+                  disabled={step1Done}
+                  value={step1Input}
+                  onChange={e => setStep1Input(e.target.value)}
+                  placeholder="?"
+                  className="w-16 h-11 text-center text-xl font-black bg-white text-amber-950 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50 disabled:bg-emerald-100 disabled:text-emerald-900"
+                />
+                <span className="text-sm font-sans font-black text-slate-700">
+                  <BopomofoText text={currentTwoStep.unit} showBpmf={bopomofoEnabled ?? false} />
+                </span>
+
+                {!step1Done && (
+                  <button
+                    onClick={handleCheckStep1}
+                    disabled={!step1Input}
+                    className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-amber-950 text-xs font-black rounded-xl shadow btn-fun disabled:opacity-40"
+                  >
+                    <BopomofoText text="確認第一步" showBpmf={bopomofoEnabled ?? false} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* 中間步驟傳遞箭頭 */}
+            {step1Done && (
+              <div className="flex items-center justify-center gap-1 text-xs font-black text-orange-600 animate-bounce-short">
+                <ArrowDown size={16} />
+                <BopomofoText text={`中間答案「${currentTwoStep.step1Ans}」順利傳遞到第二步驟！`} showBpmf={bopomofoEnabled ?? false} />
+                <ArrowDown size={16} />
+              </div>
+            )}
+
+            {/* 第二步驟卡 */}
+            <div className={`p-4 rounded-2xl border-2 transition-all ${
+              !step1Done
+                ? 'bg-slate-50 border-slate-200 opacity-60 pointer-events-none'
+                : 'bg-orange-50 border-orange-300 shadow-md ring-2 ring-orange-200'
+            }`}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-black px-2 py-0.5 bg-orange-500 text-white rounded-md">
+                  <BopomofoText text="第二步驟" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <span className="text-xs font-bold text-orange-900">
+                  <BopomofoText text="接續第一步答案計算" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+              </div>
+              <p className="text-xs font-bold text-slate-700 mb-2">
+                <BopomofoText text={currentTwoStep.step2Desc} showBpmf={bopomofoEnabled ?? false} />
+              </p>
+
+              <div className="flex items-center justify-center gap-2 font-mono text-xl sm:text-2xl font-black text-slate-800 flex-wrap">
+                <span className="bg-white px-3 py-1 rounded-xl border border-orange-200 text-orange-950">
+                  {currentTwoStep.step2Expr}
+                </span>
+                <span>＝</span>
+                <input
+                  type="text"
+                  maxLength={3}
+                  value={step2Input}
+                  onChange={e => setStep2Input(e.target.value)}
+                  placeholder="?"
+                  className="w-16 h-11 text-center text-xl font-black bg-white text-orange-950 rounded-xl border-2 border-orange-400 focus:outline-none focus:ring-4 ring-orange-300/50"
+                />
+                <span className="text-sm font-sans font-black text-slate-700">
+                  <BopomofoText text={currentTwoStep.unit} showBpmf={bopomofoEnabled ?? false} />
+                </span>
+
+                <button
+                  onClick={handleCheckStep2}
+                  disabled={!step2Input}
+                  className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black rounded-xl shadow btn-fun disabled:opacity-40"
+                >
+                  <BopomofoText text="解開題目" showBpmf={bopomofoEnabled ?? false} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 教學秘訣卡（加法交換律） */}
+          <div className="w-full bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-xs text-amber-950 text-center font-bold">
+            <BopomofoText text={currentTwoStep.commuteTip} showBpmf={bopomofoEnabled ?? false} />
+          </div>
+
+          {/* 回饋訊息 */}
+          {twoStepFeedback && (
+            <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
+              twoStepFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
+            }`}>
+              <BopomofoText text={twoStepFeedback.text} showBpmf={bopomofoEnabled ?? false} />
+            </div>
+          )}
+
+          {/* 下一題按鈕 */}
+          {twoStepFeedback?.isCorrect && step2Input && (
+            <button
+              onClick={() => handleSwitchTwoStepQ((twoStepIdx + 1) % twoStepQuestions.length)}
+              className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl shadow-md btn-fun flex items-center justify-center gap-1 text-sm"
+            >
+              <BopomofoText text="挑戰下一道兩步驟生活情境題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 模式 B：二上第四單元專屬【加減互逆小偵探】(g2-u4 預設) */}
+      {/* ========================================================================= */}
+      {tabMode === 'inverse' && (
+        <div className="w-full flex flex-col items-center gap-4">
+          <div className="w-full bg-emerald-50/90 border-2 border-emerald-300 rounded-2xl p-2.5 shadow-sm">
+            <p className="text-xs font-black text-emerald-900 mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Sparkles size={14} className="text-amber-500" />
+                <BopomofoText text="選擇加減互逆偵探情境題：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] font-bold text-emerald-700">
+                {inverseQIdx + 1} / {inverseQuestions.length}
+              </span>
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {inverseQuestions.map((q, idx) => (
+                <button
+                  key={q.id}
+                  onClick={() => handleSwitchInverseQ(idx)}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                    inverseQIdx === idx
+                      ? 'bg-emerald-600 text-white shadow-md font-black scale-102'
+                      : 'bg-white text-emerald-950 hover:bg-emerald-100 border border-emerald-200'
+                  }`}
+                >
+                  <span>{q.icon}</span>
+                  <span className="truncate">{q.title.replace('小明的', '').replace('小華的', '').replace('小美的', '')}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-full bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-black px-2.5 py-0.5 bg-emerald-600 text-white rounded-full flex items-center gap-1">
+                <span>{currentInverseQ.icon}</span>
+                <BopomofoText text={currentInverseQ.tag} showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-xs font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                {currentInverseQ.step1}
+              </span>
+            </div>
+            <p className="text-sm sm:text-base font-black text-slate-800 leading-relaxed mt-1">
+              <BopomofoText text={currentInverseQ.story} showBpmf={bopomofoEnabled ?? false} />
+            </p>
+          </div>
+
+          <div className="w-full bg-amber-50/80 border-2 border-amber-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
+            <div className="w-full flex items-center justify-between text-xs font-black text-amber-950">
+              <span className="flex items-center gap-1">
+                <Coins size={15} className="text-amber-600" />
+                <BopomofoText text="線段關係與動態圖解：" showBpmf={bopomofoEnabled ?? false} />
+              </span>
+              <span className="text-[11px] text-amber-800 font-normal">
+                {currentInverseQ.step2Rule}
+              </span>
+            </div>
+
+            <div className="w-full flex flex-col gap-1.5 my-1">
+              <div className="w-full h-10 bg-white border-2 border-slate-300 rounded-xl overflow-hidden flex shadow-inner relative">
+                <div
+                  className="h-full bg-sky-400 flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500"
+                  style={{ width: `${(currentInverseQ.partA / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
+                >
+                  <span className="truncate">{currentInverseQ.partALabel} ({currentInverseQ.partA})</span>
+                </div>
+
+                <div
+                  className={`h-full flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500 ${
+                    isCoinsCombined ? 'bg-amber-500 ring-2 ring-amber-300' : 'bg-rose-400'
+                  }`}
+                  style={{ width: `${(currentInverseQ.partB / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
+                >
+                  <span className="truncate">{currentInverseQ.partBLabel} ({currentInverseQ.partB})</span>
+                </div>
+              </div>
+
+              <div className="w-full flex items-center justify-between text-xs font-bold text-slate-600 px-1">
+                <span className="text-sky-700">▲ {currentInverseQ.partA} {currentInverseQ.unit}</span>
+                <span className="text-amber-800 font-black">
+                  {isCoinsCombined ? `✨ 合起來共 ${currentInverseQ.expectedAns} ${currentInverseQ.unit}` : '▲ 兩部分互逆合在一起'}
+                </span>
+                <span className="text-rose-700">▲ {currentInverseQ.partB} {currentInverseQ.unit}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setIsCoinsCombined(!isCoinsCombined);
+              }}
+              className="px-4 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition border border-amber-300 shadow-sm"
+            >
+              <span>{isCoinsCombined ? '↩️ 重新分開' : '🪙 點我把兩部分合併倒推總數！'}</span>
+            </button>
+          </div>
+
+          <div className="w-full bg-white border-2 border-emerald-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
+            <p className="text-xs font-black text-emerald-950 text-center">
+              <BopomofoText text={`動手填入互逆算式求解答：`} showBpmf={bopomofoEnabled ?? false} />
+            </p>
+
+            <div className="flex items-center justify-center gap-2 font-mono text-2xl font-black text-slate-800 flex-wrap">
+              <span className="bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 text-emerald-900">
+                {currentInverseQ.calcExpr}
+              </span>
+              <span>＝</span>
+              <input
+                type="text"
+                maxLength={3}
+                value={inverseUserAns}
+                onChange={e => setInverseUserAns(e.target.value)}
+                placeholder="?"
+                className="w-16 h-12 text-center text-2xl font-black bg-emerald-50 text-emerald-950 rounded-xl border-2 border-emerald-400 focus:outline-none focus:ring-4 ring-emerald-300/50"
+              />
+              <span className="text-base font-sans font-black text-slate-700">
+                <BopomofoText text={currentInverseQ.unit} showBpmf={bopomofoEnabled ?? false} />
+              </span>
+            </div>
+
+            <button
+              onClick={handleCheckInverse}
+              disabled={!inverseUserAns}
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm"
+            >
+              <Check size={16} />
+              <BopomofoText text="檢查答案並進行驗算" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+
+            {inverseFeedback && (
+              <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
+                inverseFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
+              }`}>
+                <BopomofoText text={inverseFeedback.text} showBpmf={bopomofoEnabled ?? false} />
+              </div>
+            )}
+
+            {inverseFeedback?.isCorrect && (
+              <button
+                onClick={() => handleSwitchInverseQ((inverseQIdx + 1) % inverseQuestions.length)}
+                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-xl shadow-md btn-fun flex items-center justify-center gap-1 text-xs sm:text-sm"
+              >
+                <BopomofoText text="挑戰下一道互逆偵探題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 模式 C：標準直式加法/減法黑板 */}
+      {/* ========================================================================= */}
       {(tabMode === 'add' || tabMode === 'sub') && (
         <>
           <div className="relative bg-slate-900 text-white font-mono p-6 rounded-2xl shadow-inner w-56 flex flex-col items-center">
-            {/* 位值標題：十位、個位 */}
             <div className="grid grid-cols-2 w-36 text-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-1 mb-2">
               <span><BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /></span>
               <span><BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /></span>
             </div>
 
-            {/* 頂端標記區 */}
             <div className="grid grid-cols-2 w-36 text-center h-7 items-center mb-1 text-sm">
               <div>
                 {isAddition ? (
@@ -408,7 +899,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </div>
             </div>
 
-            {/* 第一行 */}
             <div className="relative flex justify-end w-36 text-3xl font-black tracking-widest text-slate-100 py-1">
               <span className={`w-16 text-center ${!isAddition && borrowTens ? 'line-through text-slate-500' : ''}`}>
                 {n1Tens}
@@ -416,7 +906,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               <span className="w-16 text-center">{n1Ones}</span>
             </div>
 
-            {/* 第二行 */}
             <div className="relative flex items-center justify-between w-44 text-3xl font-black tracking-widest text-slate-100 py-1">
               <span className="text-amber-400 font-sans text-2xl font-black">{isAddition ? '＋' : '－'}</span>
               <div className="flex w-36 justify-end">
@@ -427,7 +916,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
 
             <div className="w-44 border-b-4 border-amber-400 my-2"></div>
 
-            {/* 答案填寫格 */}
             <div className="flex justify-end w-36 gap-1 pt-1">
               <input
                 type="text"
@@ -487,7 +975,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
           {feedback && (
             <div className="mt-3 text-center text-sm font-black text-amber-900 animate-bounce-short flex flex-col items-center gap-2">
               <BopomofoText text={feedback} showBpmf={bopomofoEnabled ?? false} />
-              {feedback.startsWith('🎉') && showCompareTab && (
+              {feedback.startsWith('🎉') && isG2U2 && (
                 <button
                   onClick={() => handleSwitchTab('compare')}
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 transition"
@@ -500,7 +988,9 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
         </>
       )}
 
-      {/* ======================= 分頁 3：＜、＝、＞ 符號填空挑戰 ======================= */}
+      {/* ========================================================================= */}
+      {/* 模式 D：＜、＝、＞ 符號填空挑戰 (g2-u2) */}
+      {/* ========================================================================= */}
       {tabMode === 'compare' && (
         <div className="w-full flex flex-col items-center gap-4">
           <div className="w-full bg-indigo-50 border border-indigo-200 rounded-2xl p-3 text-center">
@@ -616,167 +1106,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               <BopomofoText text="挑戰下一題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
             </button>
           )}
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 分頁 4：🌟 加減互逆動態偵探實驗室（豐富變化性與互動操作） */}
-      {/* ========================================================================= */}
-      {tabMode === 'inverse' && (
-        <div className="w-full flex flex-col items-center gap-4">
-          {/* 4 大情境題切換膠囊按鈕（多樣化題型） */}
-          <div className="w-full bg-emerald-50/90 border-2 border-emerald-300 rounded-2xl p-2.5 shadow-sm">
-            <p className="text-xs font-black text-emerald-900 mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <Sparkles size={14} className="text-amber-500" />
-                <BopomofoText text="選擇加減互逆偵探情境題：" showBpmf={bopomofoEnabled ?? false} />
-              </span>
-              <span className="text-[11px] font-bold text-emerald-700">
-                {inverseQIdx + 1} / {inverseQuestions.length}
-              </span>
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-              {inverseQuestions.map((q, idx) => (
-                <button
-                  key={q.id}
-                  onClick={() => handleSwitchInverseQ(idx)}
-                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
-                    inverseQIdx === idx
-                      ? 'bg-emerald-600 text-white shadow-md font-black scale-102'
-                      : 'bg-white text-emerald-950 hover:bg-emerald-100 border border-emerald-200'
-                  }`}
-                >
-                  <span>{q.icon}</span>
-                  <span className="truncate">{q.title.replace('小明的', '').replace('小華的', '').replace('小美的', '')}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 題目故事卡 */}
-          <div className="w-full bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-black px-2.5 py-0.5 bg-emerald-600 text-white rounded-full flex items-center gap-1">
-                <span>{currentInverseQ.icon}</span>
-                <BopomofoText text={currentInverseQ.tag} showBpmf={bopomofoEnabled ?? false} />
-              </span>
-              <span className="text-xs font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                {currentInverseQ.step1}
-              </span>
-            </div>
-            <p className="text-sm sm:text-base font-black text-slate-800 leading-relaxed mt-1">
-              <BopomofoText text={currentInverseQ.story} showBpmf={bopomofoEnabled ?? false} />
-            </p>
-          </div>
-
-          {/* 🌟 具象化線段圖與動手放回操作板 */}
-          <div className="w-full bg-amber-50/80 border-2 border-amber-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
-            <div className="w-full flex items-center justify-between text-xs font-black text-amber-950">
-              <span className="flex items-center gap-1">
-                <Coins size={15} className="text-amber-600" />
-                <BopomofoText text="線段關係與動態圖解：" showBpmf={bopomofoEnabled ?? false} />
-              </span>
-              <span className="text-[11px] text-amber-800 font-normal">
-                {currentInverseQ.step2Rule}
-              </span>
-            </div>
-
-            {/* 視覺動態條：部分 A ＋ 部分 B ＝ 全部 */}
-            <div className="w-full flex flex-col gap-1.5 my-1">
-              <div className="w-full h-10 bg-white border-2 border-slate-300 rounded-xl overflow-hidden flex shadow-inner relative">
-                {/* 部分 A */}
-                <div
-                  className="h-full bg-sky-400 flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500"
-                  style={{ width: `${(currentInverseQ.partA / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
-                >
-                  <span className="truncate">{currentInverseQ.partALabel} ({currentInverseQ.partA})</span>
-                </div>
-
-                {/* 部分 B（動態結合） */}
-                <div
-                  className={`h-full flex items-center justify-center text-xs font-black text-white px-2 transition-all duration-500 ${
-                    isCoinsCombined ? 'bg-amber-500 ring-2 ring-amber-300' : 'bg-rose-400'
-                  }`}
-                  style={{ width: `${(currentInverseQ.partB / (currentInverseQ.partA + currentInverseQ.partB)) * 100}%` }}
-                >
-                  <span className="truncate">{currentInverseQ.partBLabel} ({currentInverseQ.partB})</span>
-                </div>
-              </div>
-
-              {/* 線段下方總計標記 */}
-              <div className="w-full flex items-center justify-between text-xs font-bold text-slate-600 px-1">
-                <span className="text-sky-700">▲ {currentInverseQ.partA} {currentInverseQ.unit}</span>
-                <span className="text-amber-800 font-black">
-                  {isCoinsCombined ? `✨ 合起來共 ${currentInverseQ.expectedAns} ${currentInverseQ.unit}` : '▲ 兩部分互逆合在一起'}
-                </span>
-                <span className="text-rose-700">▲ {currentInverseQ.partB} {currentInverseQ.unit}</span>
-              </div>
-            </div>
-
-            {/* 互動按鈕：模擬把錢放回/動手合併 */}
-            <button
-              onClick={() => {
-                soundFx.playPop();
-                setIsCoinsCombined(!isCoinsCombined);
-              }}
-              className="px-4 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-xl text-xs flex items-center gap-1.5 transition border border-amber-300 shadow-sm"
-            >
-              <span>{isCoinsCombined ? '↩️ 重新分開' : '🪙 點我把兩部分合併倒推總數！'}</span>
-            </button>
-          </div>
-
-          {/* 🌟 學生動手直式算則填答區 */}
-          <div className="w-full bg-white border-2 border-emerald-300 rounded-2xl p-4 shadow-sm flex flex-col items-center gap-3">
-            <p className="text-xs font-black text-emerald-950 text-center">
-              <BopomofoText text={`動手填入互逆算式求解答：`} showBpmf={bopomofoEnabled ?? false} />
-            </p>
-
-            <div className="flex items-center justify-center gap-2 font-mono text-2xl font-black text-slate-800 flex-wrap">
-              <span className="bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 text-emerald-900">
-                {currentInverseQ.calcExpr}
-              </span>
-              <span>＝</span>
-              <input
-                type="text"
-                maxLength={3}
-                value={inverseUserAns}
-                onChange={e => setInverseUserAns(e.target.value)}
-                placeholder="?"
-                className="w-16 h-12 text-center text-2xl font-black bg-emerald-50 text-emerald-950 rounded-xl border-2 border-emerald-400 focus:outline-none focus:ring-4 ring-emerald-300/50"
-              />
-              <span className="text-base font-sans font-black text-slate-700">
-                <BopomofoText text={currentInverseQ.unit} showBpmf={bopomofoEnabled ?? false} />
-              </span>
-            </div>
-
-            <button
-              onClick={handleCheckInverse}
-              disabled={!inverseUserAns}
-              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm"
-            >
-              <Check size={16} />
-              <BopomofoText text="檢查答案並進行驗算" showBpmf={bopomofoEnabled ?? false} />
-            </button>
-
-            {/* 回饋訊息 */}
-            {inverseFeedback && (
-              <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
-                inverseFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
-              }`}>
-                <BopomofoText text={inverseFeedback.text} showBpmf={bopomofoEnabled ?? false} />
-              </div>
-            )}
-
-            {/* 下一題按鈕 */}
-            {inverseFeedback?.isCorrect && (
-              <button
-                onClick={() => handleSwitchInverseQ((inverseQIdx + 1) % inverseQuestions.length)}
-                className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-xl shadow-md btn-fun flex items-center justify-center gap-1 text-xs sm:text-sm"
-              >
-                <BopomofoText text="挑戰下一道互逆偵探題" showBpmf={bopomofoEnabled ?? false} /> <ArrowRight size={16} />
-              </button>
-            )}
-          </div>
         </div>
       )}
     </div>
