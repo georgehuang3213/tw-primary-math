@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ChineseLesson, ChineseVocabulary, ChineseQuizQuestion } from '../types';
 import { KANG_HSUAN_G1_CHINESE } from '../data/chineseCurriculum';
+import { KANG_HSUAN_G1_S2_CHINESE } from '../data/chineseCurriculumS2';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
 import { speechService } from '../services/speech';
@@ -28,10 +29,12 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
   bopomofoEnabled,
   onBackToMath
 }) => {
-  const [selectedLessonId, setSelectedLessonId] = useState<string>(KANG_HSUAN_G1_CHINESE[1].id); // 預設第一課 拍拍手
+  const [selectedSemester, setSelectedSemester] = useState<1 | 2>(1); // 預設一上
+  const currentLessons = selectedSemester === 1 ? KANG_HSUAN_G1_CHINESE : KANG_HSUAN_G1_S2_CHINESE;
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(KANG_HSUAN_G1_CHINESE[1].id);
   const [activeTab, setActiveTab] = useState<'text' | 'vocab' | 'quiz'>('text');
 
-  const currentLesson = KANG_HSUAN_G1_CHINESE.find(l => l.id === selectedLessonId) || KANG_HSUAN_G1_CHINESE[0];
+  const currentLesson = currentLessons.find(l => l.id === selectedLessonId) || currentLessons[0];
 
   // ==========================================
   // 課文朗讀與逐句高亮
@@ -119,31 +122,79 @@ export const ChinesePlatform: React.FC<ChinesePlatformProps> = ({
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2">
                 <span>📖</span>
-                <span>康軒版 國小國語 一年級上學期</span>
+                <span>康軒版 國小國語 {selectedSemester === 1 ? '一年級上學期' : '一年級下學期'}</span>
               </h1>
               <span className="text-[11px] bg-amber-400 text-amber-950 font-black px-2.5 py-0.5 rounded-full shadow-sm">
                 課本同步
               </span>
             </div>
             <p className="text-xs text-emerald-100 font-bold mt-0.5">
-              108課綱首冊注音符號統整 ＋ 第一課至第八課精編課文朗讀、生字筆順與字詞測驗
+              {selectedSemester === 1 
+                ? '108課綱首冊注音符號統整 ＋ 第一課至第八課精編課文朗讀、生字筆順與字詞測驗'
+                : '112/115學年最新審定 ＋ 第一課至第十二課完整課文朗讀、生字筆順與生活應用測驗'}
             </p>
           </div>
         </div>
 
-        {/* 課文大朗讀捷徑 */}
-        <button
-          onClick={handleSpeakFullLesson}
-          className="px-5 py-2.5 bg-white text-emerald-950 hover:bg-emerald-50 rounded-2xl font-black text-sm shadow-md transition flex items-center gap-2 btn-fun shrink-0"
-        >
-          <Volume2 size={18} className="text-emerald-600" />
-          <span>朗讀全篇課文 ➔</span>
-        </button>
+        {/* 右側：學期切換與課文大朗讀捷徑 */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* 學期切換按鈕 */}
+          <div className="flex items-center bg-black/20 p-1 rounded-2xl border border-white/20">
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setSelectedSemester(1);
+                setSelectedLessonId(KANG_HSUAN_G1_CHINESE[1].id);
+                setActiveLineIdx(null);
+                setSelectedVocab(KANG_HSUAN_G1_CHINESE[1].vocabularies[0] || null);
+                setQuizIdx(0);
+                setSelectedOption(null);
+                setScore(0);
+                setQuizFinished(false);
+              }}
+              className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm transition ${
+                selectedSemester === 1
+                  ? 'bg-white text-emerald-950 shadow-md scale-105'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              一上
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                setSelectedSemester(2);
+                setSelectedLessonId(KANG_HSUAN_G1_S2_CHINESE[0].id);
+                setActiveLineIdx(null);
+                setSelectedVocab(KANG_HSUAN_G1_S2_CHINESE[0].vocabularies[0] || null);
+                setQuizIdx(0);
+                setSelectedOption(null);
+                setScore(0);
+                setQuizFinished(false);
+              }}
+              className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm transition ${
+                selectedSemester === 2
+                  ? 'bg-white text-emerald-950 shadow-md scale-105'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              一下
+            </button>
+          </div>
+
+          <button
+            onClick={handleSpeakFullLesson}
+            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-emerald-950 hover:bg-emerald-50 rounded-2xl font-black text-xs sm:text-sm shadow-md transition flex items-center gap-2 btn-fun shrink-0"
+          >
+            <Volume2 size={18} className="text-emerald-600" />
+            <span>朗讀全篇課文 ➔</span>
+          </button>
+        </div>
       </div>
 
-      {/* 課文選單列（首冊、第 1 ~ 8 課） */}
+      {/* 課文選單列（動態切換 一上 或 一下） */}
       <div className="bg-white p-2 sm:p-3 rounded-3xl border-3 border-emerald-200 shadow-md flex items-center gap-2 overflow-x-auto">
-        {KANG_HSUAN_G1_CHINESE.map((lesson) => {
+        {currentLessons.map((lesson) => {
           const isSelected = lesson.id === selectedLessonId;
           return (
             <button

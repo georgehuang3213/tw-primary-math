@@ -130,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <span>📖</span>
-              <BopomofoText text="康軒國語一上" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="康軒國語" showBpmf={bopomofoEnabled} />
             </button>
           )}
         </div>

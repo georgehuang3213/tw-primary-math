@@ -168,6 +168,7 @@ export interface ChineseQuizQuestion {
 export interface ChineseLesson {
   id: string;
   order: number;
+  semester?: 1 | 2;
   title: string;
   titleBpmf: string;
   subtitle: string;

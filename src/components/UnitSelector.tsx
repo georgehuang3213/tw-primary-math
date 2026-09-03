@@ -263,7 +263,7 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
               className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-emerald-700 transition btn-fun"
             >
               <span>📖</span>
-              <BopomofoText text="康軒國語一上" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="康軒國語天地" showBpmf={bopomofoEnabled} />
             </button>
           )}
 
