@@ -61,7 +61,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'animal_counter':
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
       case 'clock':
-        return <ClockSimulator initialHours={8} initialMinutes={unit.id === 'g1-u9-time' ? 0 : 25} bopomofoEnabled={bopomofoEnabled} />;
+        return <ClockSimulator initialHours={8} initialMinutes={unit.id === 'g1-u7-time-clock' ? 0 : 25} bopomofoEnabled={bopomofoEnabled} />;
       case 'coins':
         return (
           <TaiwanCoins
