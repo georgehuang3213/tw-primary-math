@@ -17,6 +17,8 @@ interface NavbarProps {
   onOpenMistakeNotebook: () => void;
   onOpenReview: () => void;
   onOpenReset?: () => void;
+  onOpenMultiplication?: () => void;
+  currentMode?: 'home' | 'lesson' | 'practice' | 'multiplication';
   onLogout: () => void;
   onGoHome: () => void;
 }
@@ -34,6 +36,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenMistakeNotebook,
   onOpenReview,
   onOpenReset,
+  onOpenMultiplication,
+  currentMode,
   onLogout,
   onGoHome
 }) => {
@@ -89,6 +93,24 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             🚀 <BopomofoText text="二年級" showBpmf={bopomofoEnabled} />
           </button>
+
+          {/* ⚡ 九九乘法表專屬分頁按鈕 */}
+          {onOpenMultiplication && (
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                onOpenMultiplication();
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-1 ${
+                currentMode === 'multiplication'
+                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md scale-105 ring-2 ring-violet-300'
+                  : 'bg-violet-100 hover:bg-violet-200 text-violet-950 border border-violet-300'
+              }`}
+            >
+              <span>⚡</span>
+              <BopomofoText text="九九乘法表" showBpmf={bopomofoEnabled} />
+            </button>
+          )}
         </div>
 
         {/* 右側輔助控制與帳號狀態 */}

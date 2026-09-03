@@ -19,6 +19,7 @@ interface UnitSelectorProps {
   onSelectUnit: (unit: Unit, mode: 'lesson' | 'practice') => void;
   onResumeLastUnit?: (unitId: string, mode: 'lesson' | 'practice') => void;
   onOpenReset?: () => void;
+  onOpenMultiplication?: () => void;
 }
 
 export const UnitSelector: React.FC<UnitSelectorProps> = ({
@@ -35,7 +36,8 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   lastMode = 'lesson',
   onSelectUnit,
   onResumeLastUnit,
-  onOpenReset
+  onOpenReset,
+  onOpenMultiplication
 }) => {
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>(initialSemester);
   const [viewMode, setViewMode] = useState<'stage' | 'grid'>('stage');
@@ -235,8 +237,21 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
           </button>
         </div>
 
-        {/* 舞台全畫面 / 網格總覽 切換 */}
+        {/* 舞台全畫面 / 網格總覽 切換 & 九九乘法專區按鈕 */}
         <div className="flex items-center gap-2">
+          {onOpenMultiplication && (
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                onOpenMultiplication();
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun"
+            >
+              <span>⚡</span>
+              <BopomofoText text="九九乘法冒險樂園" showBpmf={bopomofoEnabled} />
+            </button>
+          )}
+
           <button
             onClick={() => {
               soundFx.playPop();

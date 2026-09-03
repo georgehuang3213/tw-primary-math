@@ -9,6 +9,7 @@ import { PracticeMode } from './components/PracticeMode';
 import { ReviewModal } from './components/ReviewModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
 import { ResetModal } from './components/ResetModal';
+import { MultiplicationPracticeTab } from './components/MultiplicationPracticeTab';
 import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
 import { r2StorageService } from './services/r2Storage';
@@ -22,7 +23,7 @@ export const App: React.FC = () => {
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>('all');
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
-  const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice'>('home');
+  const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice' | 'multiplication'>('home');
   
   // Modals
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -226,6 +227,11 @@ export const App: React.FC = () => {
         onOpenMistakeNotebook={() => setIsMistakeNotebookOpen(true)}
         onOpenReview={() => setIsReviewOpen(true)}
         onOpenReset={() => setIsResetOpen(true)}
+        onOpenMultiplication={() => {
+          setCurrentMode('multiplication');
+          setActiveUnit(null);
+        }}
+        currentMode={currentMode}
         onLogout={handleLogout}
         onGoHome={() => {
           setCurrentMode('home');
@@ -251,6 +257,10 @@ export const App: React.FC = () => {
             onSelectUnit={handleSelectUnit}
             onResumeLastUnit={handleResumeLastUnit}
             onOpenReset={() => setIsResetOpen(true)}
+            onOpenMultiplication={() => {
+              setCurrentMode('multiplication');
+              setActiveUnit(null);
+            }}
           />
         )}
 
@@ -287,6 +297,16 @@ export const App: React.FC = () => {
               handleSelectUnit(unit, 'lesson');
             }}
             onFinishQuiz={handleFinishQuiz}
+          />
+        )}
+
+        {currentMode === 'multiplication' && (
+          <MultiplicationPracticeTab
+            bopomofoEnabled={bopomofoEnabled}
+            onBackToHome={() => {
+              setCurrentMode('home');
+              setActiveUnit(null);
+            }}
           />
         )}
       </main>
