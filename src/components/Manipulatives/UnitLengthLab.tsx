@@ -6,11 +6,15 @@ import { speechService } from '../../services/speech';
 
 interface UnitLengthLabProps {
   bopomofoEnabled?: boolean;
+  unitId?: string;
 }
 
-export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = true }) => {
+export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = true, unitId }) => {
   // 4 大模式：'rope'（中介物繩子間接比較）、'combine'（長度合成與分解）、'units'（個別單位實測）、'compare'（起點端對齊）
-  const [activeTab, setActiveTab] = useState<'rope' | 'combine' | 'units' | 'compare'>('rope');
+  // 一上第二單元 (g1-u2-length-compare)：比長短，預設直接進入 'compare' 起點基準線對齊！
+  // 一下第二單元 (g1-u11-length)：中介物測量與長度合成分解，預設進入 'rope'！
+  const defaultTab = unitId === 'g1-u2-length-compare' ? 'compare' : 'rope';
+  const [activeTab, setActiveTab] = useState<'rope' | 'combine' | 'units' | 'compare'>(defaultTab);
 
   // 中介物繩子模式
   const [ropeLength, setRopeLength] = useState<number>(6); // 繩子長度（格）

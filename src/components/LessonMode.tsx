@@ -47,7 +47,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'calendar_lab':
         return <CalendarLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'unit_length':
-        return <UnitLengthLab bopomofoEnabled={bopomofoEnabled} />;
+        return <UnitLengthLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'shape_lab':
         return <ShapeLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'balance_scale':

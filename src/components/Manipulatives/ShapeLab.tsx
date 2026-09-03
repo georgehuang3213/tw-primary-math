@@ -121,7 +121,10 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
   // 自動判定預設分頁：
   // 若是 一下第五單元 (g1-u14-shapes)，任務是「動手拖曳圖形板拼排造型，並依照圖示堆疊積木城堡！」，直接預設 'tangram'！
   // 若是一上第五單元 (g1-u5-shapes)，任務是形狀拓印與滾動堆疊，則預設 'explore'
-  const initialMode = unitId === 'g1-u14-shapes' ? 'tangram' : 'explore';
+  const initialMode =
+    unitId === 'g1-u14-geometry' || unitId === 'g1-u14-shapes' || unitId === 'g2-s2-u9-geometry2d'
+      ? 'tangram'
+      : 'explore';
   const [activeMode, setActiveMode] = useState<'tangram' | 'build3d' | 'explore' | 'physics'>(initialMode);
 
   // 圖形板拼排造型狀態 (小船、火箭、大正方形、小房子)
