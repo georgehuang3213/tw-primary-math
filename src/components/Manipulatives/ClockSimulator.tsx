@@ -53,6 +53,18 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
 
   return (
     <div className="flex flex-col items-center bg-amber-50/70 p-4 sm:p-6 rounded-3xl border-2 border-amber-200 shadow-inner max-w-md mx-auto">
+      {/* 指針圖例說明（置於時鐘上方橫排，絕不遮擋鐘面數字） */}
+      <div className="flex items-center justify-center gap-4 text-xs font-bold bg-white/95 px-4 py-1.5 rounded-full border border-amber-200 shadow-sm mb-3">
+        <span className="flex items-center text-red-600">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block mr-1"></span>
+          <BopomofoText text="時針（短）" showBpmf={bopomofoEnabled ?? false} />
+        </span>
+        <span className="flex items-center text-sky-600">
+          <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block mr-1"></span>
+          <BopomofoText text="分針（長）" showBpmf={bopomofoEnabled ?? false} />
+        </span>
+      </div>
+
       {/* 鐘面 SVG */}
       <div className="relative w-64 h-64 sm:w-72 sm:h-72">
         <svg
@@ -158,15 +170,6 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
           <circle cx="100" cy="100" r="6" fill="#f59e0b" stroke="#78350f" strokeWidth="2" />
         </svg>
 
-        {/* 指針標籤 */}
-        <div className="absolute bottom-2 left-2 flex flex-col gap-1 text-[11px] font-bold bg-white/90 p-1.5 rounded-xl border border-amber-200 shadow-sm">
-          <span className="flex items-center text-red-600">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block mr-1"></span> <BopomofoText text="時針（短）" showBpmf={bopomofoEnabled ?? false} />
-          </span>
-          <span className="flex items-center text-sky-600">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block mr-1"></span> <BopomofoText text="分針（長）" showBpmf={bopomofoEnabled ?? false} />
-          </span>
-        </div>
       </div>
 
       {/* 數位時間顯示 */}
