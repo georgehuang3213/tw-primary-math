@@ -45,7 +45,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'fraction_pie':
         return <FractionPieLab bopomofoEnabled={bopomofoEnabled} />;
       case 'calendar_lab':
-        return <CalendarLab bopomofoEnabled={bopomofoEnabled} />;
+        return <CalendarLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'unit_length':
         return <UnitLengthLab bopomofoEnabled={bopomofoEnabled} />;
       case 'shape_lab':
