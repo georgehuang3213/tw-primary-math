@@ -191,23 +191,23 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
         </div>
       )}
 
-      {/* 頂部學期切換與視圖切換 */}
-      <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-3.5 rounded-3xl border-4 border-amber-300 shadow-md">
+      {/* 頂部學期切換與畫面模式 */}
+      <div className="flex items-center justify-between flex-wrap gap-2 bg-white p-2.5 sm:p-3 rounded-2xl border-2 border-amber-300 shadow-sm">
         {/* 學期選擇按鈕 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 bg-amber-50 p-1 rounded-xl border border-amber-200">
           <button
             onClick={() => {
               soundFx.playPop();
               setSelectedSemester('all');
               setActiveUnitIndex(0);
             }}
-            className={`px-4 py-2 rounded-2xl text-base font-black transition ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-black transition ${
               selectedSemester === 'all'
-                ? 'bg-amber-500 text-amber-950 shadow-md scale-105'
+                ? 'bg-amber-500 text-amber-950 shadow-sm scale-105'
                 : 'text-slate-700 hover:bg-amber-100'
             }`}
           >
-            <BopomofoText text="全部" showBpmf={bopomofoEnabled} />
+            全部
           </button>
           <button
             onClick={() => {
@@ -215,13 +215,13 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
               setSelectedSemester(1);
               setActiveUnitIndex(0);
             }}
-            className={`px-4 py-2 rounded-2xl text-base font-black transition ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-black transition ${
               selectedSemester === 1
-                ? 'bg-amber-500 text-amber-950 shadow-md scale-105'
+                ? 'bg-amber-500 text-amber-950 shadow-sm scale-105'
                 : 'text-slate-700 hover:bg-amber-100'
             }`}
           >
-            <BopomofoText text="上學期" showBpmf={bopomofoEnabled} />
+            上學期
           </button>
           <button
             onClick={() => {
@@ -229,55 +229,27 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
               setSelectedSemester(2);
               setActiveUnitIndex(0);
             }}
-            className={`px-4 py-2 rounded-2xl text-base font-black transition ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-black transition ${
               selectedSemester === 2
-                ? 'bg-amber-500 text-amber-950 shadow-md scale-105'
+                ? 'bg-amber-500 text-amber-950 shadow-sm scale-105'
                 : 'text-slate-700 hover:bg-amber-100'
             }`}
           >
-            <BopomofoText text="下學期" showBpmf={bopomofoEnabled} />
+            下學期
           </button>
         </div>
 
-        {/* 舞台全畫面 / 網格總覽 切換 & 九九乘法專區按鈕 */}
+        {/* 右側：全覽與大畫面切換 */}
         <div className="flex items-center gap-2">
-          {onOpenMultiplication && (
-            <button
-              onClick={() => {
-                soundFx.playCorrect();
-                onOpenMultiplication();
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun whitespace-nowrap"
-            >
-              <span>⚡</span>
-              <BopomofoText text="九九乘法" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
-            </button>
-          )}
-
-          {onOpenChinese && (
-            <button
-              onClick={() => {
-                soundFx.playCorrect();
-                onOpenChinese();
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-emerald-700 transition btn-fun whitespace-nowrap"
-            >
-              <span>📖</span>
-              <BopomofoText text="國語天地" showBpmf={bopomofoEnabled} nowrap={true} compact={true} />
-            </button>
-          )}
-
           <button
             onClick={() => {
               soundFx.playPop();
               setViewMode(viewMode === 'stage' ? 'grid' : 'stage');
             }}
-            className="flex items-center gap-1.5 px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded-2xl text-sm font-black border-2 border-amber-300 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded-xl text-xs sm:text-sm font-black border border-amber-300 transition"
           >
-            {viewMode === 'stage' ? <LayoutGrid size={18} /> : <Maximize2 size={18} />}
-            <span>
-              <BopomofoText text={viewMode === 'stage' ? '全覽模式' : '大畫面探索'} showBpmf={bopomofoEnabled} />
-            </span>
+            {viewMode === 'stage' ? <LayoutGrid size={16} /> : <Maximize2 size={16} />}
+            <span>{viewMode === 'stage' ? '切換網格總覽' : '切換舞台模式'}</span>
           </button>
         </div>
       </div>
