@@ -16,16 +16,44 @@ interface FruitVote {
   color: string;
 }
 
-// 將票數轉換成「正」字筆畫呈現
-// 每個「正」字共 5 劃：一、丅、丄、止、正
-const getZhengStrokes = (count: number): { fullZheng: number; remainderStrokes: string } => {
-  const fullZheng = Math.floor(count / 5);
-  const rem = count % 5;
-  const strokeMap = ['', '一', '丅', '丄', '止'];
-  return {
-    fullZheng,
-    remainderStrokes: strokeMap[rem] || ''
-  };
+// 台灣教育部國小標準「正」字筆畫順序組件：
+// 第 1 劃：最上面一橫 (橫)
+// 第 2 劃：中間一直 (豎)
+// 第 3 劃：中間一短橫向右 (短橫)
+// 第 4 劃：左下一小豎 (豎)
+// 第 5 劃：最底下一長橫 (長橫，封底成「正」)
+export const ZhengStrokeIcon: React.FC<{ strokeCount: number; isFull?: boolean }> = ({ strokeCount, isFull }) => {
+  const count = isFull ? 5 : strokeCount % 5;
+  if (count === 0 && !isFull) return null;
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-8 h-8 sm:w-9 sm:h-9 inline-block drop-shadow-sm">
+      {/* 第 1 劃：頂端橫線 (1 ~ 5) */}
+      {count >= 1 && (
+        <line x1="15" y1="20" x2="85" y2="20" stroke="#6b21a8" strokeWidth="9" strokeLinecap="round" />
+      )}
+
+      {/* 第 2 劃：中間垂直線 (2 ~ 5) */}
+      {count >= 2 && (
+        <line x1="50" y1="20" x2="50" y2="82" stroke="#6b21a8" strokeWidth="9" strokeLinecap="round" />
+      )}
+
+      {/* 第 3 劃：中間往右短橫線 (3 ~ 5) */}
+      {count >= 3 && (
+        <line x1="50" y1="50" x2="82" y2="50" stroke="#6b21a8" strokeWidth="9" strokeLinecap="round" />
+      )}
+
+      {/* 第 4 劃：左下短垂直線 (4 ~ 5) */}
+      {count >= 4 && (
+        <line x1="24" y1="50" x2="24" y2="82" stroke="#6b21a8" strokeWidth="9" strokeLinecap="round" />
+      )}
+
+      {/* 第 5 劃：底部長橫線 (5) */}
+      {count >= 5 && (
+        <line x1="12" y1="82" x2="88" y2="82" stroke="#6b21a8" strokeWidth="9" strokeLinecap="round" />
+      )}
+    </svg>
+  );
 };
 
 export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true }) => {
@@ -154,11 +182,27 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
       {/* ================= 模式一：「正」字記號與簡易統計表（任務第一核心） ================= */}
       {activeTab === 'zheng' && (
         <div className="bg-white rounded-3xl p-5 sm:p-6 border-3 border-purple-300 shadow-sm flex flex-col gap-4 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-black text-purple-950 flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-purple-50 p-3 rounded-2xl border border-purple-200">
+            <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-1.5">
               <span>📝</span>
-              <span>「正」字記號計數法則：一筆一畫，滿 5 劃寫成一個完整的「正」！</span>
+              <span>「正」字教育部標準筆順：一筆一畫，滿 5 劃寫成一個完整的「正」！</span>
             </span>
+
+            {/* 筆順動態指南：1(橫) -> 2(豎) -> 3(短橫) -> 4(短豎) -> 5(長橫) */}
+            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-600 bg-white px-2.5 py-1 rounded-xl border border-purple-100 shadow-sm">
+              <span className="text-purple-700">筆順展示：</span>
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-center gap-0.5">①<ZhengStrokeIcon strokeCount={1} /></span>
+                <span>➔</span>
+                <span className="flex items-center gap-0.5">②<ZhengStrokeIcon strokeCount={2} /></span>
+                <span>➔</span>
+                <span className="flex items-center gap-0.5">③<ZhengStrokeIcon strokeCount={3} /></span>
+                <span>➔</span>
+                <span className="flex items-center gap-0.5">④<ZhengStrokeIcon strokeCount={4} /></span>
+                <span>➔</span>
+                <span className="flex items-center gap-0.5">⑤<ZhengStrokeIcon strokeCount={5} isFull={true} /></span>
+              </div>
+            </div>
           </div>
 
           {/* 台灣國小標準「正」字分類整理統計表格 */}
@@ -173,7 +217,6 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
               </thead>
               <tbody className="divide-y divide-purple-100 text-xs sm:text-sm font-bold">
                 {data.map(item => {
-                  const { fullZheng, remainderStrokes } = getZhengStrokes(item.votes);
                   return (
                     <tr key={item.id} className="hover:bg-purple-50/50 transition">
                       <td className="py-3 px-3 border-r border-purple-100 font-black flex items-center justify-center gap-1.5">
@@ -186,26 +229,26 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                         {item.votes === 0 ? (
                           <span className="text-slate-300 font-normal">（無票數，0 劃）</span>
                         ) : (
-                          <div className="flex items-center justify-center gap-2 font-serif text-xl sm:text-2xl font-black text-purple-800">
+                          <div className="flex items-center justify-center gap-2">
                             {/* 滿 5 劃的「正」字 */}
-                            {Array.from({ length: fullZheng }).map((_, i) => (
-                              <span
+                            {Array.from({ length: Math.floor(item.votes / 5) }).map((_, i) => (
+                              <div
                                 key={i}
-                                className="px-2 py-0.5 bg-purple-100/70 border border-purple-300 rounded-lg shadow-sm"
-                                title="滿5劃"
+                                className="p-1 bg-purple-100/70 border border-purple-300 rounded-xl shadow-sm flex items-center justify-center"
+                                title="滿 5 劃：完整「正」字"
                               >
-                                正
-                              </span>
+                                <ZhengStrokeIcon strokeCount={5} isFull={true} />
+                              </div>
                             ))}
 
-                            {/* 剩餘未滿 5 劃的筆畫 (一、丅、丄、止) */}
-                            {remainderStrokes && (
-                              <span
-                                className="px-2 py-0.5 bg-amber-100/80 border border-amber-300 text-amber-900 rounded-lg shadow-sm"
-                                title={`未滿5劃：${item.votes % 5}劃`}
+                            {/* 剩餘未滿 5 劃的筆畫 (第1~4劃) */}
+                            {item.votes % 5 > 0 && (
+                              <div
+                                className="p-1 bg-amber-100/80 border border-amber-300 rounded-xl shadow-sm flex items-center justify-center"
+                                title={`目前進行到第 ${item.votes % 5} 劃`}
                               >
-                                {remainderStrokes}
-                              </span>
+                                <ZhengStrokeIcon strokeCount={item.votes % 5} />
+                              </div>
                             )}
                           </div>
                         )}
