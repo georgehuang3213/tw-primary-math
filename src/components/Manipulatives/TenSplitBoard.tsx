@@ -5,7 +5,7 @@ import { soundFx } from '../../services/audio';
 interface TenSplitBoardProps {
   totalCount?: number;
   interactive?: boolean;
-  mode?: 'split' | 'add' | 'sub';
+  mode?: 'split' | 'add' | 'sub' | 'make10';
   unitId?: string;
 }
 
@@ -15,14 +15,29 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
   mode: propMode,
   unitId
 }) => {
-  // 自動判定模式：若單元是加法(u4/u10)則預設 add，若為減法(u6/u12)則預設 sub，若為分與合(u9)則為 split
+  // 自動判定模式：
+  // 若是 一下第一單元 (g1-u10-add20)，任務是「搬移花片湊成10，驗證加法交換律與湊十法」，直接預設 'make10'！
+  // 若是一上第四單元加法 (u4) 則預設 'add'
+  // 若是減法 (u6/u12) 則預設 'sub'
+  // 若是分與合 (u9) 則預設 'split'
   const initialMode = propMode || (
+    unitId === 'g1-u10-add20' ? 'make10' :
     unitId?.includes('add') ? 'add' :
     unitId?.includes('sub') ? 'sub' :
     'split'
   );
 
-  const [mode, setMode] = useState<'split' | 'add' | 'sub'>(initialMode);
+  const [mode, setMode] = useState<'split' | 'add' | 'sub' | 'make10'>(initialMode);
+
+  // 湊十法與加法交換律模式 (8 + 5 = 13)
+  const [numA, setNumA] = useState<number>(8);
+  const [numB, setNumB] = useState<number>(5);
+  const [isMovedToTen, setIsMovedToTen] = useState<boolean>(false); // 是否已搬移花片湊成10
+
+  // 8 需要 2 顆湊成 10
+  const needToTen = Math.max(0, 10 - numA);
+  const actualMoved = Math.min(numB, needToTen);
+  const remainingB = numB - actualMoved;
 
   // 加法模式的兩組數量 (add1 + add2)
   const [add1, setAdd1] = useState<number>(4);
@@ -57,21 +72,36 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
 
   return (
     <div className="flex flex-col items-center bg-rose-50/70 p-4 sm:p-6 rounded-3xl border-2 border-rose-200 max-w-xl mx-auto w-full">
-      {/* 頂部切換模式標籤（滿足加法、減法與分與合需求） */}
-      <div className="flex items-center gap-2 bg-white/90 p-1.5 rounded-2xl border-2 border-rose-200 shadow-sm mb-4">
+      {/* 頂部切換模式標籤 */}
+      <div className="flex items-center gap-1.5 flex-wrap justify-center bg-white/90 p-1.5 rounded-2xl border-2 border-rose-200 shadow-sm mb-4">
+        <button
+          onClick={() => {
+            soundFx.playPop();
+            setMode('make10');
+          }}
+          className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+            mode === 'make10'
+              ? 'bg-amber-500 text-amber-950 shadow-md'
+              : 'text-slate-600 hover:bg-amber-50'
+          }`}
+        >
+          <span>🐿️</span>
+          <span>搬移湊十與交換律</span>
+        </button>
+
         <button
           onClick={() => {
             soundFx.playPop();
             setMode('add');
           }}
-          className={`px-3.5 py-1.5 rounded-xl text-sm font-black transition flex items-center gap-1 ${
+          className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
             mode === 'add'
               ? 'bg-emerald-500 text-white shadow-md'
               : 'text-slate-600 hover:bg-emerald-50'
           }`}
         >
-          <Plus size={16} />
-          <span>加法（併合與添加）</span>
+          <Plus size={15} />
+          <span>加法（併合/添加）</span>
         </button>
 
         <button
@@ -79,14 +109,14 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
             soundFx.playPop();
             setMode('sub');
           }}
-          className={`px-3.5 py-1.5 rounded-xl text-sm font-black transition flex items-center gap-1 ${
+          className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
             mode === 'sub'
               ? 'bg-pink-500 text-white shadow-md'
               : 'text-slate-600 hover:bg-pink-50'
           }`}
         >
-          <Minus size={16} />
-          <span>減法（拿走與劃掉）</span>
+          <Minus size={15} />
+          <span>減法（拿走/破十）</span>
         </button>
 
         <button
@@ -94,16 +124,188 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
             soundFx.playPop();
             setMode('split');
           }}
-          className={`px-3.5 py-1.5 rounded-xl text-sm font-black transition flex items-center gap-1 ${
+          className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
             mode === 'split'
-              ? 'bg-amber-500 text-amber-950 shadow-md'
-              : 'text-slate-600 hover:bg-amber-50'
+              ? 'bg-rose-500 text-white shadow-md'
+              : 'text-slate-600 hover:bg-rose-50'
           }`}
         >
           <span>🟡</span>
           <span>10的分與合</span>
         </button>
       </div>
+
+      {/* ================= 模式一：一下第一單元專屬「搬移花片湊成10與交換律」 ================= */}
+      {mode === 'make10' && (
+        <div className="w-full flex flex-col items-center animate-fade-in gap-4">
+          {/* 算式與交換律展示 */}
+          <div className="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-sm w-full text-center">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-black text-amber-900 bg-amber-100 px-3 py-1 rounded-full">
+                加法交換律：{numA} ＋ {numB} ＝ {numB} ＋ {numA}
+              </span>
+              <button
+                onClick={() => {
+                  soundFx.playPop();
+                  const temp = numA;
+                  setNumA(numB);
+                  setNumB(temp);
+                  setIsMovedToTen(false);
+                }}
+                className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black text-xs rounded-xl shadow-sm transition"
+              >
+                🔄 對調交換位置
+              </button>
+            </div>
+
+            {/* 算式方塊 */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 my-2">
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-rose-500 mb-1">紅蘋果</span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-rose-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {numA}
+                </span>
+              </div>
+
+              <span className="text-3xl font-black text-amber-500">＋</span>
+
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-sky-500 mb-1">青蘋果</span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-sky-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {numB}
+                </span>
+              </div>
+
+              <span className="text-3xl font-black text-slate-400">＝</span>
+
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-amber-600 mb-1">總數</span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-400 text-amber-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {numA + numB}
+                </span>
+              </div>
+            </div>
+
+            {/* 湊十口訣動態解析 */}
+            <div className="mt-3 text-xs sm:text-sm font-black text-slate-700 pt-2 border-t border-amber-100 leading-relaxed">
+              {!isMovedToTen ? (
+                <span>
+                  💡 湊十法秘訣：<span className="text-rose-600">{numA}</span> 還需要 <span className="text-sky-600">{needToTen}</span> 個才能湊滿 10！點擊下方按鈕把花片搬過去吧！
+                </span>
+              ) : (
+                <span>
+                  🎉 成功湊十！從 {numB} 借走 {actualMoved} 個與 {numA} 湊成 <span className="text-amber-600 font-extrabold">10</span>，剩下 <span className="text-sky-600 font-extrabold">{remainingB}</span> 個，合起來是 <span className="text-rose-600 font-extrabold">{numA + numB}</span>！
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 兩個十格陣對比：第一盒（湊成10）與第二盒（剩餘） */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+            {/* 第一盒（目標湊成 10） */}
+            <div className="bg-white p-3.5 rounded-2xl border-2 border-rose-200 shadow-sm flex-1 flex flex-col items-center">
+              <span className="text-xs font-black text-rose-700 mb-2">
+                第一盒（{isMovedToTen ? '湊滿 10 個！' : `有 ${numA} 個，還缺 ${needToTen} 個`}）
+              </span>
+              <div className="grid grid-cols-5 gap-2 w-full max-w-[200px]">
+                {Array.from({ length: 10 }).map((_, idx) => {
+                  const isOriginalRed = idx < numA;
+                  const isMovedIn = isMovedToTen && idx >= numA && idx < numA + actualMoved;
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-8 h-8 rounded-full font-black text-xs shadow border flex items-center justify-center transition-all ${
+                        isOriginalRed
+                          ? 'bg-rose-500 border-rose-600 text-white'
+                          : isMovedIn
+                          ? 'bg-sky-500 border-sky-600 text-white animate-bounce'
+                          : 'bg-slate-100 border-dashed border-slate-300 text-slate-300'
+                      }`}
+                    >
+                      {isOriginalRed ? '紅' : isMovedIn ? '借' : idx + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 第二盒（被借走後的剩餘） */}
+            <div className="bg-white p-3.5 rounded-2xl border-2 border-sky-200 shadow-sm flex-1 flex flex-col items-center">
+              <span className="text-xs font-black text-sky-700 mb-2">
+                第二盒（{isMovedToTen ? `借出 ${actualMoved} 個，剩下 ${remainingB} 個` : `原本有 ${numB} 個`}）
+              </span>
+              <div className="grid grid-cols-5 gap-2 w-full max-w-[200px]">
+                {Array.from({ length: 10 }).map((_, idx) => {
+                  const isOriginalBlue = idx < numB;
+                  const isBorrowed = isMovedToTen && idx < actualMoved;
+                  const isRemain = isMovedToTen && idx >= actualMoved && idx < numB;
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-8 h-8 rounded-full font-black text-xs shadow border flex items-center justify-center transition-all ${
+                        !isOriginalBlue
+                          ? 'bg-slate-100 border-dashed border-slate-300 text-slate-300'
+                          : isBorrowed
+                          ? 'bg-slate-200 border-dashed border-slate-400 text-slate-400 line-through opacity-60'
+                          : 'bg-sky-500 border-sky-600 text-white'
+                      }`}
+                    >
+                      {isBorrowed ? '借' : isOriginalBlue ? '青' : idx + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 搬移湊十動作按鈕 */}
+          <div className="flex gap-3 items-center justify-center w-full">
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                setIsMovedToTen(!isMovedToTen);
+              }}
+              className={`px-5 py-2.5 rounded-2xl font-black text-sm shadow-md transition flex items-center gap-2 ${
+                !isMovedToTen
+                  ? 'bg-amber-500 hover:bg-amber-600 text-amber-950 animate-pulse'
+                  : 'bg-slate-600 hover:bg-slate-700 text-white'
+              }`}
+            >
+              <span>{isMovedToTen ? '↩️ 還原花片位置' : '🐿️ 搬移花片湊成 10！'}</span>
+            </button>
+          </div>
+
+          {/* 調整數值控制 */}
+          <div className="flex gap-3 justify-center text-xs font-bold text-slate-600">
+            <span>紅蘋果 (8~9)：</span>
+            {[9, 8, 7].map(v => (
+              <button
+                key={v}
+                onClick={() => {
+                  setNumA(v);
+                  setIsMovedToTen(false);
+                }}
+                className={`px-2 py-0.5 rounded ${numA === v ? 'bg-rose-600 text-white' : 'bg-white border border-rose-200'}`}
+              >
+                {v}
+              </button>
+            ))}
+            <span className="ml-2">青蘋果 (3~6)：</span>
+            {[3, 4, 5, 6].map(v => (
+              <button
+                key={v}
+                onClick={() => {
+                  setNumB(v);
+                  setIsMovedToTen(false);
+                }}
+                className={`px-2 py-0.5 rounded ${numB === v ? 'bg-sky-600 text-white' : 'bg-white border border-sky-200'}`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ================= 模式一：加法操作（併合型與添加型） ================= */}
       {mode === 'add' && (
