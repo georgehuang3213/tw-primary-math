@@ -98,7 +98,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
           />
         );
       case 'ruler':
-        return <VirtualRuler bopomofoEnabled={bopomofoEnabled} />;
+        return <VirtualRuler bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'ten_split':
         return <TenSplitBoard totalCount={10} unitId={unit.id} bopomofoEnabled={bopomofoEnabled} />;
       default:
