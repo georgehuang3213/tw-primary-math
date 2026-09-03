@@ -6,6 +6,7 @@ import { speechService } from '../../services/speech';
 
 interface BarChartLabProps {
   bopomofoEnabled?: boolean;
+  unitId?: string;
 }
 
 interface FruitVote {
@@ -56,8 +57,11 @@ export const ZhengStrokeIcon: React.FC<{ strokeCount: number; isFull?: boolean }
   );
 };
 
-export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true }) => {
-  const [activeTab, setActiveTab] = useState<'zheng' | 'barchart'>('zheng'); // 預設為正字畫記統計表
+export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true, unitId }) => {
+  // 二下第八單元 (g2-s2-u8-data-graph)：任務是「閱讀長條圖」，預設進入 'barchart'！
+  // 一下第九單元 (g1-u18-classify)：任務是「正字上記號與統計表」，預設進入 'zheng'！
+  const defaultTab = unitId === 'g2-s2-u8-data-graph' ? 'barchart' : 'zheng';
+  const [activeTab, setActiveTab] = useState<'zheng' | 'barchart'>(defaultTab);
   const [data, setData] = useState<FruitVote[]>([
     { id: 'strawberry', name: '草莓', icon: '🍓', votes: 2, color: 'bg-rose-500' },
     { id: 'watermelon', name: '西瓜', icon: '🍉', votes: 0, color: 'bg-emerald-500' },

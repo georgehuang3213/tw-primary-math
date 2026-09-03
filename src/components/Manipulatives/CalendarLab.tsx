@@ -18,9 +18,10 @@ export const CalendarLab: React.FC<CalendarLabProps> = ({
   bopomofoEnabled = true,
   unitId
 }) => {
-  // 模式：若為 g2-s2-u5 (年月日與時間間隔)，預設直接進入「時間間隔與生日倒數」！
+  // 模式：若為 g2-s2-u5 (二下第五單元：時間日曆與時間間隔)，預設進入「時間間隔與生日倒數」！
+  // 若為 g1-u16-calendar (一下第七單元：幾月幾日星期幾)，預設進入「互動月曆」查今天明天與星期！
   const defaultTab: CalendarTab =
-    unitId === 'g2-s2-u5-calendar' || unitId?.includes('calendar')
+    unitId === 'g2-s2-u5-time-calendar' || unitId === 'g2-s2-u5-calendar'
       ? 'interval'
       : 'calendar';
 

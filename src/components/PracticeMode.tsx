@@ -132,7 +132,7 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
       case 'area_grid':
         return <AreaGridLab bopomofoEnabled={bopomofoEnabled} />;
       case 'data_graph':
-        return <BarChartLab bopomofoEnabled={bopomofoEnabled} />;
+        return <BarChartLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'animal_counter':
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
       case 'clock':
