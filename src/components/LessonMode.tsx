@@ -65,8 +65,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'coins':
         return (
           <TaiwanCoins
-            itemName={unit.id === 'g2-u11-num1000' ? '彩色鉛筆套組' : '可愛動物尺'}
-            itemPrice={unit.id === 'g2-u11-num1000' ? 65 : 15}
+            unitId={unit.id}
             bopomofoEnabled={bopomofoEnabled}
           />
         );
