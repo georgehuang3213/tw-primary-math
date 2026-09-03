@@ -5,7 +5,7 @@ import { soundFx } from '../../services/audio';
 interface TenSplitBoardProps {
   totalCount?: number;
   interactive?: boolean;
-  mode?: 'split' | 'add' | 'sub' | 'make10';
+  mode?: 'split' | 'add' | 'sub' | 'make10' | 'break10';
   unitId?: string;
 }
 
@@ -16,18 +16,33 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
   unitId
 }) => {
   // 自動判定模式：
+  // 若是 一下第三單元 (g1-u12-sub20)，任務是「打開一整盒10顆花片，練習破十扣減與加法驗算」，直接預設 'break10'！
   // 若是 一下第一單元 (g1-u10-add20)，任務是「搬移花片湊成10，驗證加法交換律與湊十法」，直接預設 'make10'！
   // 若是一上第四單元加法 (u4) 則預設 'add'
-  // 若是減法 (u6/u12) 則預設 'sub'
+  // 若是一上第六單元減法 (u6) 則預設 'sub'
   // 若是分與合 (u9) 則預設 'split'
   const initialMode = propMode || (
+    unitId === 'g1-u12-sub20' ? 'break10' :
     unitId === 'g1-u10-add20' ? 'make10' :
     unitId?.includes('add') ? 'add' :
     unitId?.includes('sub') ? 'sub' :
     'split'
   );
 
-  const [mode, setMode] = useState<'split' | 'add' | 'sub' | 'make10'>(initialMode);
+  const [mode, setMode] = useState<'split' | 'add' | 'sub' | 'make10' | 'break10'>(initialMode);
+
+  // 破十法模式 (例如 13 - 5 = 8)：
+  // 被減數 13 = 10 (一盒) + 3 (散裝)
+  // 減數 5：散裝 3 顆不夠減 5，所以打開整盒 10 顆來扣！
+  // 10 - 5 = 5，剩下的 5 加回散裝 3 = 8
+  const [breakTotal, setBreakTotal] = useState<number>(13); // 十幾 (11~18)
+  const [breakMinus, setBreakMinus] = useState<number>(5);  // 減數 (2~9)
+  const [isBoxOpened, setIsBoxOpened] = useState<boolean>(false); // 是否打開一整盒10顆扣減
+  const [showCheckAdd, setShowCheckAdd] = useState<boolean>(false); // 是否顯示加法驗算 (8 + 5 = 13)
+
+  const breakOnes = breakTotal - 10; // 散裝個位數 (如 13 的 3)
+  const breakRemainFromTen = Math.max(0, 10 - breakMinus); // 10 扣掉減數剩下的 (如 10 - 5 = 5)
+  const breakFinalAnswer = breakTotal - breakMinus; // 最終答案 (如 8)
 
   // 湊十法與加法交換律模式 (8 + 5 = 13)
   const [numA, setNumA] = useState<number>(8);
@@ -77,6 +92,21 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
         <button
           onClick={() => {
             soundFx.playPop();
+            setMode('break10');
+          }}
+          className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+            mode === 'break10'
+              ? 'bg-rose-500 text-white shadow-md'
+              : 'text-slate-600 hover:bg-rose-50'
+          }`}
+        >
+          <span>🍓</span>
+          <span>打開整盒破十與驗算</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundFx.playPop();
             setMode('make10');
           }}
           className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
@@ -116,7 +146,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <Minus size={15} />
-          <span>減法（拿走/破十）</span>
+          <span>減法（10以內拿走）</span>
         </button>
 
         <button
@@ -126,14 +156,190 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }}
           className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
             mode === 'split'
-              ? 'bg-rose-500 text-white shadow-md'
-              : 'text-slate-600 hover:bg-rose-50'
+              ? 'bg-amber-500 text-amber-950 shadow-md'
+              : 'text-slate-600 hover:bg-amber-50'
           }`}
         >
           <span>🟡</span>
           <span>10的分與合</span>
         </button>
       </div>
+
+      {/* ================= 模式 0：一下第三單元專屬「打開一整盒破十與加法驗算」 ================= */}
+      {mode === 'break10' && (
+        <div className="w-full flex flex-col items-center animate-fade-in gap-4">
+          {/* 破十情境卡片與算式 */}
+          <div className="bg-white p-4 rounded-2xl border-2 border-rose-300 shadow-sm w-full text-center">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-black text-rose-900 bg-rose-100 px-3 py-1 rounded-full">
+                🍓 猴子分草莓：{breakTotal} 顆要分給小兔 {breakMinus} 顆
+              </span>
+              <button
+                onClick={() => {
+                  soundFx.playPop();
+                  setShowCheckAdd(!showCheckAdd);
+                }}
+                className={`px-3 py-1 font-black text-xs rounded-xl shadow-sm transition flex items-center gap-1 ${
+                  showCheckAdd
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-emerald-100 text-emerald-950 hover:bg-emerald-200'
+                }`}
+              >
+                <span>🔍 加法驗算：{breakFinalAnswer} + {breakMinus} = {breakTotal}</span>
+              </button>
+            </div>
+
+            {/* 算式方塊 */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 my-2">
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-indigo-500 mb-1">
+                  原本有（一盒10+散裝{breakOnes}）
+                </span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {breakTotal}
+                </span>
+              </div>
+
+              <span className="text-3xl font-black text-rose-500">－</span>
+
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-rose-500 mb-1">分給小兔</span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-rose-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {breakMinus}
+                </span>
+              </div>
+
+              <span className="text-3xl font-black text-slate-400">＝</span>
+
+              <div className="flex flex-col items-center">
+                <span className="text-xs font-bold text-amber-600 mb-1">剩下</span>
+                <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-400 text-amber-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow">
+                  {breakFinalAnswer}
+                </span>
+              </div>
+            </div>
+
+            {/* 破十口訣動態解析 */}
+            <div className="mt-3 text-xs sm:text-sm font-black text-slate-700 pt-2 border-t border-rose-100 leading-relaxed">
+              {!isBoxOpened ? (
+                <span>
+                  💡 散裝只有 <span className="text-sky-600">{breakOnes}</span> 顆，不夠分 <span className="text-rose-600">{breakMinus}</span> 顆！請點擊下方按鈕【打開整盒 10 顆】來扣！
+                </span>
+              ) : (
+                <span>
+                  🎉 破十成功！打開整盒 10 顆：<span className="text-purple-700 font-extrabold">10 － {breakMinus} ＝ {breakRemainFromTen}</span> 顆，再把 {breakRemainFromTen} 顆加回散裝的 {breakOnes} 顆，剛好剩下 <span className="text-amber-600 font-extrabold">{breakFinalAnswer}</span> 顆！
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 兩盒花片視覺：整盒(10顆破開) 與 散裝(breakOnes顆) */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+            {/* 一整盒（10 顆） */}
+            <div className="bg-white p-3.5 rounded-2xl border-2 border-purple-200 shadow-sm flex-1 flex flex-col items-center">
+              <span className="text-xs font-black text-purple-700 mb-2">
+                📦 一整盒（10 顆草莓花片）{isBoxOpened ? '：已打開扣掉 ' + breakMinus + ' 顆！' : '：密封中'}
+              </span>
+              <div className="grid grid-cols-5 gap-2 w-full max-w-[200px]">
+                {Array.from({ length: 10 }).map((_, idx) => {
+                  const isDeducted = isBoxOpened && idx < breakMinus;
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-8 h-8 rounded-full font-black text-xs shadow border flex items-center justify-center transition-all ${
+                        !isBoxOpened
+                          ? 'bg-purple-600 border-purple-700 text-white'
+                          : isDeducted
+                          ? 'bg-rose-100 border-2 border-dashed border-rose-400 text-rose-500 line-through opacity-60'
+                          : 'bg-purple-500 border-purple-600 text-white scale-105'
+                      }`}
+                    >
+                      {isDeducted ? '✖' : idx + 1}
+                    </div>
+                  );
+                })}
+              </div>
+              <span className="text-[11px] font-bold text-slate-500 mt-2">
+                {isBoxOpened ? `整盒剩下 ${breakRemainFromTen} 顆` : '整盒滿滿 10 顆'}
+              </span>
+            </div>
+
+            {/* 散裝（個位數顆） */}
+            <div className="bg-white p-3.5 rounded-2xl border-2 border-sky-200 shadow-sm flex-1 flex flex-col items-center">
+              <span className="text-xs font-black text-sky-700 mb-2">
+                🍓 散裝草莓（個位數：{breakOnes} 顆）
+              </span>
+              <div className="grid grid-cols-5 gap-2 w-full max-w-[200px]">
+                {Array.from({ length: 10 }).map((_, idx) => {
+                  const isPresent = idx < breakOnes;
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-8 h-8 rounded-full font-black text-xs shadow border flex items-center justify-center transition-all ${
+                        isPresent
+                          ? 'bg-sky-500 border-sky-600 text-white'
+                          : 'bg-slate-100 border-dashed border-slate-300 text-slate-300'
+                      }`}
+                    >
+                      {isPresent ? '散' : idx + 1}
+                    </div>
+                  );
+                })}
+              </div>
+              <span className="text-[11px] font-bold text-slate-500 mt-2">
+                散裝 {breakOnes} 顆不夠扣，原封不動留著
+              </span>
+            </div>
+          </div>
+
+          {/* 打開整盒破十按鈕 */}
+          <div className="flex gap-3 items-center justify-center w-full">
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                setIsBoxOpened(!isBoxOpened);
+              }}
+              className={`px-5 py-2.5 rounded-2xl font-black text-sm shadow-md transition flex items-center gap-2 ${
+                !isBoxOpened
+                  ? 'bg-rose-500 hover:bg-rose-600 text-white animate-bounce'
+                  : 'bg-slate-600 hover:bg-slate-700 text-white'
+              }`}
+            >
+              <span>{isBoxOpened ? '↩️ 把整盒重新裝回' : '🍓 打開一整盒 10 顆扣減！'}</span>
+            </button>
+          </div>
+
+          {/* 調整數值控制 */}
+          <div className="flex gap-2.5 justify-center flex-wrap text-xs font-bold text-slate-600">
+            <span>十幾總數：</span>
+            {[11, 12, 13, 14, 15].map(v => (
+              <button
+                key={v}
+                onClick={() => {
+                  setBreakTotal(v);
+                  setIsBoxOpened(false);
+                }}
+                className={`px-2 py-0.5 rounded ${breakTotal === v ? 'bg-indigo-600 text-white' : 'bg-white border border-indigo-200'}`}
+              >
+                {v}
+              </button>
+            ))}
+            <span className="ml-2">扣減數量：</span>
+            {[4, 5, 6, 7, 8, 9].map(v => (
+              <button
+                key={v}
+                onClick={() => {
+                  setBreakMinus(v);
+                  setIsBoxOpened(false);
+                }}
+                className={`px-2 py-0.5 rounded ${breakMinus === v ? 'bg-rose-600 text-white' : 'bg-white border border-rose-200'}`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ================= 模式一：一下第一單元專屬「搬移花片湊成10與交換律」 ================= */}
       {mode === 'make10' && (
