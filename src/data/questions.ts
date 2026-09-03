@@ -7757,14 +7757,138 @@ export const QUESTIONS: Question[] = [
     "grade": 2,
     "difficulty": "easy",
     "type": "choice",
-    "title": "時針走過 4 還沒到 5，分針指在數字 7，現在是幾點幾分？",
-    "titleBpmf": "時針走過 4 還沒到 5，分針指在數字 7，現在是幾點幾分？",
-    "promptAudioText": "時針走過 4 還沒到 5，分針指在數字 7，現在是幾點幾分？",
-    "storyContext": "⏰ 讀鐘面",
+    "title": "鐘面上有長針和短針，長針和短針分別代表什麼針？分針走 1 小格是幾分鐘？",
+    "titleBpmf": "[鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][上|ㄕㄤˋ][有|ㄧㄡˇ][長|ㄔㄤˊ][針|ㄓㄣ][和|ㄏㄢˋ][短|ㄉㄨㄢˇ][針|ㄓㄣ]，[長|ㄔㄤˊ][針|ㄓㄣ][和|ㄏㄢˋ][短|ㄉㄨㄢˇ][針|ㄓㄣ][分|ㄈㄣ][別|ㄅㄧㄝˊ][代|ㄉㄞˋ][表|ㄅㄧㄠˇ][什|ㄕㄣˊ][麼|˙ㄇㄜ][針|ㄓㄣ]？[分|ㄈㄣ][針|ㄓㄣ][走|ㄗㄡˇ] 1 [小|ㄒㄧㄠˇ][格|ㄍㄜˊ][是|ㄕˋ][幾|ㄐㄧˇ][分|ㄈㄣ][鐘|ㄓㄨㄥ]？",
+    "promptAudioText": "鐘面上有長針和短針，長針和短針分別代表什麼針？分針走 1 小格是幾分鐘？",
+    "storyContext": "⏰ 鐘面長短針",
     "options": [
       {
         "id": "a",
-        "text": "4 點 35 分",
+        "text": "長針是分針、短針是時針；走 1 小格是 1 分鐘",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "長針是時針、短針是分針；走 1 小格是 5 分鐘",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "長針是分針、短針是秒針；走 1 小格是 10 分鐘",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "長長的是分針，短短的是時針；分針每走 1 小格就是 1 分鐘！",
+    "explanation": "鐘面上的長針是分針，短針是時針。分針走 1 小格是 1 分鐘，走 1 大格（5小格）是 5 分鐘。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-2",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "easy",
+    "type": "choice",
+    "title": "鐘面上有 12 個數字。分針從數字 12 走到數字 4，走了一大格又一大格，一共經過了幾分鐘？",
+    "titleBpmf": "[鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][上|ㄕㄤˋ][有|ㄧㄡˇ] 12 [個|˙ㄍㄜ][數|ㄕㄨˋ][字|ㄗˋ]。[分|ㄈㄣ][針|ㄓㄣ][從|ㄘㄨㄥˊ][數|ㄕㄨˋ][字|ㄗˋ] 12 [走|ㄗㄡˇ][到|ㄉㄠˋ][數|ㄕㄨˋ][字|ㄗˋ] 4，[走|ㄗㄡˇ][了|˙ㄌㄜ][一|ㄧ][大|ㄉㄚˋ][格|ㄍㄜˊ][又|ㄧㄡˋ][一|ㄧ][大|ㄉㄚˋ][格|ㄍㄜˊ]，[一|ㄧ][共|ㄍㄨㄥˋ][經|ㄐㄧㄥ][過|ㄍㄨㄛˋ][了|˙ㄌㄜ][幾|ㄐㄧˇ][分|ㄈㄣ][鐘|ㄓㄨㄥ]？",
+    "promptAudioText": "鐘面上有 12 個數字。分針從數字 12 走到數字 4，一共經過了幾分鐘？",
+    "storyContext": "⏱️ 一大格5分鐘",
+    "options": [
+      {
+        "id": "a",
+        "text": "20 分鐘（4 大格，4 × 5 ＝ 20 分鐘）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "4 分鐘",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "25 分鐘",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "分針走一大格是 5 分鐘，走 4 大格就是 4 × 5 ＝ 20 分鐘！",
+    "explanation": "從 12 到 4 共有 4 個大格，5 × 4 ＝ 20 分鐘。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-3",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "easy",
+    "type": "choice",
+    "title": "時針剛走過數字 3 還沒走到數字 4，分針剛好指在數字 6 上，這時候鐘面呈現的時刻是幾點幾分？",
+    "titleBpmf": "[時|ㄕˊ][針|ㄓㄣ][剛|ㄍㄤ][走|ㄗㄡˇ][過|ㄍㄨㄛˋ][數|ㄕㄨˋ][字|ㄗˋ] 3 [還|ㄏㄞˊ][沒|ㄇㄟˊ][走|ㄗㄡˇ][到|ㄉㄠˋ][數|ㄕㄨˋ][字|ㄗˋ] 4，[分|ㄈㄣ][針|ㄓㄣ][剛|ㄍㄤ][好|ㄏㄠˇ][指|ㄓˇ][在|ㄗㄞˋ][數|ㄕㄨˋ][字|ㄗˋ] 6 [上|ㄕㄤˋ]，[這|ㄓㄜˋ][時|ㄕˊ][候|ㄏㄡˋ][鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][呈|ㄔㄥˊ][現|ㄒㄧㄢˋ][的|˙ㄉㄜ][時|ㄕˊ][刻|ㄎㄜˋ][是|ㄕˋ][幾|ㄐㄧˇ][點|ㄉㄧㄢˇ][幾|ㄐㄧˇ][分|ㄈㄣ]？",
+    "promptAudioText": "時針剛走過數字 3 還沒走到數字 4，分針剛好指在數字 6 上，這時候是幾點幾分？",
+    "storyContext": "🕒 報讀時刻",
+    "options": [
+      {
+        "id": "a",
+        "text": "3 點 30 分（也可以說是 3 點半）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "4 點 30 分",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "3 點 6 分",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "時針走過 3 是 3 點，分針指在 6 是 6 × 5 ＝ 30 分！",
+    "explanation": "時針在 3 和 4 之間代表 3 點，分針指在 6 代表 30 分，時刻為 3 點 30 分（3 點半）。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-4",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "medium",
+    "type": "choice",
+    "title": "時針的位置非常接近數字 8，但仔細觀察還差一點才到 8，分針指在數字 11 上。請問現在正確的時刻是？",
+    "titleBpmf": "[時|ㄕˊ][針|ㄓㄣ][的|˙ㄉㄜ][位|ㄨㄟˋ][置|ㄓˋ][非|ㄈㄟ][常|ㄔㄤˊ][接|ㄐㄧㄝ][近|ㄐㄧㄣˋ][數|ㄕㄨˋ][字|ㄗˋ] 8，[但|ㄉㄢˋ][仔|ㄗˇ][細|ㄒㄧˋ][觀|ㄍㄨㄢ][察|ㄔㄚˊ][還|ㄏㄞˊ][差|ㄔㄚ][一|ㄧ][點|ㄉㄧㄢˇ][才|ㄘㄞˊ][到|ㄉㄠˋ] 8，[分|ㄈㄣ][針|ㄓㄣ][指|ㄓˇ][在|ㄗㄞˋ][數|ㄕㄨˋ][字|ㄗˋ] 11 [上|ㄕㄤˋ]。[請|ㄑㄧㄥˇ][問|ㄨㄣˋ][現|ㄒㄧㄢˋ][在|ㄗㄞˋ][正|ㄓㄥˋ][確|ㄑㄩㄝˋ][的|˙ㄉㄜ][時|ㄕˊ][刻|ㄎㄜˋ][是|ㄕˋ]？",
+    "promptAudioText": "時針的位置非常接近數字 8，但還沒到 8，分針指在數字 11 上。請問現在正確的時刻是？",
+    "storyContext": "⚠️ 時針位置數值判讀",
+    "options": [
+      {
+        "id": "a",
+        "text": "7 點 55 分",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "8 點 55 分",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "8 點 11 分",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "時針還沒到達 8，代表還是 7 點多！分針在 11 是 55 分！",
+    "explanation": "均一觀念：掌握時針位置，時針雖然靠近 8 但還沒到 8，點鐘仍為 7 點；分針指在 11 是 11 × 5 ＝ 55 分，正確時刻為 7 點 55 分。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-5",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "medium",
+    "type": "choice",
+    "title": "時針走過數字 5，分針指在數字 7 再多 2 小格的位置。請問現在是幾點幾分？",
+    "titleBpmf": "[時|ㄕˊ][針|ㄓㄣ][走|ㄗㄡˇ][過|ㄍㄨㄛˋ][數|ㄕㄨˋ][字|ㄗˋ] 5，[分|ㄈㄣ][針|ㄓㄣ][指|ㄓˇ][在|ㄗㄞˋ][數|ㄕㄨˋ][字|ㄗˋ] 7 [再|ㄗㄞˋ][多|ㄉㄨㄛ] 2 [小|ㄒㄧㄠˇ][格|ㄍㄜˊ][的|˙ㄉㄜ][位|ㄨㄟˋ][置|ㄓˋ]。[請|ㄑㄧㄥˇ][問|ㄨㄣˋ][現|ㄒㄧㄢˋ][在|ㄗㄞˋ][是|ㄕˋ][幾|ㄐㄧˇ][點|ㄉㄧㄢˇ][幾|ㄐㄧˇ][分|ㄈㄣ]？",
+    "promptAudioText": "時針走過數字 5，分針指在數字 7 再多 2 小格的位置。請問現在是幾點幾分？",
+    "storyContext": "🔍 精確報讀幾分",
+    "options": [
+      {
+        "id": "a",
+        "text": "5 點 37 分",
         "isCorrect": true
       },
       {
@@ -7774,137 +7898,13 @@ export const QUESTIONS: Question[] = [
       },
       {
         "id": "c",
-        "text": "4 點 7 分",
+        "text": "5 點 72 分",
         "isCorrect": false
       }
     ],
     "correctAnswer": "a",
-    "hint": "分針指 7 是 7 × 5 = 35 分！",
-    "explanation": "4 點 35 分。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-2",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "easy",
-    "type": "choice",
-    "title": "分針走一大格是多少分鐘？",
-    "titleBpmf": "分針走一大格是多少分鐘？",
-    "promptAudioText": "分針走一大格是多少分鐘？",
-    "storyContext": "⏱️ 一大格",
-    "options": [
-      {
-        "id": "a",
-        "text": "5 分鐘",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "1 分鐘",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "10 分鐘",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "一大格有 5 個小格，是 5 分鐘！",
-    "explanation": "5 分鐘。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-3",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "easy",
-    "type": "choice",
-    "title": "一小時等於多少分鐘？",
-    "titleBpmf": "一小時等於多少分鐘？",
-    "promptAudioText": "一小時等於多少分鐘？",
-    "storyContext": "⏳ 一小時",
-    "options": [
-      {
-        "id": "a",
-        "text": "60 分鐘",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "100 分鐘",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "30 分鐘",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "分針走一圈 60 格是一小時！",
-    "explanation": "60 分鐘。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-4",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "medium",
-    "type": "choice",
-    "title": "下午 2 點 15 分開始看書，看了 30 分鐘，結束是幾點幾分？",
-    "titleBpmf": "下午 2 點 15 分開始看書，看了 30 分鐘，結束是幾點幾分？",
-    "promptAudioText": "下午 2 點 15 分開始看書，看了 30 分鐘，結束是幾點幾分？",
-    "storyContext": "📖 算經過",
-    "options": [
-      {
-        "id": "a",
-        "text": "2 點 45 分",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "2 點 30 分",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "3 點 15 分",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "15 + 30 = 45 分！",
-    "explanation": "2 點 45 分。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-5",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "medium",
-    "type": "choice",
-    "title": "分針從 12 走到 3，經過了多少分鐘？",
-    "titleBpmf": "分針從 12 走到 3，經過了多少分鐘？",
-    "promptAudioText": "分針從 12 走到 3，經過了多少分鐘？",
-    "storyContext": "🕒 轉一刻",
-    "options": [
-      {
-        "id": "a",
-        "text": "15 分鐘",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "3 分鐘",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "30 分鐘",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "3 × 5 = 15 分鐘！",
-    "explanation": "15 分鐘。"
+    "hint": "分針指在 7 是 35 分，再多 2 小格就是 35 + 2 ＝ 37 分！",
+    "explanation": "數字 7 是 35 分，一小格是 1 分鐘，35 + 2 ＝ 37 分，時刻為 5 點 37 分。"
   },
   {
     "id": "q-g2-u8-time-detail-6",
@@ -7912,112 +7912,19 @@ export const QUESTIONS: Question[] = [
     "grade": 2,
     "difficulty": "medium",
     "type": "choice",
-    "title": "時針指在 8 和 9 中間，分針指在 6，現在是幾點幾分？",
-    "titleBpmf": "時針指在 8 和 9 中間，分針指在 6，現在是幾點幾分？",
-    "promptAudioText": "時針指在 8 和 9 中間，分針指在 6，現在是幾點幾分？",
-    "storyContext": "⏰ 讀半點",
+    "title": "小明下午 2 點 10 分開始在操場慢跑，跑到下午 2 點 35 分結束。觀察鐘面點數，小明慢跑花了多少分鐘？",
+    "titleBpmf": "[小|ㄒㄧㄠˇ][明|ㄇㄧㄥˊ][下|ㄒㄧㄚˋ][午|ㄨˇ] 2 [點|ㄉㄧㄢˇ] 10 [分|ㄈㄣ][開|ㄎㄞ][始|ㄕˇ][在|ㄗㄞˋ][操|ㄘㄠ][場|ㄔㄤˇ][慢|ㄇㄢˋ][跑|ㄆㄠˇ]，[跑|ㄆㄠˇ][到|ㄉㄠˋ][下|ㄒㄧㄚˋ][午|ㄨˇ] 2 [點|ㄉㄧㄢˇ] 35 [分|ㄈㄣ][結|ㄐㄧㄝˊ][束|ㄕㄨˋ]。[觀|ㄍㄨㄢ][察|ㄔㄚˊ][鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][點|ㄉㄧㄢˇ][數|ㄕㄨˋ]，[小|ㄒㄧㄠˇ][明|ㄇㄧㄥˊ][慢|ㄇㄢˋ][跑|ㄆㄠˇ][花|ㄏㄨㄚ][了|˙ㄌㄜ][多|ㄉㄨㄛ][少|ㄕㄠˇ][分|ㄈㄣ][鐘|ㄓㄨㄥ]？",
+    "promptAudioText": "小明下午 2 點 10 分開始慢跑，跑到 2 點 35 分結束。觀察鐘面點數，小明慢跑花了多少分鐘？",
+    "storyContext": "🏃 點數經過時間",
     "options": [
       {
         "id": "a",
-        "text": "8 點 30 分",
+        "text": "25 分鐘（分針從 2 走到 7，共走 5 大格，5 × 5 ＝ 25 分鐘）",
         "isCorrect": true
       },
       {
         "id": "b",
-        "text": "9 點 30 分",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "8 點 6 分",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "8 點過了 30 分鐘！",
-    "explanation": "8 點 30 分。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-7",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "medium",
-    "type": "choice",
-    "title": "分針指在數字 9，代表幾分鐘？",
-    "titleBpmf": "分針指在數字 9，代表幾分鐘？",
-    "promptAudioText": "分針指在數字 9，代表幾分鐘？",
-    "storyContext": "⏱️ 數分針",
-    "options": [
-      {
-        "id": "a",
-        "text": "45 分鐘",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "9 分鐘",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "50 分鐘",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "9 × 5 = 45 分鐘！",
-    "explanation": "45 分鐘。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-8",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "hard",
-    "type": "choice",
-    "title": "一整天一共有多少個小時？",
-    "titleBpmf": "一整天一共有多少個小時？",
-    "promptAudioText": "一整天一共有多少個小時？",
-    "storyContext": "☀️ 一整天",
-    "options": [
-      {
-        "id": "a",
-        "text": "24 小時",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "12 小時",
-        "isCorrect": false
-      },
-      {
-        "id": "c",
-        "text": "60 小時",
-        "isCorrect": false
-      }
-    ],
-    "correctAnswer": "a",
-    "hint": "一天有 24 小時！",
-    "explanation": "24 小時。"
-  },
-  {
-    "id": "q-g2-u8-time-detail-9",
-    "unitId": "g2-u8-time-detail",
-    "grade": 2,
-    "difficulty": "hard",
-    "type": "choice",
-    "title": "早上 7 點 50 分出門，8 點整到校，走路花了幾分鐘？",
-    "titleBpmf": "早上 7 點 50 分出門，8 點整到校，走路花了幾分鐘？",
-    "promptAudioText": "早上 7 點 50 分出門，8 點整到校，走路花了幾分鐘？",
-    "storyContext": "🚶 上學路",
-    "options": [
-      {
-        "id": "a",
-        "text": "10 分鐘",
-        "isCorrect": true
-      },
-      {
-        "id": "b",
-        "text": "50 分鐘",
+        "text": "35 分鐘",
         "isCorrect": false
       },
       {
@@ -8027,8 +7934,101 @@ export const QUESTIONS: Question[] = [
       }
     ],
     "correctAnswer": "a",
-    "hint": "60 - 50 = 10 分鐘！",
-    "explanation": "花了 10 分鐘。"
+    "hint": "分針從數字 2 走到數字 7，走了 5 個大格，5 × 5 ＝ 25 分鐘（或 35 - 10 ＝ 25）！",
+    "explanation": "從 2 點 10 分到 2 點 35 分，分針在鐘面上走了 5 大格，經過時間為 25 分鐘。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-7",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "medium",
+    "type": "choice",
+    "title": "美術課從上午 10 點 20 分開始，經過 40 分鐘後下課。下課時鐘面上的長針會指在數字幾？下課時刻是幾點整？",
+    "titleBpmf": "[美|ㄇㄟˇ][術|ㄕㄨˋ][課|ㄎㄜˋ][從|ㄘㄨㄥˊ][上|ㄕㄤˋ][午|ㄨˇ] 10 [點|ㄉㄧㄢˇ] 20 [分|ㄈㄣ][開|ㄎㄞ][始|ㄕˇ]，[經|ㄐㄧㄥ][過|ㄍㄨㄛˋ] 40 [分|ㄈㄣ][鐘|ㄓㄨㄥ][後|ㄏㄡˋ][下|ㄒㄧㄚˋ][課|ㄎㄜˋ]。[下|ㄒㄧㄚˋ][課|ㄎㄜˋ][時|ㄕˊ][鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][上|ㄕㄤˋ][的|˙ㄉㄜ][長|ㄔㄤˊ][針|ㄓㄣ][會|ㄏㄨㄟˋ][指|ㄓˇ][在|ㄗㄞˋ][數|ㄕㄨˋ][字|ㄗˋ][幾|ㄐㄧˇ]？[下|ㄒㄧㄚˋ][課|ㄎㄜˋ][時|ㄕˊ][刻|ㄎㄜˋ][是|ㄕˋ][幾|ㄐㄧˇ][點|ㄉㄧㄢˇ][整|ㄓㄥˇ]？",
+    "promptAudioText": "美術課從 10 點 20 分開始，經過 40 分鐘後下課。下課時長針指在數字幾？下課時刻是幾點整？",
+    "storyContext": "🎨 經過時間與換點",
+    "options": [
+      {
+        "id": "a",
+        "text": "長針指在數字 12，時刻是 11 點整（20 + 40 ＝ 60 分鐘，滿 1 小時）",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "長針指在數字 8，時刻是 10 點 40 分",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "長針指在數字 6，時刻是 10 點半",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "20 分 + 40 分 ＝ 60 分鐘！60 分鐘剛好是 1 小時，長針指在 12，就是 11 點整！",
+    "explanation": "10 點 20 分再過 40 分鐘是 10 點 60 分，因為 60 分鐘 ＝ 1 小時，進位到 11 點整，長針剛好指在 12。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-8",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "hard",
+    "type": "choice",
+    "title": "觀察鐘面圖：時鐘的分針走了一整圈又回到了數字 12，請問時針會有什麼變化？經過了多少時間？",
+    "titleBpmf": "[觀|ㄍㄨㄢ][察|ㄔㄚˊ][鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][圖|ㄊㄨˊ]：[時|ㄕˊ][鐘|ㄓㄨㄥ][的|˙ㄉㄜ][分|ㄈㄣ][針|ㄓㄣ][走|ㄗㄡˇ][了|˙ㄌㄜ][一|ㄧ][整|ㄓㄥˇ][圈|ㄑㄩㄢ][又|ㄧㄡˋ][回|ㄏㄨㄟˊ][到|ㄉㄠˋ][了|˙ㄌㄜ][數|ㄕㄨˋ][字|ㄗˋ] 12，[請|ㄑㄧㄥˇ][問|ㄨㄣˋ][時|ㄕˊ][針|ㄓㄣ][會|ㄏㄨㄟˋ][有|ㄧㄡˇ][什|ㄕㄣˊ][麼|˙ㄇㄜ][變|ㄅㄧㄢˋ][化|ㄏㄨㄚˋ]？[經|ㄐㄧㄥ][過|ㄍㄨㄛˋ][了|˙ㄌㄜ][多|ㄉㄨㄛ][少|ㄕㄠˇ][時|ㄕˊ][間|ㄐㄧㄢ]？",
+    "promptAudioText": "時鐘的分針走了一整圈又回到了數字 12，時針會有什麼變化？經過了多少時間？",
+    "storyContext": "🔄 分針走一圈",
+    "options": [
+      {
+        "id": "a",
+        "text": "時針正好走了一大格（前進 1 小時），經過了 60 分鐘",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "時針不動，經過了 12 分鐘",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "時針也走了一整圈，經過了 24 小時",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "分針走一圈 60 小格是 60 分鐘，時針剛好移動 1 大格，也就是 1 小時！",
+    "explanation": "分針走 1 圈是 60 分鐘，時針同時前進 1 大格（1 小時），所以 1 小時 ＝ 60 分鐘。"
+  },
+  {
+    "id": "q-g2-u8-time-detail-9",
+    "unitId": "g2-u8-time-detail",
+    "grade": 2,
+    "difficulty": "hard",
+    "type": "choice",
+    "title": "鐘面上甲時刻是 8 點 45 分，乙時刻是 9 點 15 分。從甲時刻到乙時刻，分針總共走了幾大格？經過了幾分鐘？",
+    "titleBpmf": "[鐘|ㄓㄨㄥ][面|ㄇㄧㄢˋ][上|ㄕㄤˋ][甲|ㄐㄧㄚˇ][時|ㄕˊ][刻|ㄎㄜˋ][是|ㄕˋ] 8 [點|ㄉㄧㄢˇ] 45 [分|ㄈㄣ]，[乙|ㄧˇ][時|ㄕˊ][刻|ㄎㄜˋ][是|ㄕˋ] 9 [點|ㄉㄧㄢˇ] 15 [分|ㄈㄣ]。[從|ㄘㄨㄥˊ][甲|ㄐㄧㄚˇ][時|ㄕˊ][刻|ㄎㄜˋ][到|ㄉㄠˋ][乙|ㄧˇ][時|ㄕˊ][刻|ㄎㄜˋ]，[分|ㄈㄣ][針|ㄓㄣ][總|ㄗㄨㄥˇ][共|ㄍㄨㄥˋ][走|ㄗㄡˇ][了|˙ㄌㄜ][幾|ㄐㄧˇ][大|ㄉㄚˋ][格|ㄍㄜˊ]？[經|ㄐㄧㄥ][過|ㄍㄨㄛˋ][了|˙ㄌㄜ][幾|ㄐㄧˇ][分|ㄈㄣ][鐘|ㄓㄨㄥ]？",
+    "promptAudioText": "鐘面上甲時刻是 8 點 45 分，乙時刻是 9 點 15 分。分針總共走了幾大格？經過了幾分鐘？",
+    "storyContext": "⏱️ 跨點鐘點數經過時間",
+    "options": [
+      {
+        "id": "a",
+        "text": "走了 6 大格（從 9 到 3），經過了 30 分鐘",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "text": "走了 3 大格，經過了 15 分鐘",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "text": "走了 8 大格，經過了 40 分鐘",
+        "isCorrect": false
+      }
+    ],
+    "correctAnswer": "a",
+    "hint": "8 點 45 分分針在 9，走到 12 經過 15 分鐘；再走到 3 又是 15 分鐘，一共 30 分鐘（6 大格）！",
+    "explanation": "從數字 9 走到數字 3 共有 6 大格，6 × 5 ＝ 30 分鐘，經過了 30 分鐘。"
   },
   {
     "id": "q-g2-u8-time-detail-10",
@@ -8036,30 +8036,30 @@ export const QUESTIONS: Question[] = [
     "grade": 2,
     "difficulty": "hard",
     "type": "choice",
-    "title": "電影從 3 點整開始放映，片長 1 小時 20 分鐘，幾點結束？",
-    "titleBpmf": "電影從 3 點整開始放映，片長 1 小時 20 分鐘，幾點結束？",
-    "promptAudioText": "電影從 3 點整開始放映，片長 1 小時 20 分鐘，幾點結束？",
-    "storyContext": "🎬 看電影",
+    "title": "爸爸烤披薩，在上午 11 點 25 分把披薩放進烤箱，烤箱定時 35 分鐘。披薩烤好出爐時是幾點整？",
+    "titleBpmf": "[爸|ㄅㄚˋ][爸|˙ㄅㄚ][烤|ㄎㄠˇ][披|ㄆㄧ][薩|ㄙㄚˋ]，[在|ㄗㄞˋ][上|ㄕㄤˋ][午|ㄨˇ] 11 [點|ㄉㄧㄢˇ] 25 [分|ㄈㄣ][把|ㄅㄚˇ][披|ㄆㄧ][薩|ㄙㄚˋ][放|ㄈㄤˋ][進|ㄐㄧㄣˋ][烤|ㄎㄠˇ][箱|ㄒㄧㄤ]，[烤|ㄎㄠˇ][箱|ㄒㄧㄤ][定|ㄉㄧㄥˋ][時|ㄕˊ] 35 [分|ㄈㄣ][鐘|ㄓㄨㄥ]。[披|ㄆㄧ][薩|ㄙㄚˋ][烤|ㄎㄠˇ][好|ㄏㄠˇ][出|ㄔㄨ][爐|ㄌㄨˊ][時|ㄕˊ][是|ㄕˋ][幾|ㄐㄧˇ][點|ㄉㄧㄢˇ][整|ㄓㄥˇ]？",
+    "promptAudioText": "爸爸烤披薩，在 11 點 25 分放進烤箱，定時 35 分鐘。出爐時是幾點整？",
+    "storyContext": "🍕 烤披薩出爐時間",
     "options": [
       {
         "id": "a",
-        "text": "4 點 20 分",
+        "text": "12 點整（25 分 + 35 分 ＝ 60 分鐘，進位成 12 點）",
         "isCorrect": true
       },
       {
         "id": "b",
-        "text": "3 點 20 分",
+        "text": "11 點 60 分（不能報讀 60 分，要換算）",
         "isCorrect": false
       },
       {
         "id": "c",
-        "text": "5 點整",
+        "text": "1 點整",
         "isCorrect": false
       }
     ],
     "correctAnswer": "a",
-    "hint": "3 點 + 1 小時 20 分 = 4 點 20 分！",
-    "explanation": "4 點 20 分。"
+    "hint": "25 分 + 35 分 ＝ 60 分鐘！60 分鐘滿 1 小時，11 點再加 1 小時就是 12 點整！",
+    "explanation": "25 + 35 ＝ 60 分鐘 ＝ 1 小時，上午 11 點再過 1 小時為 12 點整（中午 12 點）。"
   },
   {
     "id": "q-g2-u9-mult-part2-1",
