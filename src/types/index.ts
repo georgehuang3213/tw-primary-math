@@ -168,7 +168,10 @@ export interface ChineseQuizQuestion {
 export interface ChineseLesson {
   id: string;
   order: number;
+  grade?: 1 | 2;
   semester?: 1 | 2;
+  publisher?: 'kanghsuan' | 'hanlin';
+  type?: 'lesson' | 'review' | 'reading';
   title: string;
   titleBpmf: string;
   subtitle: string;
