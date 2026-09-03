@@ -49,7 +49,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'unit_length':
         return <UnitLengthLab bopomofoEnabled={bopomofoEnabled} />;
       case 'shape_lab':
-        return <ShapeLab bopomofoEnabled={bopomofoEnabled} />;
+        return <ShapeLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'balance_scale':
         return <BalanceScale bopomofoEnabled={bopomofoEnabled} />;
       case 'capacity_lab':
