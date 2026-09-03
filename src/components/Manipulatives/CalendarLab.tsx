@@ -67,7 +67,6 @@ export const CalendarLab: React.FC<CalendarLabProps> = ({ bopomofoEnabled = true
               setSelectedDay(15);
             }}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="重設"
           >
             <RotateCcw size={16} />
           </button>
@@ -89,9 +88,9 @@ export const CalendarLab: React.FC<CalendarLabProps> = ({ bopomofoEnabled = true
 
         <div className="text-xl sm:text-2xl font-black text-violet-950 flex items-center gap-2">
           <span>📅</span>
-          <span>{month} 月</span>
+          <span>{month} <BopomofoText text="月" showBpmf={bopomofoEnabled ?? false} /></span>
           <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-800">
-            {isBigMonth ? '大月 (31天)' : month === 2 ? '2月 (28天)' : '小月 (30天)'}
+            {isBigMonth ? <BopomofoText text="大月 (31天)" showBpmf={bopomofoEnabled ?? false} /> : month === 2 ? <span>2<BopomofoText text="月 (28天)" showBpmf={bopomofoEnabled ?? false} /></span> : <BopomofoText text="小月 (30天)" showBpmf={bopomofoEnabled ?? false} />}
           </span>
         </div>
 
@@ -118,7 +117,7 @@ export const CalendarLab: React.FC<CalendarLabProps> = ({ bopomofoEnabled = true
                 idx === 0 || idx === 6 ? 'text-rose-600 bg-rose-50' : 'text-slate-700 bg-slate-100'
               }`}
             >
-              週{w}
+              <BopomofoText text={`週${w}`} showBpmf={bopomofoEnabled ?? false} />
             </div>
           ))}
         </div>
@@ -165,10 +164,20 @@ export const CalendarLab: React.FC<CalendarLabProps> = ({ bopomofoEnabled = true
           </div>
           <div className="text-xs sm:text-sm font-bold text-violet-800 mt-1 flex justify-around">
             <span>
-              昨天：{selectedDay > 1 ? `${month}月${selectedDay - 1}日` : '上個月底'}
+              <BopomofoText text="昨天：" showBpmf={bopomofoEnabled ?? false} />
+              {selectedDay > 1 ? (
+                <span>{month}<BopomofoText text="月" showBpmf={bopomofoEnabled ?? false} />{selectedDay - 1}<BopomofoText text="日" showBpmf={bopomofoEnabled ?? false} /></span>
+              ) : (
+                <BopomofoText text="上個月底" showBpmf={bopomofoEnabled ?? false} />
+              )}
             </span>
             <span>
-              明天：{selectedDay < daysInMonth ? `${month}月${selectedDay + 1}日` : `${month + 1}月1日`}
+              <BopomofoText text="明天：" showBpmf={bopomofoEnabled ?? false} />
+              {selectedDay < daysInMonth ? (
+                <span>{month}<BopomofoText text="月" showBpmf={bopomofoEnabled ?? false} />{selectedDay + 1}<BopomofoText text="日" showBpmf={bopomofoEnabled ?? false} /></span>
+              ) : (
+                <span>{month + 1}<BopomofoText text="月1日" showBpmf={bopomofoEnabled ?? false} /></span>
+              )}
             </span>
           </div>
         </div>

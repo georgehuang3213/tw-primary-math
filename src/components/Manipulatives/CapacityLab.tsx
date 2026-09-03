@@ -78,7 +78,6 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
               setMlValue(600);
             }}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="重設"
           >
             <RotateCcw size={16} />
           </button>
@@ -108,7 +107,9 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
                   >
                     -
                   </button>
-                  <span className="w-8 text-center font-black text-blue-950">{potACups} 杯</span>
+                  <span className="w-8 text-center font-black text-blue-950">
+                    <span>{potACups} <BopomofoText text="杯" showBpmf={bopomofoEnabled ?? false} /></span>
+                  </span>
                   <button
                     onClick={() => {
                       if (potACups < 10) {
@@ -123,7 +124,9 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
                 </div>
               </div>
 
-              <div className="text-xs font-black text-slate-500 mb-2">可倒滿的水杯數量：</div>
+              <div className="text-xs font-black text-slate-500 mb-2">
+                <BopomofoText text="可倒滿的水杯數量：" showBpmf={bopomofoEnabled ?? false} />
+              </div>
               <div className="flex items-center gap-2 flex-wrap min-h-[60px] p-3 bg-blue-50/60 rounded-2xl border-2 border-blue-200 border-dashed">
                 {Array.from({ length: potACups }).map((_, i) => (
                   <div key={i} className="w-10 h-10 rounded-xl bg-white border-2 border-blue-400 shadow-sm flex items-center justify-center text-xl animate-bounce-short">
@@ -152,7 +155,9 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
                   >
                     -
                   </button>
-                  <span className="w-8 text-center font-black text-sky-950">{potBCups} 杯</span>
+                  <span className="w-8 text-center font-black text-sky-950">
+                    <span>{potBCups} <BopomofoText text="杯" showBpmf={bopomofoEnabled ?? false} /></span>
+                  </span>
                   <button
                     onClick={() => {
                       if (potBCups < 10) {
@@ -167,7 +172,9 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
                 </div>
               </div>
 
-              <div className="text-xs font-black text-slate-500 mb-2">可倒滿的水杯數量：</div>
+              <div className="text-xs font-black text-slate-500 mb-2">
+                <BopomofoText text="可倒滿的水杯數量：" showBpmf={bopomofoEnabled ?? false} />
+              </div>
               <div className="flex items-center gap-2 flex-wrap min-h-[60px] p-3 bg-sky-50/60 rounded-2xl border-2 border-sky-200 border-dashed">
                 {Array.from({ length: potBCups }).map((_, i) => (
                   <div key={i} className="w-10 h-10 rounded-xl bg-white border-2 border-sky-400 shadow-sm flex items-center justify-center text-xl animate-bounce-short">
@@ -232,7 +239,7 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
               }}
               className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded-xl font-black text-sm"
             >
-              - 100 ml
+              <BopomofoText text="- 100 ml" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => {
@@ -243,7 +250,7 @@ export const CapacityLab: React.FC<CapacityLabProps> = ({ bopomofoEnabled = true
               }}
               className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-black text-sm shadow"
             >
-              + 100 ml
+              <BopomofoText text="+ 100 ml" showBpmf={bopomofoEnabled ?? false} />
             </button>
           </div>
         </div>

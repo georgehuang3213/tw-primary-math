@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RotateCcw, Check, HelpCircle } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface VerticalArithmeticProps {
   operation?: 'add' | 'sub';
@@ -9,6 +10,7 @@ interface VerticalArithmeticProps {
   interactive?: boolean;
   onComplete?: (isCorrect: boolean) => void;
   unitId?: string;
+  bopomofoEnabled?: boolean;
 }
 
 export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
@@ -17,7 +19,8 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   num2: propNum2,
   interactive = true,
   onComplete,
-  unitId
+  unitId,
+  bopomofoEnabled
 }) => {
   // 支援手動切換「加法」與「減法」模式
   const [currentOp, setCurrentOp] = useState<'add' | 'sub'>(initialOp);
@@ -112,7 +115,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             }`}
           >
             <span>➕</span>
-            <span>兩位數加法</span>
+            <span><BopomofoText text="兩位數加法" showBpmf={bopomofoEnabled ?? false} /></span>
           </button>
           <button
             onClick={() => handleSwitchOp('sub')}
@@ -123,16 +126,15 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             }`}
           >
             <span>➖</span>
-            <span>兩位數減法</span>
+            <span><BopomofoText text="兩位數減法" showBpmf={bopomofoEnabled ?? false} /></span>
           </button>
         </div>
 
         <button
           onClick={handleReset}
           className="text-xs text-slate-500 hover:text-amber-700 flex items-center gap-1 font-bold p-1 rounded-lg"
-          title="重新計算"
         >
-          <RotateCcw size={14} /> 重新計算
+          <RotateCcw size={14} /> <BopomofoText text="重新計算" showBpmf={bopomofoEnabled ?? false} />
         </button>
       </div>
 
@@ -140,8 +142,8 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
       <div className="relative bg-slate-900 text-white font-mono p-6 rounded-2xl shadow-inner w-56 flex flex-col items-center">
         {/* 位值標題：十位、個位 */}
         <div className="grid grid-cols-2 w-36 text-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-1 mb-2">
-          <span>十位</span>
-          <span>個位</span>
+          <span><BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /></span>
+          <span><BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /></span>
         </div>
 
         {/* 頂端標記區（進位 1 或借位 10 與劃掉標記） */}
@@ -233,25 +235,25 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
       <div className="mt-4 w-full text-xs bg-amber-50 p-3 rounded-xl border border-amber-200 text-slate-700">
         {isAddition ? (
           <div>
-            <p className="font-bold text-amber-900 mb-1">💡 計算小撇步：</p>
-            <p>1. 先算個位：{n1Ones} + {n2Ones} = {n1Ones + n2Ones}</p>
+            <p className="font-bold text-amber-900 mb-1">💡 <BopomofoText text="計算小撇步：" showBpmf={bopomofoEnabled ?? false} /></p>
+            <p><BopomofoText text={`1. 先算個位：${n1Ones} + ${n2Ones} = ${n1Ones + n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
             {requiresRegroup ? (
-              <p className="text-rose-600 font-bold">👉 滿十了！個位填 {(n1Ones + n2Ones) % 10}，十位頭上寫小小的 1！</p>
+              <p className="text-rose-600 font-bold">👉 <BopomofoText text={`滿十了！個位填 ${(n1Ones + n2Ones) % 10}，十位頭上寫小小的 1！`} showBpmf={bopomofoEnabled ?? false} /></p>
             ) : (
-              <p className="text-emerald-700 font-bold">👉 沒滿十，個位直接填 {n1Ones + n2Ones}。</p>
+              <p className="text-emerald-700 font-bold">👉 <BopomofoText text={`沒滿十，個位直接填 ${n1Ones + n2Ones}。`} showBpmf={bopomofoEnabled ?? false} /></p>
             )}
-            <p>2. 再算十位：{n1Tens} + {n2Tens} {requiresRegroup ? '+ 1(進位)' : ''} = {actualAnsTens}</p>
+            <p><BopomofoText text={`2. 再算十位：${n1Tens} + ${n2Tens} ${requiresRegroup ? '+ 1(進位)' : ''} = ${actualAnsTens}`} showBpmf={bopomofoEnabled ?? false} /></p>
           </div>
         ) : (
           <div>
-            <p className="font-bold text-amber-900 mb-1">💡 計算小撇步：</p>
-            <p>1. 先看個位：{n1Ones} 減 {n2Ones}</p>
+            <p className="font-bold text-amber-900 mb-1">💡 <BopomofoText text="計算小撇步：" showBpmf={bopomofoEnabled ?? false} /></p>
+            <p><BopomofoText text={`1. 先看個位：${n1Ones} 減 ${n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
             {requiresRegroup ? (
-              <p className="text-rose-600 font-bold">👉 不夠減！把十位 {n1Tens} 劃掉借1變 {n1Tens - 1}，個位拿到 10，10 - {n2Ones} + {n1Ones} = {actualAnsOnes}！</p>
+              <p className="text-rose-600 font-bold">👉 <BopomofoText text={`不夠減！把十位 ${n1Tens} 劃掉借1變 ${n1Tens - 1}，個位拿到 10，10 - ${n2Ones} + ${n1Ones} = ${actualAnsOnes}！`} showBpmf={bopomofoEnabled ?? false} /></p>
             ) : (
-              <p className="text-emerald-700 font-bold">👉 夠減，個位填 {n1Ones - n2Ones}。</p>
+              <p className="text-emerald-700 font-bold">👉 <BopomofoText text={`夠減，個位填 ${n1Ones - n2Ones}。`} showBpmf={bopomofoEnabled ?? false} /></p>
             )}
-            <p>2. 再算十位：{requiresRegroup ? n1Tens - 1 : n1Tens} - {n2Tens} = {actualAnsTens}</p>
+            <p><BopomofoText text={`2. 再算十位：${requiresRegroup ? n1Tens - 1 : n1Tens} - ${n2Tens} = ${actualAnsTens}`} showBpmf={bopomofoEnabled ?? false} /></p>
           </div>
         )}
       </div>
@@ -263,14 +265,14 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
           disabled={!ansOnes || !ansTens}
           className="mt-4 w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-2xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
         >
-          <Check size={18} /> 檢查直式算式
+          <Check size={18} /> <BopomofoText text="檢查直式算式" showBpmf={bopomofoEnabled ?? false} />
         </button>
       )}
 
       {/* 回饋訊息 */}
       {feedback && (
         <div className="mt-3 text-center text-sm font-black text-amber-900 animate-bounce-short">
-          {feedback}
+          <BopomofoText text={feedback} showBpmf={bopomofoEnabled ?? false} />
         </div>
       )}
     </div>

@@ -61,12 +61,13 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'animal_counter':
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
       case 'clock':
-        return <ClockSimulator initialHours={8} initialMinutes={unit.id === 'g1-u9-time' ? 0 : 25} />;
+        return <ClockSimulator initialHours={8} initialMinutes={unit.id === 'g1-u9-time' ? 0 : 25} bopomofoEnabled={bopomofoEnabled} />;
       case 'coins':
         return (
           <TaiwanCoins
             itemName={unit.id === 'g2-u11-num1000' ? '彩色鉛筆套組' : '可愛動物尺'}
             itemPrice={unit.id === 'g2-u11-num1000' ? 65 : 15}
+            bopomofoEnabled={bopomofoEnabled}
           />
         );
       case 'vertical_arithmetic':
@@ -74,6 +75,7 @@ export const LessonMode: React.FC<LessonModeProps> = ({
           <VerticalArithmetic
             operation="add"
             unitId={unit.id}
+            bopomofoEnabled={bopomofoEnabled}
           />
         );
       case 'base10':
@@ -84,14 +86,15 @@ export const LessonMode: React.FC<LessonModeProps> = ({
             initialOnes={unit.grade === 2 ? 7 : 5}
             unitId={unit.id}
             grade={unit.grade}
+            bopomofoEnabled={bopomofoEnabled}
           />
         );
       case 'mult_grid':
-        return <MultiplicationGrid initialFactor1={6} initialFactor2={4} />;
+        return <MultiplicationGrid initialFactor1={6} initialFactor2={4} bopomofoEnabled={bopomofoEnabled} />;
       case 'ruler':
-        return <VirtualRuler />;
+        return <VirtualRuler bopomofoEnabled={bopomofoEnabled} />;
       case 'ten_split':
-        return <TenSplitBoard totalCount={10} unitId={unit.id} />;
+        return <TenSplitBoard totalCount={10} unitId={unit.id} bopomofoEnabled={bopomofoEnabled} />;
       default:
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
     }

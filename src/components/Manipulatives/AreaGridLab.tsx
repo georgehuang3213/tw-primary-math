@@ -66,7 +66,6 @@ export const AreaGridLab: React.FC<AreaGridLabProps> = ({ bopomofoEnabled = true
               setGridState(Array(16).fill(0));
             }}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="清空"
           >
             <RotateCcw size={16} />
           </button>
@@ -82,7 +81,7 @@ export const AreaGridLab: React.FC<AreaGridLabProps> = ({ bopomofoEnabled = true
               <BopomofoText text="紅色圖形面積" showBpmf={bopomofoEnabled} />
             </span>
           </div>
-          <span className="text-2xl font-black text-rose-600 font-mono">{redCount} 格</span>
+          <span className="text-2xl font-black text-rose-600 font-mono">{redCount} <BopomofoText text="格" showBpmf={bopomofoEnabled ?? false} /></span>
         </div>
 
         <div className="bg-sky-50 border-2 border-sky-300 p-4 rounded-2xl flex items-center justify-between">
@@ -92,14 +91,14 @@ export const AreaGridLab: React.FC<AreaGridLabProps> = ({ bopomofoEnabled = true
               <BopomofoText text="藍色圖形面積" showBpmf={bopomofoEnabled} />
             </span>
           </div>
-          <span className="text-2xl font-black text-sky-600 font-mono">{blueCount} 格</span>
+          <span className="text-2xl font-black text-sky-600 font-mono">{blueCount} <BopomofoText text="格" showBpmf={bopomofoEnabled ?? false} /></span>
         </div>
       </div>
 
       {/* 4x4 方格操作區 */}
       <div className="bg-white rounded-3xl p-6 border-3 border-emerald-300 shadow-sm flex flex-col items-center">
         <div className="text-xs font-black text-slate-500 mb-3">
-          💡 點擊方格切換顏色（空白 ➔ 🟥 紅色 ➔ 🟦 藍色 ➔ 清除）
+          <BopomofoText text="💡 點擊方格切換顏色（空白 ➔ 🟥 紅色 ➔ 🟦 藍色 ➔ 清除）" showBpmf={bopomofoEnabled ?? false} />
         </div>
 
         <div className="grid grid-cols-4 gap-2.5 p-3 bg-slate-100 rounded-2xl border-2 border-slate-300 shadow-inner">
@@ -115,7 +114,7 @@ export const AreaGridLab: React.FC<AreaGridLabProps> = ({ bopomofoEnabled = true
                   : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-400'
               }`}
             >
-              {state === 1 ? '紅' : state === 2 ? '藍' : idx + 1}
+              {state === 1 ? <BopomofoText text="紅" showBpmf={bopomofoEnabled ?? false} /> : state === 2 ? <BopomofoText text="藍" showBpmf={bopomofoEnabled ?? false} /> : idx + 1}
             </button>
           ))}
         </div>

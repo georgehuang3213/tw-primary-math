@@ -241,7 +241,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
           <div className="flex items-center justify-between flex-wrap gap-2">
             <span className="text-sm font-black text-amber-950 flex items-center gap-1.5">
               <span>🎪</span>
-              <span>選擇你想用圖形板拼成的造型：</span>
+              <span><BopomofoText text="選擇你想用圖形板拼成的造型：" showBpmf={bopomofoEnabled ?? false} /></span>
             </span>
 
             {/* 目標造型切換 */}
@@ -275,7 +275,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
           {/* 拼圖操作展示區 */}
           <div className="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 flex flex-col items-center gap-3">
             <div className="text-xs font-bold text-slate-600">
-              💡 幾何秘訣：{
+              <BopomofoText text={`💡 幾何秘訣：${
                 selectedTangramTarget === 'square'
                   ? '用 2 個相同的直角三角形，斜邊貼合在一起，可以神奇拼成 1 個正方形！'
                   : selectedTangramTarget === 'rocket'
@@ -283,7 +283,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
                   : selectedTangramTarget === 'boat'
                   ? '長方形當船身，三角形當風帆，順風航行！'
                   : '三角形當屋頂，正方形當房子主體！'
-              }
+              }`} showBpmf={bopomofoEnabled ?? false} />
             </div>
 
             {/* 拼板畫布 */}
@@ -297,7 +297,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
                       : 'bg-indigo-50/50 text-indigo-700'
                   }`}>
                     {placedPieces.includes('tri1') && placedPieces.includes('tri2') ? (
-                      <span className="text-sm font-black">🎉 成功拼成大正方形！</span>
+                      <span className="text-sm font-black"><BopomofoText text="🎉 成功拼成大正方形！" showBpmf={bopomofoEnabled ?? false} /></span>
                     ) : (
                       <div className="flex flex-col items-center">
                         <span>正方形輪廓</span>
@@ -539,7 +539,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
           {/* 每層積木增減控制 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-rose-800">頂層積木：</span>
+              <span className="text-xs font-bold text-rose-800"><BopomofoText text="頂層積木：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setBlocksLevel3(p => Math.max(0, p - 1))}
@@ -558,7 +558,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
             </div>
 
             <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-sky-800">中層積木：</span>
+              <span className="text-xs font-bold text-sky-800"><BopomofoText text="中層積木：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
@@ -583,7 +583,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
             </div>
 
             <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-200 flex items-center justify-between">
-              <span className="text-xs font-bold text-indigo-800">底層積木：</span>
+              <span className="text-xs font-bold text-indigo-800"><BopomofoText text="底層積木：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
@@ -632,7 +632,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
               >
                 <span className="text-3xl">{shape.icon}</span>
                 <span className="text-xs font-bold truncate max-w-full">
-                  <BopomofoText text={shape.name} showBpmf={false} />
+                  <BopomofoText text={shape.name} showBpmf={bopomofoEnabled ?? false} />
                 </span>
               </button>
             );
@@ -654,7 +654,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
                       <BopomofoText text={selectedShape.name} showBpmf={bopomofoEnabled} />
                     </h3>
                     <span className="text-xs font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
-                      {selectedShape.category === '2D' ? '平面圖形 (2D)' : '立體形體 (3D)'}
+                      <BopomofoText text={selectedShape.category === '2D' ? '平面圖形 (2D)' : '立體形體 (3D)'} showBpmf={bopomofoEnabled ?? false} />
                     </span>
                   </div>
                 </div>
@@ -672,12 +672,12 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
 
               <div className="grid grid-cols-2 gap-2 text-sm font-bold">
                 <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-amber-950">
-                  <span className="text-xs text-amber-700 block">邊與面：</span>
-                  <BopomofoText text={selectedShape.sides} showBpmf={false} />
+                  <span className="text-xs text-amber-700 block"><BopomofoText text="邊與面：" showBpmf={bopomofoEnabled ?? false} /></span>
+                  <BopomofoText text={selectedShape.sides} showBpmf={bopomofoEnabled ?? false} />
                 </div>
                 <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-emerald-950">
-                  <span className="text-xs text-emerald-700 block">頂點與角：</span>
-                  <BopomofoText text={selectedShape.corners} showBpmf={false} />
+                  <span className="text-xs text-emerald-700 block"><BopomofoText text="頂點與角：" showBpmf={bopomofoEnabled ?? false} /></span>
+                  <BopomofoText text={selectedShape.corners} showBpmf={bopomofoEnabled ?? false} />
                 </div>
               </div>
             </div>
@@ -738,7 +738,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
               <span className="text-4xl">{selectedShape.canRoll ? '🎢' : '🛑'}</span>
               <div>
                 <span className="text-base font-black block">
-                  {selectedShape.canRoll ? '✅ 可以順暢滾動！' : '❌ 不能滾動（會滑動）'}
+                  <BopomofoText text={selectedShape.canRoll ? '✅ 可以順暢滾動！' : '❌ 不能滾動（會滑動）'} showBpmf={bopomofoEnabled ?? false} />
                 </span>
                 <span className="text-xs">
                   {selectedShape.canRoll
@@ -759,7 +759,7 @@ export const ShapeLab: React.FC<ShapeLabProps> = ({ bopomofoEnabled = true, unit
               <span className="text-4xl">{selectedShape.canStack ? '🧱' : '⚠️'}</span>
               <div>
                 <span className="text-base font-black block">
-                  {selectedShape.canStack ? '✅ 可以穩穩堆高！' : '❌ 無法穩固堆高'}
+                  <BopomofoText text={selectedShape.canStack ? '✅ 可以穩穩堆高！' : '❌ 無法穩固堆高'} showBpmf={bopomofoEnabled ?? false} />
                 </span>
                 <span className="text-xs">
                   {selectedShape.canStack

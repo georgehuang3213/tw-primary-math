@@ -75,7 +75,7 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
       {/* 份數切換選擇按鈕 */}
       <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-black text-amber-900">平分成幾份：</span>
+          <span className="text-xs font-black text-amber-900"><BopomofoText text="平分成幾份：" showBpmf={bopomofoEnabled ?? false} /></span>
           {[2, 3, 4, 8].map(count => (
             <button
               key={count}
@@ -91,7 +91,7 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
                   : 'bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-200'
               }`}
             >
-              平分 {count} 份 ({`1/${count}`})
+              <BopomofoText text="平分 " showBpmf={bopomofoEnabled ?? false} />{count}<BopomofoText text=" 份" showBpmf={bopomofoEnabled ?? false} /> ({`1/${count}`})
             </button>
           ))}
         </div>
@@ -107,7 +107,7 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-300'
           }`}
         >
-          {!isEqualSplit ? '⚠️ 觀察沒平分（一大一小）' : '切成一大一小比較'}
+          {!isEqualSplit ? <BopomofoText text="⚠️ 觀察沒平分（一大一小）" showBpmf={bopomofoEnabled ?? false} /> : <BopomofoText text="切成一大一小比較" showBpmf={bopomofoEnabled ?? false} />}
         </button>
       </div>
 
@@ -137,7 +137,6 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
                       50 + 50 * Math.sin((2 * Math.PI * (i + 1)) / slicesCount)
                     }%)`
                   }}
-                  title={`第 ${i + 1} 塊披薩（點擊吃掉/放回）`}
                 >
                   <span className="text-xs font-black text-amber-950 bg-white/80 px-1.5 py-0.5 rounded shadow z-10 font-mono">
                     {`1/${slicesCount}`}
@@ -149,9 +148,9 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
             // 沒平分的對比展示
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10 bg-rose-50/80">
               <AlertCircle size={36} className="text-rose-600 mb-1" />
-              <span className="text-sm font-black text-rose-950">一大一小沒有平分！</span>
+              <span className="text-sm font-black text-rose-950"><BopomofoText text="一大一小沒有平分！" showBpmf={bopomofoEnabled ?? false} /></span>
               <span className="text-xs text-slate-600 font-bold mt-1">
-                每一份大小不一樣，小塊的【不能】叫做二分之一！
+                <BopomofoText text="每一份大小不一樣，小塊的【不能】叫做二分之一！" showBpmf={bopomofoEnabled ?? false} />
               </span>
             </div>
           )}
@@ -184,17 +183,17 @@ export const FractionPieLab: React.FC<FractionPieLabProps> = ({ bopomofoEnabled 
               <div className="bg-orange-50 p-3.5 rounded-2xl border border-orange-200 text-xs sm:text-sm font-bold text-orange-950">
                 <div className="flex items-center gap-1.5 font-black text-orange-900 mb-1">
                   <Sparkles size={16} />
-                  <span>分數的小秘密：</span>
+                  <span><BopomofoText text="分數的小秘密：" showBpmf={bopomofoEnabled ?? false} /></span>
                 </div>
-                <div>• 橫線下面寫 <span className="text-orange-700 font-black">【分母】</span>：平分成幾份（{slicesCount} 份）</div>
-                <div>• 橫線上面寫 <span className="text-orange-700 font-black">【分子】</span>：拿了幾份（{eatenCount} 份）</div>
+                <div>• <BopomofoText text="橫線下面寫 " showBpmf={bopomofoEnabled ?? false} /><span className="text-orange-700 font-black"><BopomofoText text="【分母】" showBpmf={bopomofoEnabled ?? false} /></span><BopomofoText text="：平分成幾份（" showBpmf={bopomofoEnabled ?? false} />{slicesCount}<BopomofoText text=" 份）" showBpmf={bopomofoEnabled ?? false} /></div>
+                <div>• <BopomofoText text="橫線上面寫 " showBpmf={bopomofoEnabled ?? false} /><span className="text-orange-700 font-black"><BopomofoText text="【分子】" showBpmf={bopomofoEnabled ?? false} /></span><BopomofoText text="：拿了幾份（" showBpmf={bopomofoEnabled ?? false} />{eatenCount}<BopomofoText text=" 份）" showBpmf={bopomofoEnabled ?? false} /></div>
               </div>
             </>
           ) : (
             <div className="bg-rose-50 p-4 rounded-2xl border-2 border-rose-300 text-rose-950 text-xs sm:text-sm font-bold">
-              <div className="font-black text-rose-800 text-base mb-2">⚠️ 翰林課本特別強調：</div>
+              <div className="font-black text-rose-800 text-base mb-2"><BopomofoText text="⚠️ 翰林課本特別強調：" showBpmf={bopomofoEnabled ?? false} /></div>
               <p className="leading-relaxed">
-                只有在「每一份大小一模一樣（平分）」時，才能用二分之一（1/2）、四分之一（1/4）表示！
+                <BopomofoText text="只有在「每一份大小一模一樣（平分）」時，才能用二分之一（1/2）、四分之一（1/4）表示！" showBpmf={bopomofoEnabled ?? false} />
               </p>
             </div>
           )}

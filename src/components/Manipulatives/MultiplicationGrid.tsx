@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface MultiplicationGridProps {
   initialFactor1?: number; // 被乘數 (每盤幾個)
   initialFactor2?: number; // 乘數 (有幾盤)
   interactive?: boolean;
+  bopomofoEnabled?: boolean;
 }
 
 export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
   initialFactor1 = 4,
   initialFactor2 = 3,
-  interactive = true
+  interactive = true,
+  bopomofoEnabled
 }) => {
   const [factor1, setFactor1] = useState(initialFactor1); // 每排有幾個
   const [factor2, setFactor2] = useState(initialFactor2); // 共有幾排
@@ -49,11 +52,11 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
         {/* 幾個幾與連加解讀 */}
         <div className="text-xs sm:text-sm font-bold text-slate-600 flex flex-wrap items-center justify-center gap-2 pt-1 border-t border-violet-100 w-full">
           <span>
-            有 <strong className="text-violet-700">{factor2}</strong> 排，每排有 <strong className="text-violet-700">{factor1}</strong> 個
+            <BopomofoText text="有 " showBpmf={bopomofoEnabled ?? false} /><strong className="text-violet-700">{factor2}</strong><BopomofoText text=" 排，每排有 " showBpmf={bopomofoEnabled ?? false} /><strong className="text-violet-700">{factor1}</strong><BopomofoText text=" 個" showBpmf={bopomofoEnabled ?? false} />
           </span>
           <span className="text-slate-400">|</span>
           <span>
-            連加：{additionString} = <strong className="text-rose-600">{total}</strong>
+            <BopomofoText text="連加：" showBpmf={bopomofoEnabled ?? false} />{additionString} = <strong className="text-rose-600">{total}</strong>
           </span>
         </div>
       </div>
@@ -62,7 +65,7 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
       <div className="my-4 p-4 bg-white rounded-2xl border-2 border-violet-200 shadow-inner flex flex-col gap-2 items-center min-h-[160px] justify-center overflow-x-auto w-full">
         {Array.from({ length: factor2 }).map((_, rIdx) => (
           <div key={rIdx} className="flex items-center gap-2 bg-violet-50/60 p-2 rounded-xl border border-violet-100">
-            <span className="text-[10px] font-bold text-violet-400 w-8 text-right">第{rIdx + 1}排:</span>
+            <span className="text-[10px] font-bold text-violet-400 w-8 text-right"><BopomofoText text="第" showBpmf={bopomofoEnabled ?? false} />{rIdx + 1}<BopomofoText text="排:" showBpmf={bopomofoEnabled ?? false} /></span>
             <div className="flex gap-2">
               {Array.from({ length: factor1 }).map((_, cIdx) => (
                 <div
@@ -73,7 +76,7 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
                 </div>
               ))}
             </div>
-            <span className="text-xs font-bold text-violet-700 ml-1">({factor1}個)</span>
+            <span className="text-xs font-bold text-violet-700 ml-1">({factor1}<BopomofoText text="個" showBpmf={bopomofoEnabled ?? false} />)</span>
           </div>
         ))}
       </div>
@@ -82,7 +85,7 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
       {interactive && (
         <div className="w-full flex flex-col gap-3 bg-white p-3.5 rounded-2xl border border-violet-200">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-700">選擇被乘數（每排個數）：</span>
+            <span className="text-xs font-black text-slate-700"><BopomofoText text="選擇被乘數（每排個數）：" showBpmf={bopomofoEnabled ?? false} /></span>
             <div className="flex gap-1">
               {[2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                 <button
@@ -101,7 +104,7 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-700">選擇乘數（排數）：</span>
+            <span className="text-xs font-black text-slate-700"><BopomofoText text="選擇乘數（排數）：" showBpmf={bopomofoEnabled ?? false} /></span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                 <button
@@ -120,7 +123,7 @@ export const MultiplicationGrid: React.FC<MultiplicationGridProps> = ({
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-            <span className="text-xs font-bold text-slate-500">更換可愛圖案：</span>
+            <span className="text-xs font-bold text-slate-500"><BopomofoText text="更換可愛圖案：" showBpmf={bopomofoEnabled ?? false} /></span>
             <div className="flex gap-2">
               {['🍎', '⭐', '🎈', '🍬', '🚗', '🐱'].map(emoji => (
                 <button

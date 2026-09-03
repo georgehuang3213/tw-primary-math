@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Minus, RotateCcw, Sparkles, ArrowRight } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface BaseTenBlocksProps {
   initialHundreds?: number;
@@ -10,6 +11,7 @@ interface BaseTenBlocksProps {
   interactive?: boolean;
   unitId?: string;
   grade?: number;
+  bopomofoEnabled?: boolean;
 }
 
 export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
@@ -19,7 +21,8 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   onValueChange,
   interactive = true,
   unitId,
-  grade = 1
+  grade = 1,
+  bopomofoEnabled
 }) => {
   // 當前子分頁：'money'（百元紙鈔與錢幣換算）、'placeValue'（位值積木板）或 'tenPack'（10顆拼成一條十與跳數點數）
   // 若是二上第一單元 (g2-u1-num200)，任務明確指明「操作百位板與百元紙鈔，挑戰 200 以內點數與錢幣換算大滿貫！」，預設 'money'！
@@ -91,7 +94,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             }`}
           >
             <span>💵</span>
-            <span>百元紙鈔與錢幣換算</span>
+            <span><BopomofoText text="百元紙鈔與錢幣換算" showBpmf={bopomofoEnabled ?? false} /></span>
           </button>
 
           <button
@@ -106,7 +109,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             }`}
           >
             <span>🧱</span>
-            <span>十進位積木定位板</span>
+            <span><BopomofoText text="十進位積木定位板" showBpmf={bopomofoEnabled ?? false} /></span>
           </button>
 
           <button
@@ -121,7 +124,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             }`}
           >
             <span>📦</span>
-            <span>滿10顆拼成一條十</span>
+            <span><BopomofoText text="滿10顆拼成一條十" showBpmf={bopomofoEnabled ?? false} /></span>
           </button>
         </div>
 
@@ -133,7 +136,6 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <button
               onClick={handleReset}
               className="p-1.5 text-slate-400 hover:text-amber-700 rounded-lg"
-              title="清空重置"
             >
               <RotateCcw size={16} />
             </button>
@@ -160,7 +162,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center border-2 border-emerald-100 rounded-2xl p-3 bg-emerald-50/40">
               {/* 百位欄 (100元紙鈔) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-rose-700 mb-2">百位（100元紙鈔）</span>
+                <span className="text-xs font-black text-rose-700 mb-2"><BopomofoText text="百位（100元紙鈔）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
                   {Array.from({ length: bills100 }).map((_, i) => (
                     <div key={i} className="px-3 py-1.5 bg-red-600 border-2 border-red-800 text-white font-black text-xs rounded-lg shadow-sm">
@@ -188,7 +190,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
 
               {/* 十位欄 (50元與10元硬幣) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-sky-700 mb-2">十位（50元 / 10元硬幣）</span>
+                <span className="text-xs font-black text-sky-700 mb-2"><BopomofoText text="十位（50元 / 10元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
                   {Array.from({ length: coins50 }).map((_, i) => (
                     <div key={i} className="w-8 h-8 rounded-full bg-amber-400 border border-amber-600 text-amber-950 font-black text-[10px] flex items-center justify-center shadow-sm">
@@ -220,7 +222,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
 
               {/* 個位欄 (5元與1元硬幣) */}
               <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-amber-800 mb-2">個位（5元 / 1元硬幣）</span>
+                <span className="text-xs font-black text-amber-800 mb-2"><BopomofoText text="個位（5元 / 1元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex flex-wrap gap-1 justify-center min-h-[64px] items-center">
                   {Array.from({ length: coins5 }).map((_, i) => (
                     <div key={i} className="w-6 h-6 rounded-full bg-slate-300 border border-slate-400 text-slate-800 font-black text-[9px] flex items-center justify-center shadow-sm">
@@ -254,12 +256,12 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             {/* 換算結算橫幅 */}
             <div className="bg-emerald-100/70 p-3.5 rounded-2xl border border-emerald-300 flex items-center justify-between flex-wrap gap-2 text-xs sm:text-sm font-black text-emerald-950">
               <div className="flex items-center gap-1">
-                <span>💰 錢幣點數總金額：</span>
-                <span className="text-emerald-700 font-mono text-base">{bills100}張百元</span>
+                <span><BopomofoText text="💰 錢幣點數總金額：" showBpmf={bopomofoEnabled ?? false} /></span>
+                <span className="text-emerald-700 font-mono text-base">{bills100}<BopomofoText text="張百元" showBpmf={bopomofoEnabled ?? false} /></span>
                 <span>＋</span>
-                <span className="text-sky-700 font-mono text-base">{coins50 * 50 + coins10 * 10}元</span>
+                <span className="text-sky-700 font-mono text-base">{coins50 * 50 + coins10 * 10}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></span>
                 <span>＋</span>
-                <span className="text-amber-700 font-mono text-base">{coins5 * 5 + coins1 * 1}元</span>
+                <span className="text-amber-700 font-mono text-base">{coins5 * 5 + coins1 * 1}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></span>
               </div>
               <div className="text-base sm:text-lg font-mono text-rose-600 font-black">
                 ＝ {totalMoney} 元
@@ -277,7 +279,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-sm font-black text-amber-950 flex items-center gap-1.5">
                 <span>📦</span>
-                <span>把 10 顆單獨的小積木，打包拼成 1 條十：</span>
+                <span><BopomofoText text="把 10 顆單獨的小積木，打包拼成 1 條十：" showBpmf={bopomofoEnabled ?? false} /></span>
               </span>
               <span className="text-xs font-bold text-slate-500">
                 目前：{tens} 條十，{ones} 個一（共 {tens * 10 + ones}）
@@ -369,7 +371,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
                 <span>🏃</span>
-                <span>練習 2、5、10 跳數點數：</span>
+                <span><BopomofoText text="練習 2、5、10 跳數點數：" showBpmf={bopomofoEnabled ?? false} /></span>
               </span>
 
               {/* 切換跳數間隔 */}
@@ -415,7 +417,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   disabled={skipCount <= skipStep}
                   className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-900 rounded-xl text-xs font-black hover:bg-emerald-100 disabled:opacity-40"
                 >
-                  倒數 -{skipStep}
+                  <BopomofoText text="倒數" showBpmf={bopomofoEnabled ?? false} /> -{skipStep}
                 </button>
                 <button
                   onClick={() => {
@@ -425,7 +427,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   disabled={skipCount >= 30}
                   className="px-4 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-black shadow hover:bg-emerald-700 disabled:opacity-40"
                 >
-                  跳數 +{skipStep} ➔
+                  <BopomofoText text="跳數" showBpmf={bopomofoEnabled ?? false} /> +{skipStep} ➔
                 </button>
                 <button
                   onClick={() => {
@@ -476,7 +478,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
           {/* 百位 (100) */}
           <div className="flex flex-col items-center border-r-2 border-dashed border-slate-200 pr-2">
             <div className="text-xs font-black text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full mb-2">
-              百位 ({hundreds})
+              <BopomofoText text="百位" showBpmf={bopomofoEnabled ?? false} /> ({hundreds})
             </div>
             <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
               {Array.from({ length: hundreds }).map((_, i) => (
@@ -515,7 +517,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
           {/* 十位 (10) */}
           <div className="flex flex-col items-center border-r-2 border-dashed border-slate-200 pr-2">
             <div className="text-xs font-black text-sky-800 bg-sky-100 px-2.5 py-1 rounded-full mb-2">
-              十位 ({tens})
+              <BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /> ({tens})
             </div>
             <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
               {Array.from({ length: tens }).map((_, i) => (
@@ -553,7 +555,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
           {/* 個位 (1) */}
           <div className="flex flex-col items-center">
             <div className="text-xs font-black text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full mb-2">
-              個位 ({ones})
+              <BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /> ({ones})
             </div>
             <div className="flex-1 flex flex-wrap gap-1.5 justify-center items-start content-start overflow-y-auto max-h-44 p-1">
               {Array.from({ length: ones }).map((_, i) => (

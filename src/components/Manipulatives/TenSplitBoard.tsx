@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { Plus, Minus, RotateCcw, Sparkles } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface TenSplitBoardProps {
   totalCount?: number;
   interactive?: boolean;
   mode?: 'split' | 'add' | 'sub' | 'make10' | 'break10';
   unitId?: string;
+  bopomofoEnabled?: boolean;
 }
 
 export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
   totalCount = 10,
   interactive = true,
   mode: propMode,
-  unitId
+  unitId,
+  bopomofoEnabled = false
 }) => {
   // 自動判定模式：
   // 若是 一下第三單元 (g1-u12-sub20)，任務是「打開一整盒10顆花片，練習破十扣減與加法驗算」，直接預設 'break10'！
@@ -101,7 +104,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <span>🍓</span>
-          <span>打開整盒破十與驗算</span>
+          <BopomofoText text="打開整盒破十與驗算" showBpmf={bopomofoEnabled} />
         </button>
 
         <button
@@ -116,7 +119,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <span>🐿️</span>
-          <span>搬移湊十與交換律</span>
+          <BopomofoText text="搬移湊十與交換律" showBpmf={bopomofoEnabled} />
         </button>
 
         <button
@@ -131,7 +134,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <Plus size={15} />
-          <span>加法（併合/添加）</span>
+          <BopomofoText text="加法（併合/添加）" showBpmf={bopomofoEnabled} />
         </button>
 
         <button
@@ -146,7 +149,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <Minus size={15} />
-          <span>減法（10以內拿走）</span>
+          <BopomofoText text="減法（10以內拿走）" showBpmf={bopomofoEnabled} />
         </button>
 
         <button
@@ -161,7 +164,7 @@ export const TenSplitBoard: React.FC<TenSplitBoardProps> = ({
           }`}
         >
           <span>🟡</span>
-          <span>10的分與合</span>
+          <BopomofoText text="10的分與合" showBpmf={bopomofoEnabled} />
         </button>
       </div>
 

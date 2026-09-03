@@ -86,7 +86,6 @@ export const BalanceScale: React.FC<BalanceScaleProps> = ({ bopomofoEnabled = tr
           <button
             onClick={handleClear}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="清空"
           >
             <RotateCcw size={16} />
           </button>
@@ -103,22 +102,20 @@ export const BalanceScale: React.FC<BalanceScaleProps> = ({ bopomofoEnabled = tr
             <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-xl border border-slate-200">
               <span className="text-xs font-bold flex items-center gap-1">
                 <span>{item.icon}</span>
-                <span>{item.name} ({item.grams >= 1000 ? `${item.grams/1000}kg` : `${item.grams}g`})</span>
+                <span><BopomofoText text={item.name} showBpmf={bopomofoEnabled ?? false} /> ({item.grams >= 1000 ? `${item.grams/1000}kg` : `${item.grams}g`})</span>
               </span>
               <div className="flex gap-1">
                 <button
                   onClick={() => handleAddLeft(item)}
                   className="px-2 py-0.5 bg-teal-500 hover:bg-teal-600 text-white rounded text-[11px] font-black"
-                  title="放到左盤"
                 >
-                  左
+                  <BopomofoText text="左" showBpmf={bopomofoEnabled ?? false} />
                 </button>
                 <button
                   onClick={() => handleAddRight(item)}
                   className="px-2 py-0.5 bg-cyan-500 hover:bg-cyan-600 text-white rounded text-[11px] font-black"
-                  title="放到右盤"
                 >
-                  右
+                  <BopomofoText text="右" showBpmf={bopomofoEnabled ?? false} />
                 </button>
               </div>
             </div>
@@ -154,10 +151,10 @@ export const BalanceScale: React.FC<BalanceScaleProps> = ({ bopomofoEnabled = tr
               <div className="w-0.5 h-12 bg-slate-400"></div>
               <div className="w-28 sm:w-32 min-h-[50px] p-2 bg-teal-50 border-2 border-teal-400 rounded-2xl shadow-md flex items-center justify-center flex-wrap gap-1">
                 {leftItems.length === 0 ? (
-                  <span className="text-[10px] text-slate-400 font-bold">空左盤</span>
+                  <span className="text-[10px] text-slate-400 font-bold"><BopomofoText text="空左盤" showBpmf={bopomofoEnabled ?? false} /></span>
                 ) : (
                   leftItems.map((item, idx) => (
-                    <span key={idx} className="text-xl" title={item.name}>
+                    <span key={idx} className="text-xl">
                       {item.icon}
                     </span>
                   ))
@@ -174,10 +171,10 @@ export const BalanceScale: React.FC<BalanceScaleProps> = ({ bopomofoEnabled = tr
               <div className="w-0.5 h-12 bg-slate-400"></div>
               <div className="w-28 sm:w-32 min-h-[50px] p-2 bg-cyan-50 border-2 border-cyan-400 rounded-2xl shadow-md flex items-center justify-center flex-wrap gap-1">
                 {rightItems.length === 0 ? (
-                  <span className="text-[10px] text-slate-400 font-bold">空右盤</span>
+                  <span className="text-[10px] text-slate-400 font-bold"><BopomofoText text="空右盤" showBpmf={bopomofoEnabled ?? false} /></span>
                 ) : (
                   rightItems.map((item, idx) => (
-                    <span key={idx} className="text-xl" title={item.name}>
+                    <span key={idx} className="text-xl">
                       {item.icon}
                     </span>
                   ))

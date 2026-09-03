@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { RotateCcw, Eye, EyeOff } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface ClockSimulatorProps {
   initialHours?: number;
@@ -9,6 +10,7 @@ interface ClockSimulatorProps {
   onTimeChange?: (hours: number, minutes: number) => void;
   targetHours?: number;
   targetMinutes?: number;
+  bopomofoEnabled?: boolean;
 }
 
 export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
@@ -17,7 +19,8 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
   interactive = true,
   onTimeChange,
   targetHours,
-  targetMinutes
+  targetMinutes,
+  bopomofoEnabled
 }) => {
   const [hours, setHours] = useState(initialHours);
   const [minutes, setMinutes] = useState(initialMinutes);
@@ -158,10 +161,10 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
         {/* 指針標籤 */}
         <div className="absolute bottom-2 left-2 flex flex-col gap-1 text-[11px] font-bold bg-white/90 p-1.5 rounded-xl border border-amber-200 shadow-sm">
           <span className="flex items-center text-red-600">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block mr-1"></span> 時針（短）
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block mr-1"></span> <BopomofoText text="時針（短）" showBpmf={bopomofoEnabled ?? false} />
           </span>
           <span className="flex items-center text-sky-600">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block mr-1"></span> 分針（長）
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block mr-1"></span> <BopomofoText text="分針（長）" showBpmf={bopomofoEnabled ?? false} />
           </span>
         </div>
       </div>
@@ -178,7 +181,7 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
         <button
           onClick={() => setShowDigital(!showDigital)}
           className="p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 transition"
-          title={showDigital ? '隱藏電子鐘' : '顯示電子鐘'}
+          aria-label={showDigital ? '隱藏電子鐘' : '顯示電子鐘'}
         >
           {showDigital ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
@@ -192,25 +195,25 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
               onClick={() => addMinutes(-30)}
               className="px-2.5 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-bold text-xs btn-fun border border-sky-300"
             >
-              - 30分
+              <BopomofoText text="- 30分" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => addMinutes(-5)}
               className="px-2.5 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-bold text-xs btn-fun border border-sky-300"
             >
-              - 5分
+              <BopomofoText text="- 5分" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => addMinutes(5)}
               className="px-2.5 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-bold text-xs btn-fun border border-sky-300"
             >
-              + 5分
+              <BopomofoText text="+ 5分" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => addMinutes(30)}
               className="px-2.5 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-bold text-xs btn-fun border border-sky-300"
             >
-              + 30分
+              <BopomofoText text="+ 30分" showBpmf={bopomofoEnabled ?? false} />
             </button>
           </div>
 
@@ -219,18 +222,18 @@ export const ClockSimulator: React.FC<ClockSimulatorProps> = ({
               onClick={() => handleSetTime(hours, 0)}
               className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl font-bold text-xs btn-fun shadow-sm"
             >
-              設為整點 (00分)
+              <BopomofoText text="設為整點 (00分)" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => handleSetTime(hours, 30)}
               className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl font-bold text-xs btn-fun shadow-sm"
             >
-              設為半點 (30分)
+              <BopomofoText text="設為半點 (30分)" showBpmf={bopomofoEnabled ?? false} />
             </button>
             <button
               onClick={() => handleSetTime(12, 0)}
               className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs"
-              title="重設為 12:00"
+              aria-label="重設為 12:00"
             >
               <RotateCcw size={14} />
             </button>

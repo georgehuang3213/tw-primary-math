@@ -122,7 +122,6 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
               setSelectedAnimalIndex(null);
             }}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="重設數量"
           >
             <RotateCcw size={16} />
           </button>
@@ -183,7 +182,7 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
                 <span>🚩</span>
                 <BopomofoText text="從前往後排隊順序（點擊動物聽牠的名字）：" showBpmf={bopomofoEnabled} />
               </span>
-              <span>1 ~ 10 格</span>
+              <span>1 ~ 10 <BopomofoText text="格" showBpmf={bopomofoEnabled ?? false} /></span>
             </div>
 
             {/* 10格動物站立區 */}
@@ -214,7 +213,7 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
                           {animal.icon}
                         </span>
                         <span className="text-[10px] font-bold text-slate-700 truncate max-w-full">
-                          <BopomofoText text={animal.name} showBpmf={false} />
+                          <BopomofoText text={animal.name} showBpmf={bopomofoEnabled ?? false} />
                         </span>
                       </>
                     ) : (
@@ -238,8 +237,12 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
                   showBpmf={bopomofoEnabled}
                 />
               </span>
-              <span className="text-slate-500 text-xs">
-                {animalCount === 10 ? '🎉 10格全部站滿了！' : `還能再加入 ${10 - animalCount} 隻小動物`}
+              <span className="text-slate-500 text-xs flex items-center gap-1">
+                {animalCount === 10 ? (
+                  <span>🎉 10<BopomofoText text="格全部站滿了！" showBpmf={bopomofoEnabled ?? false} /></span>
+                ) : (
+                  <span><BopomofoText text="還能再加入 " showBpmf={bopomofoEnabled ?? false} />{10 - animalCount}<BopomofoText text=" 隻小動物" showBpmf={bopomofoEnabled ?? false} /></span>
+                )}
               </span>
             </div>
           </div>
@@ -259,7 +262,9 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
                   <span className="text-xs font-black text-rose-800">
                     <BopomofoText text="小白兔數量" showBpmf={bopomofoEnabled} />
                   </span>
-                  <div className="text-xl font-black text-rose-950 font-mono">{animalCount} 隻</div>
+                  <div className="text-xl font-black text-rose-950 font-mono">
+                    <span>{animalCount} <BopomofoText text="隻" showBpmf={bopomofoEnabled ?? false} /></span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-200">
@@ -289,7 +294,9 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
                   <span className="text-xs font-black text-amber-800">
                     <BopomofoText text="紅蘿蔔數量" showBpmf={bopomofoEnabled} />
                   </span>
-                  <div className="text-xl font-black text-amber-950 font-mono">{carrotCount} 根</div>
+                  <div className="text-xl font-black text-amber-950 font-mono">
+                    <span>{carrotCount} <BopomofoText text="根" showBpmf={bopomofoEnabled ?? false} /></span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1 bg-amber-50 p-1 rounded-xl border border-amber-200">
@@ -322,7 +329,9 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
               </div>
               <div className="flex items-center gap-2 flex-wrap min-h-[50px] p-2 bg-rose-50/60 rounded-2xl border-2 border-rose-200 border-dashed">
                 {animalCount === 0 ? (
-                  <span className="text-xs text-slate-400 font-bold p-2">沒有小白兔</span>
+                  <span className="text-xs text-slate-400 font-bold p-2">
+                    <BopomofoText text="沒有小白兔" showBpmf={bopomofoEnabled ?? false} />
+                  </span>
                 ) : (
                   Array.from({ length: animalCount }).map((_, i) => (
                     <div
@@ -361,7 +370,9 @@ export const AnimalCounter: React.FC<AnimalCounterProps> = ({ bopomofoEnabled = 
               </div>
               <div className="flex items-center gap-2 flex-wrap min-h-[50px] p-2 bg-amber-50/60 rounded-2xl border-2 border-amber-200 border-dashed">
                 {carrotCount === 0 ? (
-                  <span className="text-xs text-slate-400 font-bold p-2">沒有紅蘿蔔</span>
+                  <span className="text-xs text-slate-400 font-bold p-2">
+                    <BopomofoText text="沒有紅蘿蔔" showBpmf={bopomofoEnabled ?? false} />
+                  </span>
                 ) : (
                   Array.from({ length: carrotCount }).map((_, i) => (
                     <div

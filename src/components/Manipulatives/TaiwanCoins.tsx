@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RotateCcw, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { soundFx } from '../../services/audio';
+import { BopomofoText } from '../BopomofoText';
 
 interface TaiwanCoinsProps {
   targetAmount?: number;
@@ -8,6 +9,7 @@ interface TaiwanCoinsProps {
   itemPrice?: number;
   onAmountChange?: (total: number) => void;
   interactive?: boolean;
+  bopomofoEnabled?: boolean;
 }
 
 export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
@@ -15,7 +17,8 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
   itemName,
   itemPrice,
   onAmountChange,
-  interactive = true
+  interactive = true,
+  bopomofoEnabled
 }) => {
   const [coins, setCoins] = useState<{ [denom: number]: number }>({
     100: 0,
@@ -74,13 +77,13 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
               <ShoppingBag size={22} />
             </div>
             <div>
-              <span className="text-xs text-slate-500 font-bold">要購買的商品</span>
+              <span className="text-xs text-slate-500 font-bold"><BopomofoText text="要購買的商品" showBpmf={bopomofoEnabled ?? false} /></span>
               <p className="text-base font-black text-slate-800">{itemName}</p>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xs text-slate-500 font-bold">商品售價</span>
-            <p className="text-xl font-black text-rose-600">${itemPrice} 元</p>
+            <span className="text-xs text-slate-500 font-bold"><BopomofoText text="商品售價" showBpmf={bopomofoEnabled ?? false} /></span>
+            <p className="text-xl font-black text-rose-600">${itemPrice} <BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></p>
           </div>
         </div>
       )}
@@ -88,12 +91,12 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
       {/* 收銀盤 / 投幣區 */}
       <div className="bg-emerald-800/90 text-white p-4 rounded-2xl border-4 border-emerald-950 shadow-inner flex flex-col justify-between min-h-[140px]">
         <div className="flex justify-between items-center border-b border-emerald-700/60 pb-2 mb-2">
-          <span className="text-xs font-bold text-emerald-200 tracking-wider">錢包已拿出的金額</span>
+          <span className="text-xs font-bold text-emerald-200 tracking-wider"><BopomofoText text="錢包已拿出的金額" showBpmf={bopomofoEnabled ?? false} /></span>
           <button
             onClick={handleReset}
             className="flex items-center gap-1 text-xs text-emerald-200 hover:text-white bg-emerald-700/50 hover:bg-emerald-700 px-2 py-1 rounded-lg"
           >
-            <RotateCcw size={12} /> 清空重算
+            <RotateCcw size={12} /> <BopomofoText text="清空重算" showBpmf={bopomofoEnabled ?? false} />
           </button>
         </div>
 
@@ -101,33 +104,33 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
         <div className="flex flex-wrap items-center gap-2 py-2 min-h-[50px]">
           {totalAmount === 0 ? (
             <span className="text-emerald-300/70 text-sm font-medium italic mx-auto">
-              點擊下方的硬幣或紙鈔放進錢包裡
+              <BopomofoText text="點擊下方的硬幣或紙鈔放進錢包裡" showBpmf={bopomofoEnabled ?? false} />
             </span>
           ) : (
             <>
               {coins[100] > 0 && (
                 <div className="flex items-center bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg border border-red-800 shadow">
-                  💵 100元 × {coins[100]}
+                  💵 <BopomofoText text="100元" showBpmf={bopomofoEnabled ?? false} /> × {coins[100]}
                 </div>
               )}
               {coins[50] > 0 && (
                 <div className="flex items-center bg-amber-400 text-amber-950 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-amber-600 shadow">
-                  🪙 50元 × {coins[50]}
+                  🪙 <BopomofoText text="50元" showBpmf={bopomofoEnabled ?? false} /> × {coins[50]}
                 </div>
               )}
               {coins[10] > 0 && (
                 <div className="flex items-center bg-slate-200 text-slate-800 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-400 shadow">
-                  🪙 10元 × {coins[10]}
+                  🪙 <BopomofoText text="10元" showBpmf={bopomofoEnabled ?? false} /> × {coins[10]}
                 </div>
               )}
               {coins[5] > 0 && (
                 <div className="flex items-center bg-slate-300 text-slate-800 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-400 shadow">
-                  🪙 5元 × {coins[5]}
+                  🪙 <BopomofoText text="5元" showBpmf={bopomofoEnabled ?? false} /> × {coins[5]}
                 </div>
               )}
               {coins[1] > 0 && (
                 <div className="flex items-center bg-amber-800 text-amber-100 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-amber-950 shadow">
-                  🪙 1元 × {coins[1]}
+                  🪙 <BopomofoText text="1元" showBpmf={bopomofoEnabled ?? false} /> × {coins[1]}
                 </div>
               )}
             </>
@@ -136,9 +139,9 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
 
         {/* 總計結算 */}
         <div className="flex justify-between items-end pt-2 border-t border-emerald-700/60">
-          <span className="text-sm font-bold text-emerald-100">目前總共：</span>
+          <span className="text-sm font-bold text-emerald-100"><BopomofoText text="目前總共：" showBpmf={bopomofoEnabled ?? false} /></span>
           <div className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
-            $ {totalAmount} <span className="text-base font-normal text-white">元</span>
+            $ {totalAmount} <span className="text-base font-normal text-white"><BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></span>
           </div>
         </div>
       </div>
@@ -157,7 +160,7 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
                   denom.type === 'bill' ? 'w-20 h-12 text-sm rounded-lg' : 'w-14 h-14 rounded-full text-base'
                 }`}
               >
-                <span>{denom.label}</span>
+                <span><BopomofoText text={denom.label} showBpmf={bopomofoEnabled ?? false} /></span>
               </button>
 
               <div className="flex items-center justify-between w-full mt-2 pt-1 border-t border-slate-100 text-xs font-bold text-slate-600">
@@ -165,7 +168,6 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
                   onClick={() => removeCoin(denom.value)}
                   disabled={coins[denom.value] <= 0}
                   className="p-1 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 disabled:opacity-30 disabled:pointer-events-none"
-                  title="減少一個"
                 >
                   <Minus size={12} />
                 </button>
@@ -173,7 +175,6 @@ export const TaiwanCoins: React.FC<TaiwanCoinsProps> = ({
                 <button
                   onClick={() => addCoin(denom.value)}
                   className="p-1 rounded-md bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-700"
-                  title="增加一個"
                 >
                   <Plus size={12} />
                 </button>

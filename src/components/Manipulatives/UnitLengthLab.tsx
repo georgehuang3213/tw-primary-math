@@ -155,18 +155,18 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
           <div className="flex items-center justify-between">
             <span className="text-sm font-black text-teal-950 flex items-center gap-1.5">
               <span>🪢</span>
-              <span>中介物間接測量：黑板或書桌搬不動時，用「繩子標記」來比長短！</span>
+              <span><BopomofoText text="中介物間接測量：黑板或書桌搬不動時，用「繩子標記」來比長短！" showBpmf={bopomofoEnabled ?? false} /></span>
             </span>
           </div>
 
           {/* 測量對象一：書桌 */}
           <div className="bg-teal-50/70 p-3.5 rounded-2xl border border-teal-200 flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-              <span className="flex items-center gap-1">🪑 <strong>書桌長度</strong>：</span>
-              <span className="text-teal-700 font-black">{tableLength} 個方格長</span>
+              <span className="flex items-center gap-1">🪑 <strong><BopomofoText text="書桌長度" showBpmf={bopomofoEnabled ?? false} /></strong>：</span>
+              <span className="text-teal-700 font-black">{tableLength} <BopomofoText text="個方格長" showBpmf={bopomofoEnabled ?? false} /></span>
             </div>
             <div className="relative w-full h-8 bg-amber-700/80 rounded-xl flex items-center px-2 text-white text-xs font-bold shadow-inner">
-              書桌（搬不動）
+              <BopomofoText text="書桌（搬不動）" showBpmf={bopomofoEnabled ?? false} />
             </div>
             {/* 繩子測量投影 */}
             <div className="flex items-center gap-1 text-xs font-bold text-teal-800 pt-1">
@@ -183,14 +183,14 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
           {/* 測量對象二：講桌 */}
           <div className="bg-cyan-50/70 p-3.5 rounded-2xl border border-cyan-200 flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-              <span className="flex items-center gap-1">🏫 <strong>講桌長度</strong>：</span>
-              <span className="text-cyan-700 font-black">{deskLength} 個方格長</span>
+              <span className="flex items-center gap-1">🏫 <strong><BopomofoText text="講桌長度" showBpmf={bopomofoEnabled ?? false} /></strong>：</span>
+              <span className="text-cyan-700 font-black">{deskLength} <BopomofoText text="個方格長" showBpmf={bopomofoEnabled ?? false} /></span>
             </div>
             <div
               className="relative h-8 bg-orange-600/80 rounded-xl flex items-center px-2 text-white text-xs font-bold shadow-inner transition-all"
               style={{ width: `${(deskLength / 10) * 100}%` }}
             >
-              講桌（搬不動）
+              <BopomofoText text="講桌（搬不動）" showBpmf={bopomofoEnabled ?? false} />
             </div>
             {/* 繩子測量投影 */}
             <div className="flex items-center gap-1 text-xs font-bold text-cyan-800 pt-1">
@@ -218,7 +218,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
           <div className="flex justify-between items-center flex-wrap gap-2">
             <span className="text-sm font-black text-amber-950 flex items-center gap-1.5">
               <span>🧩</span>
-              <span>彩帶接龍與長度合成分解：</span>
+              <span><BopomofoText text="彩帶接龍與長度合成分解：" showBpmf={bopomofoEnabled ?? false} /></span>
             </span>
 
             <div className="flex gap-2">
@@ -233,7 +233,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                ➕ 長度合成（兩條接起來）
+                <BopomofoText text="➕ 長度合成（兩條接起來）" showBpmf={bopomofoEnabled ?? false} />
               </button>
               <button
                 onClick={() => {
@@ -246,7 +246,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                ✂️ 長度分解（剪掉變短）
+                <BopomofoText text="✂️ 長度分解（剪掉變短）" showBpmf={bopomofoEnabled ?? false} />
               </button>
             </div>
           </div>
@@ -255,7 +255,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
           {combineMode === 'add' && (
             <div className="flex flex-col gap-3 bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span>紅彩帶長：<strong className="text-rose-600 font-mono text-sm">{ribbonRed}</strong> 個積木</span>
+                <span><BopomofoText text="紅彩帶長：" showBpmf={bopomofoEnabled ?? false} /><strong className="text-rose-600 font-mono text-sm">{ribbonRed}</strong> <BopomofoText text="個積木" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex gap-1 items-center">
                   <button
                     onClick={() => setRibbonRed(p => Math.max(1, p - 1))}
@@ -282,7 +282,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
               </div>
 
               <div className="flex items-center justify-between text-xs font-bold text-slate-700 pt-2 border-t border-amber-200">
-                <span>藍彩帶長：<strong className="text-sky-600 font-mono text-sm">{ribbonBlue}</strong> 個積木</span>
+                <span><BopomofoText text="藍彩帶長：" showBpmf={bopomofoEnabled ?? false} /><strong className="text-sky-600 font-mono text-sm">{ribbonBlue}</strong> <BopomofoText text="個積木" showBpmf={bopomofoEnabled ?? false} /></span>
                 <div className="flex gap-1 items-center">
                   <button
                     onClick={() => setRibbonBlue(p => Math.max(1, p - 1))}
@@ -393,7 +393,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
       {activeTab === 'units' && (
         <div className="bg-white rounded-3xl p-5 sm:p-6 border-3 border-yellow-300 shadow-sm flex flex-col gap-4 animate-fade-in">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <span className="text-xs font-black text-slate-600">選擇測量用的個別單位：</span>
+            <span className="text-xs font-black text-slate-600"><BopomofoText text="選擇測量用的個別單位：" showBpmf={bopomofoEnabled ?? false} /></span>
             <div className="flex gap-2">
               {(['clip', 'block', 'eraser'] as const).map(k => (
                 <button
@@ -420,7 +420,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
             <div className="w-full h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-sm"></div>
 
             <div className="text-xs font-black text-amber-900 mt-2">
-              用【{unitIcons[unitType].name}】緊密排列測量（不留空隙、不重疊）：
+              <BopomofoText text="用【" showBpmf={bopomofoEnabled ?? false} />{unitIcons[unitType].name}<BopomofoText text="】緊密排列測量（不留空隙、不重疊）：" showBpmf={bopomofoEnabled ?? false} />
             </div>
             <div className="flex items-center gap-1.5 flex-wrap min-h-[40px] p-2 bg-amber-50 rounded-xl border border-amber-200 border-dashed">
               {Array.from({ length: pencilLength }).map((_, i) => (
@@ -452,12 +452,12 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
 
           <div className="relative pl-6 border-l-4 border-rose-500 flex flex-col gap-5 py-2">
             <span className="absolute -left-3 top-0 bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
-              起點基準線
+              <BopomofoText text="起點基準線" showBpmf={bopomofoEnabled ?? false} />
             </span>
 
             {/* 鉛筆 */}
             <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-slate-600 w-16">鉛筆(紅)：</span>
+              <span className="text-xs font-bold text-slate-600 w-16"><BopomofoText text="鉛筆(紅)：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div
                 className="h-8 bg-rose-500 rounded-r-xl shadow flex items-center justify-end pr-2 text-white font-black text-xs transition-all"
                 style={{ width: `${(pencilLength / 10) * 80}%` }}
@@ -492,7 +492,7 @@ export const UnitLengthLab: React.FC<UnitLengthLabProps> = ({ bopomofoEnabled = 
 
             {/* 蠟筆 */}
             <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-slate-600 w-16">蠟筆(黃)：</span>
+              <span className="text-xs font-bold text-slate-600 w-16"><BopomofoText text="蠟筆(黃)：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div
                 className="h-8 bg-amber-400 rounded-r-xl shadow flex items-center justify-end pr-2 text-amber-950 font-black text-xs transition-all"
                 style={{ width: `${(crayonLength / 10) * 80}%` }}

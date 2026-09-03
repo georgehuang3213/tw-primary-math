@@ -145,7 +145,6 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
               ]);
             }}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
-            title="重設"
           >
             <RotateCcw size={15} />
           </button>
@@ -158,7 +157,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
           <div key={item.id} className="bg-white p-2.5 rounded-2xl border-2 border-purple-100 shadow-sm flex items-center justify-between">
             <span className="text-xs sm:text-sm font-black flex items-center gap-1">
               <span>{item.icon}</span>
-              <BopomofoText text={item.name} showBpmf={false} />
+              <BopomofoText text={item.name} showBpmf={bopomofoEnabled ?? false} />
             </span>
             <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
               <button
@@ -185,12 +184,12 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-purple-50 p-3 rounded-2xl border border-purple-200">
             <span className="text-xs sm:text-sm font-black text-purple-950 flex items-center gap-1.5">
               <span>📝</span>
-              <span>「正」字教育部標準筆順：一筆一畫，滿 5 劃寫成一個完整的「正」！</span>
+              <BopomofoText text="「正」字教育部標準筆順：一筆一畫，滿 5 劃寫成一個完整的「正」！" showBpmf={bopomofoEnabled ?? false} />
             </span>
 
             {/* 筆順動態指南：1(橫) -> 2(豎) -> 3(短橫) -> 4(短豎) -> 5(長橫) */}
             <div className="flex items-center gap-2 text-[11px] font-bold text-slate-600 bg-white px-2.5 py-1 rounded-xl border border-purple-100 shadow-sm">
-              <span className="text-purple-700">筆順展示：</span>
+              <span className="text-purple-700"><BopomofoText text="筆順展示：" showBpmf={bopomofoEnabled ?? false} /></span>
               <div className="flex items-center gap-1.5">
                 <span className="flex items-center gap-0.5">①<ZhengStrokeIcon strokeCount={1} /></span>
                 <span>➔</span>
@@ -210,9 +209,9 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
             <table className="w-full text-center border-collapse">
               <thead>
                 <tr className="bg-purple-100/80 text-purple-950 text-xs sm:text-sm font-black">
-                  <th className="py-3 px-3 border-b border-r border-purple-200">水果種類</th>
-                  <th className="py-3 px-4 border-b border-r border-purple-200">「正」字記號畫記</th>
-                  <th className="py-3 px-3 border-b border-purple-200">數量（票數）</th>
+                  <th className="py-3 px-3 border-b border-r border-purple-200"><BopomofoText text="水果種類" showBpmf={bopomofoEnabled ?? false} /></th>
+                  <th className="py-3 px-4 border-b border-r border-purple-200"><BopomofoText text="「正」字記號畫記" showBpmf={bopomofoEnabled ?? false} /></th>
+                  <th className="py-3 px-3 border-b border-purple-200"><BopomofoText text="數量（票數）" showBpmf={bopomofoEnabled ?? false} /></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-purple-100 text-xs sm:text-sm font-bold">
@@ -227,7 +226,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                       {/* 「正」字展示欄位 */}
                       <td className="py-3 px-4 border-r border-purple-100">
                         {item.votes === 0 ? (
-                          <span className="text-slate-300 font-normal">（無票數，0 劃）</span>
+                          <span className="text-slate-300 font-normal"><BopomofoText text="（無票數，0 劃）" showBpmf={bopomofoEnabled ?? false} /></span>
                         ) : (
                           <div className="flex items-center justify-center gap-2">
                             {/* 滿 5 劃的「正」字 */}
@@ -235,7 +234,6 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                               <div
                                 key={i}
                                 className="p-1 bg-purple-100/70 border border-purple-300 rounded-xl shadow-sm flex items-center justify-center"
-                                title="滿 5 劃：完整「正」字"
                               >
                                 <ZhengStrokeIcon strokeCount={5} isFull={true} />
                               </div>
@@ -245,7 +243,6 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                             {item.votes % 5 > 0 && (
                               <div
                                 className="p-1 bg-amber-100/80 border border-amber-300 rounded-xl shadow-sm flex items-center justify-center"
-                                title={`目前進行到第 ${item.votes % 5} 劃`}
                               >
                                 <ZhengStrokeIcon strokeCount={item.votes % 5} />
                               </div>
@@ -255,7 +252,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                       </td>
 
                       <td className="py-3 px-3 font-mono font-black text-base text-purple-900">
-                        {item.votes} 票
+                        <BopomofoText text={`${item.votes} 票`} showBpmf={bopomofoEnabled ?? false} />
                       </td>
                     </tr>
                   );
@@ -263,12 +260,12 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
               </tbody>
               <tfoot>
                 <tr className="bg-purple-50 font-black text-purple-950 text-xs sm:text-sm border-t-2 border-purple-200">
-                  <td className="py-2.5 px-3 border-r border-purple-200">全班合計</td>
+                  <td className="py-2.5 px-3 border-r border-purple-200"><BopomofoText text="全班合計" showBpmf={bopomofoEnabled ?? false} /></td>
                   <td className="py-2.5 px-4 border-r border-purple-200 text-slate-500">
-                    一筆一畫累計共 {totalVotes} 劃
+                    <BopomofoText text={`一筆一畫累計共 ${totalVotes} 劃`} showBpmf={bopomofoEnabled ?? false} />
                   </td>
                   <td className="py-2.5 px-3 font-mono text-base text-purple-900">
-                    {totalVotes} 票
+                    <BopomofoText text={`${totalVotes} 票`} showBpmf={bopomofoEnabled ?? false} />
                   </td>
                 </tr>
               </tfoot>
@@ -294,7 +291,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
       {activeTab === 'barchart' && (
         <div className="bg-white rounded-3xl p-6 border-3 border-indigo-300 shadow-sm flex flex-col animate-fade-in">
           <div className="text-xs font-black text-slate-500 mb-4">
-            📊 長條圖（直軸為票數 0 ~ 15，橫軸為水果類別）：
+            <BopomofoText text="📊 長條圖（直軸為票數 0 ~ 15，橫軸為水果類別）：" showBpmf={bopomofoEnabled ?? false} />
           </div>
 
           {/* 柱狀圖 */}
@@ -310,7 +307,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
 
             {data.map(item => (
               <div key={item.id} className="flex flex-col items-center gap-2 w-16 sm:w-20 z-10">
-                <span className="text-xs font-black font-mono text-purple-950">{item.votes} 票</span>
+                <span className="text-xs font-black font-mono text-purple-950"><BopomofoText text={`${item.votes} 票`} showBpmf={bopomofoEnabled ?? false} /></span>
                 <div
                   className={`w-full rounded-t-2xl ${item.color} transition-all duration-500 shadow-md flex items-end justify-center pb-2`}
                   style={{ height: `${(item.votes / 15) * 180}px` }}
@@ -318,7 +315,7 @@ export const BarChartLab: React.FC<BarChartLabProps> = ({ bopomofoEnabled = true
                   <span className="text-2xl">{item.icon}</span>
                 </div>
                 <span className="text-xs font-black text-slate-700">
-                  <BopomofoText text={item.name} showBpmf={false} />
+                  <BopomofoText text={item.name} showBpmf={bopomofoEnabled ?? false} />
                 </span>
               </div>
             ))}
