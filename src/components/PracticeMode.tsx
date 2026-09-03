@@ -120,11 +120,11 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
       case 'fraction_pie':
         return <FractionPieLab bopomofoEnabled={bopomofoEnabled} />;
       case 'calendar_lab':
-        return <CalendarLab bopomofoEnabled={bopomofoEnabled} />;
+        return <CalendarLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'unit_length':
         return <UnitLengthLab bopomofoEnabled={bopomofoEnabled} />;
       case 'shape_lab':
-        return <ShapeLab bopomofoEnabled={bopomofoEnabled} />;
+        return <ShapeLab bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'balance_scale':
         return <BalanceScale bopomofoEnabled={bopomofoEnabled} />;
       case 'capacity_lab':
@@ -136,19 +136,41 @@ export const PracticeMode: React.FC<PracticeModeProps> = ({
       case 'animal_counter':
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
       case 'clock':
-        return <ClockSimulator initialHours={8} initialMinutes={0} />;
+        return <ClockSimulator initialHours={8} initialMinutes={unit.id === 'g1-u7-time-clock' ? 0 : 25} bopomofoEnabled={bopomofoEnabled} />;
       case 'coins':
-        return <TaiwanCoins />;
+        return <TaiwanCoins unitId={unit.id} bopomofoEnabled={bopomofoEnabled} />;
       case 'vertical_arithmetic':
-        return <VerticalArithmetic operation={unit.id === 'g2-u2-add-sub-vertical' ? 'add' : 'sub'} />;
+        return (
+          <VerticalArithmetic
+            operation={unit.id === 'g2-u2-add-sub-vertical' ? 'add' : 'sub'}
+            unitId={unit.id}
+            bopomofoEnabled={bopomofoEnabled}
+          />
+        );
       case 'base10':
-        return <BaseTenBlocks />;
+        return (
+          <BaseTenBlocks
+            initialHundreds={unit.grade === 2 ? 1 : 0}
+            initialTens={unit.grade === 2 ? 4 : 2}
+            initialOnes={unit.grade === 2 ? 7 : 5}
+            unitId={unit.id}
+            grade={unit.grade}
+            bopomofoEnabled={bopomofoEnabled}
+          />
+        );
       case 'mult_grid':
-        return <MultiplicationGrid />;
+        return (
+          <MultiplicationGrid
+            initialFactor1={unit.id === 'g2-u9-mult-part2' ? 9 : 6}
+            initialFactor2={unit.id === 'g2-u9-mult-part2' ? 7 : 4}
+            unitId={unit.id}
+            bopomofoEnabled={bopomofoEnabled}
+          />
+        );
       case 'ruler':
-        return <VirtualRuler />;
+        return <VirtualRuler bopomofoEnabled={bopomofoEnabled} unitId={unit.id} />;
       case 'ten_split':
-        return <TenSplitBoard />;
+        return <TenSplitBoard totalCount={10} unitId={unit.id} bopomofoEnabled={bopomofoEnabled} />;
       default:
         return <AnimalCounter bopomofoEnabled={bopomofoEnabled} />;
     }
