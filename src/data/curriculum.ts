@@ -1,6 +1,6 @@
 import { Unit } from '../types';
 
-export const CURRICULUM_UNITS: Unit[] = [
+const RAW_CURRICULUM_UNITS: Unit[] = [
   // =========================================================================
   // 一年級上學期 (1上) - 均一標準 9 個單元 (https://www.junyiacademy.org/topics/h-m1a)
   // =========================================================================
@@ -2160,3 +2160,9 @@ export const CURRICULUM_UNITS: Unit[] = [
     }
   }
 ];
+
+export const CURRICULUM_UNITS: Unit[] = [...RAW_CURRICULUM_UNITS].sort((a, b) => {
+  if (a.grade !== b.grade) return a.grade - b.grade;
+  if (a.semester !== b.semester) return a.semester - b.semester;
+  return a.order - b.order;
+});

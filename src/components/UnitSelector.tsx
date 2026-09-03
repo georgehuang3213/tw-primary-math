@@ -35,11 +35,16 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   const [activeUnitIndex, setActiveUnitIndex] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'stage' | 'grid'>('stage');
 
-  const filteredUnits = units.filter(u => {
-    if (u.grade !== currentGrade) return false;
-    if (selectedSemester !== 'all' && u.semester !== selectedSemester) return false;
-    return true;
-  });
+  const filteredUnits = units
+    .filter(u => {
+      if (u.grade !== currentGrade) return false;
+      if (selectedSemester !== 'all' && u.semester !== selectedSemester) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.semester !== b.semester) return a.semester - b.semester;
+      return a.order - b.order;
+    });
 
   const safeIndex = Math.min(activeUnitIndex, Math.max(0, filteredUnits.length - 1));
   const currentUnit = filteredUnits[safeIndex] || filteredUnits[0];
