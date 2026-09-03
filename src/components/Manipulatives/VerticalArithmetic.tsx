@@ -3,27 +3,58 @@ import { RotateCcw, Check, HelpCircle } from 'lucide-react';
 import { soundFx } from '../../services/audio';
 
 interface VerticalArithmeticProps {
-  operation: 'add' | 'sub';
+  operation?: 'add' | 'sub';
   num1?: number; // 被加數 / 被減數
   num2?: number; // 加數 / 減數
   interactive?: boolean;
   onComplete?: (isCorrect: boolean) => void;
+  unitId?: string;
 }
 
 export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
-  operation = 'add',
-  num1 = operation === 'add' ? 38 : 52,
-  num2 = operation === 'add' ? 27 : 18,
+  operation: initialOp = 'add',
+  num1: propNum1,
+  num2: propNum2,
   interactive = true,
-  onComplete
+  onComplete,
+  unitId
 }) => {
+  // 支援手動切換「加法」與「減法」模式
+  const [currentOp, setCurrentOp] = useState<'add' | 'sub'>(initialOp);
+  const isAddition = currentOp === 'add';
+
+  // 根據加法/減法與單元自適應預設數值：
+  // 若是一下第八單元 (g1-u17-two-digit-add-sub)：加法為 24 + 13 = 37，減法為 48 - 25 = 23
+  // 若是二年級二上第二單元 (g2-u2-add-sub-vertical)：加法為 38 + 27 = 65，減法為 52 - 18 = 34
+  const defaultNum1 = isAddition
+    ? (unitId === 'g1-u17-two-digit-add-sub' ? 24 : 38)
+    : (unitId === 'g1-u17-two-digit-add-sub' ? 48 : 52);
+  const defaultNum2 = isAddition
+    ? (unitId === 'g1-u17-two-digit-add-sub' ? 13 : 27)
+    : (unitId === 'g1-u17-two-digit-add-sub' ? 25 : 18);
+
+  const [num1, setNum1] = useState<number>(propNum1 || defaultNum1);
+  const [num2, setNum2] = useState<number>(propNum2 || defaultNum2);
+
+  // 當切換加法或減法時，更新對應預設題型
+  const handleSwitchOp = (op: 'add' | 'sub') => {
+    soundFx.playPop();
+    setCurrentOp(op);
+    if (op === 'add') {
+      setNum1(unitId === 'g1-u17-two-digit-add-sub' ? 24 : 38);
+      setNum2(unitId === 'g1-u17-two-digit-add-sub' ? 13 : 27);
+    } else {
+      setNum1(unitId === 'g1-u17-two-digit-add-sub' ? 48 : 52);
+      setNum2(unitId === 'g1-u17-two-digit-add-sub' ? 25 : 18);
+    }
+  };
+
   // 拆解位值
   const n1Tens = Math.floor(num1 / 10);
   const n1Ones = num1 % 10;
   const n2Tens = Math.floor(num2 / 10);
   const n2Ones = num2 % 10;
 
-  const isAddition = operation === 'add';
   const requiresRegroup = isAddition
     ? n1Ones + n2Ones >= 10
     : n1Ones < n2Ones;
@@ -34,12 +65,11 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   const [borrowOnes, setBorrowOnes] = useState<string>(''); // 個位拿到的 10
   const [ansOnes, setAnsOnes] = useState<string>('');
   const [ansTens, setAnsTens] = useState<string>('');
-  const [step, setStep] = useState<number>(0); // 0: 算個位, 1: 進退位標記, 2: 算十位, 3: 完成
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     handleReset();
-  }, [num1, num2, operation]);
+  }, [num1, num2, currentOp]);
 
   const handleReset = () => {
     setCarry('');
@@ -47,7 +77,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
     setBorrowOnes('');
     setAnsOnes('');
     setAnsTens('');
-    setStep(0);
     setFeedback(null);
   };
 
@@ -70,17 +99,40 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center bg-white p-5 sm:p-7 rounded-3xl border-4 border-amber-300 shadow-md max-w-sm mx-auto">
-      {/* 標題與說明 */}
-      <div className="flex items-center justify-between w-full border-b-2 border-amber-100 pb-2 mb-4">
-        <span className="text-xs font-black px-2.5 py-1 rounded-full bg-amber-100 text-amber-900">
-          {isAddition ? '➕ 直式進位加法' : '➖ 直式借位退位減法'}
-        </span>
+    <div className="flex flex-col items-center bg-white p-5 sm:p-7 rounded-3xl border-4 border-amber-300 shadow-md max-w-md mx-auto w-full">
+      {/* 頂部直式加法/減法切換標籤 */}
+      <div className="flex items-center justify-between w-full border-b-2 border-amber-100 pb-3 mb-4">
+        <div className="flex items-center gap-1.5 bg-amber-50 p-1 rounded-2xl border border-amber-200">
+          <button
+            onClick={() => handleSwitchOp('add')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
+              isAddition
+                ? 'bg-amber-500 text-amber-950 shadow-sm'
+                : 'text-slate-600 hover:bg-amber-100'
+            }`}
+          >
+            <span>➕</span>
+            <span>兩位數加法</span>
+          </button>
+          <button
+            onClick={() => handleSwitchOp('sub')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
+              !isAddition
+                ? 'bg-rose-500 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-rose-50'
+            }`}
+          >
+            <span>➖</span>
+            <span>兩位數減法</span>
+          </button>
+        </div>
+
         <button
           onClick={handleReset}
-          className="text-xs text-slate-500 hover:text-amber-700 flex items-center gap-1 font-bold"
+          className="text-xs text-slate-500 hover:text-amber-700 flex items-center gap-1 font-bold p-1 rounded-lg"
+          title="重新計算"
         >
-          <RotateCcw size={13} /> 重新計算
+          <RotateCcw size={14} /> 重新計算
         </button>
       </div>
 

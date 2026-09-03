@@ -72,9 +72,8 @@ export const LessonMode: React.FC<LessonModeProps> = ({
       case 'vertical_arithmetic':
         return (
           <VerticalArithmetic
-            operation={unit.id === 'g2-u2-add-sub-vertical' ? 'add' : 'sub'}
-            num1={unit.id === 'g2-u2-add-sub-vertical' ? 38 : 52}
-            num2={unit.id === 'g2-u2-add-sub-vertical' ? 27 : 18}
+            operation="add"
+            unitId={unit.id}
           />
         );
       case 'base10':
