@@ -1,10 +1,12 @@
 import React from 'react';
 import { Star, Volume2, VolumeX, LogOut, User } from 'lucide-react';
-import { Grade } from '../types';
+import { Grade, Subject } from '../types';
 import { BopomofoText } from './BopomofoText';
 import { soundFx } from '../services/audio';
 
 interface NavbarProps {
+  currentSubject?: Subject;
+  onSubjectChange?: (sub: Subject) => void;
   currentGrade: Grade;
   onGradeChange: (grade: Grade) => void;
   bopomofoEnabled: boolean;
@@ -18,12 +20,14 @@ interface NavbarProps {
   onOpenReview: () => void;
   onOpenReset?: () => void;
   onOpenMultiplication?: () => void;
-  currentMode?: 'home' | 'lesson' | 'practice' | 'multiplication';
+  currentMode?: 'home' | 'lesson' | 'practice' | 'multiplication' | 'chinese';
   onLogout: () => void;
   onGoHome: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  currentSubject = 'math',
+  onSubjectChange,
   currentGrade,
   onGradeChange,
   bopomofoEnabled,
@@ -86,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onGradeChange(2);
             }}
             className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
-              currentGrade === 2
+              currentGrade === 2 && currentSubject === 'math'
                 ? 'bg-white text-amber-950 shadow-md scale-105'
                 : 'text-amber-900 hover:text-white'
             }`}
@@ -109,6 +113,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span>⚡</span>
               <BopomofoText text="九九乘法表" showBpmf={bopomofoEnabled} />
+            </button>
+          )}
+
+          {/* 📖 康軒國語專區按鈕 */}
+          {onSubjectChange && (
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                onSubjectChange('chinese');
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
+                currentSubject === 'chinese'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md scale-105 ring-2 ring-emerald-300'
+                  : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300'
+              }`}
+            >
+              <span>📖</span>
+              <BopomofoText text="康軒國語一上" showBpmf={bopomofoEnabled} />
             </button>
           )}
         </div>

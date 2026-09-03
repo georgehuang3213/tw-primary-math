@@ -1,3 +1,4 @@
+export type Subject = 'math' | 'chinese';
 export type Grade = 1 | 2;
 export type Semester = 1 | 2;
 
@@ -140,4 +141,41 @@ export interface UserAccount {
   lastVisitedAt?: number;
   lastActiveAt: number;
   lastCloudSyncAt: number;
+}
+
+// ==========================================
+// 康軒國小國語課程型別
+// ==========================================
+export interface ChineseVocabulary {
+  char: string;
+  bpmf: string;
+  radical: string;
+  strokeCount: number;
+  words: string[];
+  mnemonic?: string; // 記憶口訣或部件拆解（例：扌＋白＝拍）
+}
+
+export interface ChineseQuizQuestion {
+  id: string;
+  type: 'bpmf' | 'word' | 'stroke' | 'sentence';
+  title: string;
+  prompt: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+}
+
+export interface ChineseLesson {
+  id: string;
+  order: number;
+  title: string;
+  titleBpmf: string;
+  subtitle: string;
+  icon: string;
+  themeColor: string;
+  contentLines: string[]; // 完整課文（每行一句）
+  contentAudioText: string;
+  summary: string;
+  vocabularies: ChineseVocabulary[];
+  questions: ChineseQuizQuestion[];
 }

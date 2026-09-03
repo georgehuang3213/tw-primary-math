@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grade, Semester, Unit, UserProgress, UserAccount } from './types';
+import { Grade, Semester, Unit, UserProgress, UserAccount, Subject } from './types';
 import { CURRICULUM_UNITS } from './data/curriculum';
 import { QUESTIONS } from './data/questions';
 import { Navbar } from './components/Navbar';
@@ -10,6 +10,7 @@ import { ReviewModal } from './components/ReviewModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
 import { ResetModal } from './components/ResetModal';
 import { MultiplicationPracticeTab } from './components/MultiplicationPracticeTab';
+import { ChinesePlatform } from './components/ChinesePlatform';
 import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
 import { r2StorageService } from './services/r2Storage';
@@ -17,13 +18,14 @@ import { speechService } from './services/speech';
 import { soundFx } from './services/audio';
 
 export const App: React.FC = () => {
+  const [currentSubject, setCurrentSubject] = useState<Subject>('math');
   const [currentAccountName, setCurrentAccountName] = useState<string | null>(() => storageService.getCurrentAccountName());
   const [userAccount, setUserAccount] = useState<UserAccount>(() => storageService.getUserAccount());
   const [currentGrade, setCurrentGrade] = useState<Grade>(1);
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>('all');
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [activeUnit, setActiveUnit] = useState<Unit | null>(null);
-  const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice' | 'multiplication'>('home');
+  const [currentMode, setCurrentMode] = useState<'home' | 'lesson' | 'practice' | 'multiplication' | 'chinese'>('home');
   
   // Modals
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -211,9 +213,20 @@ export const App: React.FC = () => {
     <div className={`min-h-screen bg-amber-50/50 flex flex-col font-sans ${bopomofoEnabled ? '' : 'bopomofo-off'}`}>
       {/* 頂部導覽列 */}
       <Navbar
+        currentSubject={currentSubject}
+        onSubjectChange={sub => {
+          setCurrentSubject(sub);
+          if (sub === 'chinese') {
+            setCurrentMode('chinese');
+          } else {
+            setCurrentMode('home');
+          }
+          setActiveUnit(null);
+        }}
         currentGrade={currentGrade}
         onGradeChange={g => {
           setCurrentGrade(g);
+          setCurrentSubject('math');
           setCurrentMode('home');
           setActiveUnit(null);
         }}
@@ -261,6 +274,11 @@ export const App: React.FC = () => {
               setCurrentMode('multiplication');
               setActiveUnit(null);
             }}
+            onOpenChinese={() => {
+              setCurrentSubject('chinese');
+              setCurrentMode('chinese');
+              setActiveUnit(null);
+            }}
           />
         )}
 
@@ -304,6 +322,17 @@ export const App: React.FC = () => {
           <MultiplicationPracticeTab
             bopomofoEnabled={bopomofoEnabled}
             onBackToHome={() => {
+              setCurrentMode('home');
+              setActiveUnit(null);
+            }}
+          />
+        )}
+
+        {currentMode === 'chinese' && (
+          <ChinesePlatform
+            bopomofoEnabled={bopomofoEnabled}
+            onBackToMath={() => {
+              setCurrentSubject('math');
               setCurrentMode('home');
               setActiveUnit(null);
             }}

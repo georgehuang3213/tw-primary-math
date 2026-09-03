@@ -20,6 +20,7 @@ interface UnitSelectorProps {
   onResumeLastUnit?: (unitId: string, mode: 'lesson' | 'practice') => void;
   onOpenReset?: () => void;
   onOpenMultiplication?: () => void;
+  onOpenChinese?: () => void;
 }
 
 export const UnitSelector: React.FC<UnitSelectorProps> = ({
@@ -37,7 +38,8 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   onSelectUnit,
   onResumeLastUnit,
   onOpenReset,
-  onOpenMultiplication
+  onOpenMultiplication,
+  onOpenChinese
 }) => {
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>(initialSemester);
   const [viewMode, setViewMode] = useState<'stage' | 'grid'>('stage');
@@ -245,10 +247,23 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
                 soundFx.playCorrect();
                 onOpenMultiplication();
               }}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun"
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-violet-700 transition btn-fun"
             >
               <span>⚡</span>
-              <BopomofoText text="九九乘法冒險樂園" showBpmf={bopomofoEnabled} />
+              <BopomofoText text="九九乘法表" showBpmf={bopomofoEnabled} />
+            </button>
+          )}
+
+          {onOpenChinese && (
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                onOpenChinese();
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-xs sm:text-sm font-black shadow-md border-2 border-emerald-700 transition btn-fun"
+            >
+              <span>📖</span>
+              <BopomofoText text="康軒國語一上" showBpmf={bopomofoEnabled} />
             </button>
           )}
 
