@@ -18,6 +18,7 @@ interface UnitSelectorProps {
   lastMode?: 'lesson' | 'practice';
   onSelectUnit: (unit: Unit, mode: 'lesson' | 'practice') => void;
   onResumeLastUnit?: (unitId: string, mode: 'lesson' | 'practice') => void;
+  onOpenReset?: () => void;
 }
 
 export const UnitSelector: React.FC<UnitSelectorProps> = ({
@@ -33,7 +34,8 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
   lastGrade,
   lastMode = 'lesson',
   onSelectUnit,
-  onResumeLastUnit
+  onResumeLastUnit,
+  onOpenReset
 }) => {
   const [selectedSemester, setSelectedSemester] = useState<Semester | 'all'>(initialSemester);
   const [viewMode, setViewMode] = useState<'stage' | 'grid'>('stage');
@@ -144,18 +146,35 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              soundFx.playCorrect();
-              if (onResumeLastUnit && resumeUnitId) {
-                onResumeLastUnit(resumeUnitId, resumeMode);
-              }
-            }}
-            className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-amber-50 text-amber-950 font-black rounded-2xl text-sm sm:text-base shadow-md hover:shadow-xl transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shrink-0"
-          >
-            <PlayCircle size={20} className="text-amber-600 fill-amber-500" />
-            <span>一鍵繼續上次進度 ➔</span>
-          </button>
+          <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+            {onOpenReset && (
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playPop();
+                  onOpenReset();
+                }}
+                title="從頭開始學習"
+                className="px-4 py-3 bg-rose-500/80 hover:bg-rose-600 text-white font-black rounded-2xl text-xs sm:text-sm border border-rose-300/50 shadow transition flex items-center gap-1.5"
+              >
+                <span>🔄</span>
+                <span>重設進度</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                soundFx.playCorrect();
+                if (onResumeLastUnit && resumeUnitId) {
+                  onResumeLastUnit(resumeUnitId, resumeMode);
+                }
+              }}
+              className="flex-1 sm:flex-none px-6 py-3 bg-white hover:bg-amber-50 text-amber-950 font-black rounded-2xl text-sm sm:text-base shadow-md hover:shadow-xl transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            >
+              <PlayCircle size={20} className="text-amber-600 fill-amber-500" />
+              <span>一鍵繼續上次進度 ➔</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100 rounded-3xl p-3.5 sm:p-4 text-amber-950 border-2 border-amber-300 shadow-sm flex items-center justify-between gap-3">

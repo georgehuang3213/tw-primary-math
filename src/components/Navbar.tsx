@@ -16,6 +16,7 @@ interface NavbarProps {
   mistakeCount: number;
   onOpenMistakeNotebook: () => void;
   onOpenReview: () => void;
+  onOpenReset?: () => void;
   onLogout: () => void;
   onGoHome: () => void;
 }
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   mistakeCount,
   onOpenMistakeNotebook,
   onOpenReview,
+  onOpenReset,
   onLogout,
   onGoHome
 }) => {
@@ -141,6 +143,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>ㄅㄆㄇ</span>
             <span className="ml-1 hidden lg:inline">{bopomofoEnabled ? '開' : '關'}</span>
           </button>
+
+          {/* 重新學習 RESET 按鈕 */}
+          {onOpenReset && (
+            <button
+              onClick={() => {
+                soundFx.playPop();
+                onOpenReset();
+              }}
+              title="重設學習進度與星星記錄（重新開始探險）"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-amber-950 rounded-xl text-xs font-black shadow border border-amber-600 transition btn-fun"
+            >
+              <span>🔄</span>
+              <span className="hidden sm:inline">RESET</span>
+            </button>
+          )}
 
           {/* 音效開關 */}
           <button

@@ -8,6 +8,7 @@ import { LessonMode } from './components/LessonMode';
 import { PracticeMode } from './components/PracticeMode';
 import { ReviewModal } from './components/ReviewModal';
 import { MistakeNotebookModal } from './components/MistakeNotebookModal';
+import { ResetModal } from './components/ResetModal';
 import { LoginScreen } from './components/LoginScreen';
 import { storageService } from './services/storage';
 import { r2StorageService } from './services/r2Storage';
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   // Modals
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isMistakeNotebookOpen, setIsMistakeNotebookOpen] = useState(false);
+  const [isResetOpen, setIsResetOpen] = useState(false);
 
   // 注音開關
   const [bopomofoEnabled, setBopomofoEnabled] = useState<boolean>(true);
@@ -133,17 +135,37 @@ export const App: React.FC = () => {
     setUserAccount(updated);
   };
 
-  const handleResetProgress = () => {
-    const resetAcc: UserAccount = {
-      ...userAccount,
-      totalStars: 0,
-      completedUnits: [],
-      unitStars: {},
-      mistakes: []
-    };
+  const handleConfirmReset = (type: 'all' | 'stars' | 'mistakes') => {
+    let resetAcc: UserAccount = { ...userAccount };
+    if (type === 'all') {
+      resetAcc = {
+        ...userAccount,
+        totalStars: 0,
+        completedUnits: [],
+        unitStars: {},
+        mistakes: [],
+        lastUnitId: undefined,
+        lastUnitTitle: undefined
+      };
+    } else if (type === 'stars') {
+      resetAcc = {
+        ...userAccount,
+        totalStars: 0,
+        completedUnits: [],
+        unitStars: {}
+      };
+    } else if (type === 'mistakes') {
+      resetAcc = {
+        ...userAccount,
+        mistakes: []
+      };
+    }
+
     storageService.saveUserAccount(resetAcc);
     setUserAccount(resetAcc);
+    setIsResetOpen(false);
     setIsReviewOpen(false);
+    speechService.speak('學習進度已成功重設！加油，重新出發！');
   };
 
   // 將當前帳號的資料轉為 UnitSelector 所需的 UserProgress 結構
@@ -203,6 +225,7 @@ export const App: React.FC = () => {
         mistakeCount={userAccount.mistakes.length}
         onOpenMistakeNotebook={() => setIsMistakeNotebookOpen(true)}
         onOpenReview={() => setIsReviewOpen(true)}
+        onOpenReset={() => setIsResetOpen(true)}
         onLogout={handleLogout}
         onGoHome={() => {
           setCurrentMode('home');
@@ -227,6 +250,7 @@ export const App: React.FC = () => {
             lastMode={userAccount.lastMode}
             onSelectUnit={handleSelectUnit}
             onResumeLastUnit={handleResumeLastUnit}
+            onOpenReset={() => setIsResetOpen(true)}
           />
         )}
 
@@ -283,7 +307,16 @@ export const App: React.FC = () => {
         isOpen={isReviewOpen}
         onClose={() => setIsReviewOpen(false)}
         userProgress={userProgress}
-        onResetProgress={handleResetProgress}
+        onResetProgress={() => handleConfirmReset('all')}
+      />
+
+      {/* 重新學習與進度重設視窗 */}
+      <ResetModal
+        isOpen={isResetOpen}
+        onClose={() => setIsResetOpen(false)}
+        accountName={currentAccountName || '小勇士'}
+        onConfirmReset={handleConfirmReset}
+        bopomofoEnabled={bopomofoEnabled}
       />
 
       {/* 頁尾版權與教育部課綱對照標示 */}
