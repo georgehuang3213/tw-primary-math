@@ -78,7 +78,15 @@ export const LessonMode: React.FC<LessonModeProps> = ({
           />
         );
       case 'base10':
-        return <BaseTenBlocks initialHundreds={unit.grade === 2 ? 1 : 0} initialTens={4} initialOnes={7} />;
+        return (
+          <BaseTenBlocks
+            initialHundreds={unit.grade === 2 ? 1 : 0}
+            initialTens={unit.grade === 2 ? 4 : 2}
+            initialOnes={unit.grade === 2 ? 7 : 5}
+            unitId={unit.id}
+            grade={unit.grade}
+          />
+        );
       case 'mult_grid':
         return <MultiplicationGrid initialFactor1={6} initialFactor2={4} />;
       case 'ruler':
