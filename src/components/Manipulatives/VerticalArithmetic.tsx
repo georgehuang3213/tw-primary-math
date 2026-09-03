@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Check, ArrowRight, Trophy, Sparkles, Coins, Bus, ArrowDown, BookOpen } from 'lucide-react';
+import { RotateCcw, Check, ArrowRight, Trophy, Sparkles, Coins, Bus, ArrowDown, Store } from 'lucide-react';
 import { soundFx } from '../../services/audio';
 import { BopomofoText } from '../BopomofoText';
 
@@ -24,10 +24,12 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   unitId,
   bopomofoEnabled
 }) => {
+  // 是否為三位數加減法單元
+  const isThreeDigits =
+    unitId === 'g2-s2-u2-three-digit-add-sub' ||
+    (propNum1 !== undefined && propNum1 >= 100);
+
   // 自動判定初始模式：
-  // 若為 g2-u6 (加減兩步驟)，直接預設 'two_step' 兩步驟解題站！
-  // 若為 g2-u4 (加減應用互逆)，直接預設 'inverse' 互逆模式！
-  // 若為 g2-u2 (二位數加減直式與符號)，可自由切換 add/sub/compare！
   const defaultMode: TabMode =
     unitId === 'g2-u6-two-steps-add-sub'
       ? 'two_step'
@@ -38,46 +40,70 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   const [tabMode, setTabMode] = useState<TabMode>(defaultMode);
   const isAddition = tabMode === 'add';
 
-  // 根據加法/減法與單元自適應預設數值：
-  const defaultNum1 = isAddition
-    ? (unitId === 'g1-u17-two-digit-add-sub' ? 24 : 38)
-    : (unitId === 'g1-u17-two-digit-add-sub' ? 48 : 52);
-  const defaultNum2 = isAddition
-    ? (unitId === 'g1-u17-two-digit-add-sub' ? 13 : 25)
-    : (unitId === 'g1-u17-two-digit-add-sub' ? 25 : 27);
+  // 根據單元與位數自適應預設題目：
+  // 若為三位數單元：加法預設老闆上午 356 元 + 下午 275 元 = 631 元；減法 631 - 275 = 356 元！
+  const getDefaultNum1 = (mode: 'add' | 'sub') => {
+    if (isThreeDigits) {
+      return mode === 'add' ? 356 : 631;
+    }
+    if (unitId === 'g1-u17-two-digit-add-sub') {
+      return mode === 'add' ? 24 : 48;
+    }
+    return mode === 'add' ? 38 : 52;
+  };
 
-  const [num1, setNum1] = useState<number>(propNum1 || defaultNum1);
-  const [num2, setNum2] = useState<number>(propNum2 || defaultNum2);
+  const getDefaultNum2 = (mode: 'add' | 'sub') => {
+    if (isThreeDigits) {
+      return 275;
+    }
+    if (unitId === 'g1-u17-two-digit-add-sub') {
+      return mode === 'add' ? 13 : 25;
+    }
+    return mode === 'add' ? 25 : 27;
+  };
+
+  const [num1, setNum1] = useState<number>(propNum1 || getDefaultNum1(isAddition ? 'add' : 'sub'));
+  const [num2, setNum2] = useState<number>(propNum2 || getDefaultNum2(isAddition ? 'add' : 'sub'));
 
   const handleSwitchTab = (newMode: TabMode) => {
     soundFx.playPop();
     setTabMode(newMode);
     if (newMode === 'add') {
-      setNum1(unitId === 'g1-u17-two-digit-add-sub' ? 24 : 38);
-      setNum2(unitId === 'g1-u17-two-digit-add-sub' ? 13 : 25);
+      setNum1(getDefaultNum1('add'));
+      setNum2(getDefaultNum2('add'));
     } else if (newMode === 'sub') {
-      setNum1(unitId === 'g1-u17-two-digit-add-sub' ? 48 : 52);
-      setNum2(unitId === 'g1-u17-two-digit-add-sub' ? 25 : 27);
+      setNum1(getDefaultNum1('sub'));
+      setNum2(getDefaultNum2('sub'));
     }
   };
 
-  // 拆解位值
-  const n1Tens = Math.floor(num1 / 10);
+  // 拆解位值（支援三位數與兩位數）
+  const n1Hundreds = Math.floor(num1 / 100);
+  const n1Tens = Math.floor((num1 % 100) / 10);
   const n1Ones = num1 % 10;
-  const n2Tens = Math.floor(num2 / 10);
+
+  const n2Hundreds = Math.floor(num2 / 100);
+  const n2Tens = Math.floor((num2 % 100) / 10);
   const n2Ones = num2 % 10;
 
-  const requiresRegroup = isAddition
-    ? n1Ones + n2Ones >= 10
-    : n1Ones < n2Ones;
-
   // 使用者輸入狀態（直式黑板）
-  const [carry, setCarry] = useState<string>('');
+  const [carryTens, setCarryTens] = useState<string>(''); // 個位進十位
+  const [carryHundreds, setCarryHundreds] = useState<string>(''); // 十位進百位
+
+  const [borrowHundreds, setBorrowHundreds] = useState<string>('');
   const [borrowTens, setBorrowTens] = useState<string>('');
   const [borrowOnes, setBorrowOnes] = useState<string>('');
-  const [ansOnes, setAnsOnes] = useState<string>('');
+
+  const [ansHundreds, setAnsHundreds] = useState<string>('');
   const [ansTens, setAnsTens] = useState<string>('');
+  const [ansOnes, setAnsOnes] = useState<string>('');
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  // 實際答案與位值
+  const actualAns = isAddition ? num1 + num2 : num1 - num2;
+  const actualHundreds = Math.floor(actualAns / 100);
+  const actualTens = Math.floor((actualAns % 100) / 10);
+  const actualOnes = actualAns % 10;
 
   // -------------------------------------------------------------
   // ＜、＝、＞ 符號填空挑戰狀態 (g2-u2)
@@ -145,7 +171,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   // -------------------------------------------------------------
-  // 🌟 二上第六單元專屬：加減兩步驟解題站 (g2-u6)
+  // 二上第六單元：兩步驟加減解題站 (g2-u6)
   // -------------------------------------------------------------
   const twoStepQuestions = [
     {
@@ -267,7 +293,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
   };
 
   // -------------------------------------------------------------
-  // 二上第四單元專屬：加減互逆小偵探 (g2-u4)
+  // 二上第四單元：加減互逆小偵探 (g2-u4)
   // -------------------------------------------------------------
   const inverseQuestions = [
     {
@@ -379,11 +405,14 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
 
   // 重設直式加減黑板
   const handleReset = () => {
-    setCarry('');
+    setCarryTens('');
+    setCarryHundreds('');
+    setBorrowHundreds('');
     setBorrowTens('');
     setBorrowOnes('');
-    setAnsOnes('');
+    setAnsHundreds('');
     setAnsTens('');
+    setAnsOnes('');
     setFeedback(null);
   };
 
@@ -391,25 +420,30 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
     handleReset();
   }, [num1, num2, tabMode]);
 
-  const actualAns = isAddition ? num1 + num2 : num1 - num2;
-  const actualAnsTens = Math.floor(actualAns / 10);
-  const actualAnsOnes = actualAns % 10;
-
   const checkAnswer = () => {
+    const userHundreds = isThreeDigits ? parseInt(ansHundreds, 10) : 0;
     const userTens = parseInt(ansTens, 10);
     const userOnes = parseInt(ansOnes, 10);
 
-    if (userTens === actualAnsTens && userOnes === actualAnsOnes) {
+    const isHMatch = !isThreeDigits || userHundreds === actualHundreds;
+    const isTMatch = userTens === actualTens;
+    const isOMatch = userOnes === actualOnes;
+
+    if (isHMatch && isTMatch && isOMatch) {
       soundFx.playCorrect();
-      setFeedback('🎉 太棒了！直式計算完全正確！');
+      if (isThreeDigits) {
+        setFeedback(`🎉 太棒了！直式計算完全正確！${num1} ${isAddition ? '＋' : '－'} ${num2} ＝ ${actualAns} 元！文具店老闆非常感謝你！`);
+      } else {
+        setFeedback('🎉 太棒了！直式計算完全正確！');
+      }
       if (onComplete) onComplete(true);
     } else {
       soundFx.playWrong();
-      setFeedback('💡 再檢查看看個位或十位有沒有算錯喔！');
+      setFeedback('💡 再檢查看看個位、十位或百位有沒有算錯喔！');
     }
   };
 
-  // 各單元專屬分頁顯示控制
+  // 單元判定
   const isG2U6 = unitId === 'g2-u6-two-steps-add-sub';
   const isG2U4 = unitId === 'g2-u4-app-add-sub';
   const isG2U2 = unitId === 'g2-u2-add-sub-vertical';
@@ -449,6 +483,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </button>
           )}
 
+          {/* 加法按鈕（自動適應「三位數加法」或「兩位數加法」） */}
           <button
             onClick={() => handleSwitchTab('add')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -458,9 +493,10 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             }`}
           >
             <span>➕</span>
-            <BopomofoText text="兩位數加法" showBpmf={bopomofoEnabled ?? false} />
+            <BopomofoText text={isThreeDigits ? '三位數加法' : '兩位數加法'} showBpmf={bopomofoEnabled ?? false} />
           </button>
 
+          {/* 減法按鈕（自動適應「三位數減法」或「兩位數減法」） */}
           <button
             onClick={() => handleSwitchTab('sub')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
@@ -470,7 +506,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             }`}
           >
             <span>➖</span>
-            <BopomofoText text="兩位數減法" showBpmf={bopomofoEnabled ?? false} />
+            <BopomofoText text={isThreeDigits ? '三位數減法' : '兩位數減法'} showBpmf={bopomofoEnabled ?? false} />
           </button>
 
           {/* g2-u2 專屬：＜、＝、＞ 符號比大小挑戰分頁 */}
@@ -487,21 +523,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               <BopomofoText text="＜＝＞ 符號挑戰" showBpmf={bopomofoEnabled ?? false} />
             </button>
           )}
-
-          {/* 若不是 g2-u6 也不是 g2-u4，但想查看互逆驗算 */}
-          {!isG2U6 && !isG2U4 && !isG2U2 && (
-            <button
-              onClick={() => handleSwitchTab('inverse')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 ${
-                tabMode === 'inverse'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-emerald-700 hover:bg-emerald-50'
-              }`}
-            >
-              <span>🔄</span>
-              <BopomofoText text="加減互逆驗算" showBpmf={bopomofoEnabled ?? false} />
-            </button>
-          )}
         </div>
 
         {(tabMode === 'add' || tabMode === 'sub') && (
@@ -514,12 +535,229 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
         )}
       </div>
 
+      {/* 若為三位數加減法單元，突顯老闆收銀情境提示卡 */}
+      {isThreeDigits && (tabMode === 'add' || tabMode === 'sub') && (
+        <div className="w-full bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-3 mb-3 text-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Store size={18} className="text-indigo-600" />
+            <span className="text-xs font-black text-indigo-900 bg-white px-2.5 py-0.5 rounded-full border border-indigo-200">
+              <BopomofoText text="文具店老闆收銀機任務" showBpmf={bopomofoEnabled ?? false} />
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm font-bold text-slate-700">
+            {tabMode === 'add' ? (
+              <BopomofoText text="🏪 老闆說：「上午賣了 356 元，下午又賣了 275 元，一天共賺多少元呢？」" showBpmf={bopomofoEnabled ?? false} />
+            ) : (
+              <BopomofoText text="🏪 老闆說：「一天共賺 631 元，下午賣了 275 元，上午賣了多少元呢？」" showBpmf={bopomofoEnabled ?? false} />
+            )}
+          </p>
+        </div>
+      )}
+
       {/* ========================================================================= */}
-      {/* 🌟 模式 A：二上第六單元專屬【加減兩步驟解題站】(g2-u6 預設) */}
+      {/* 標準直式加法/減法黑板（自動適應三位數與兩位數） */}
+      {/* ========================================================================= */}
+      {(tabMode === 'add' || tabMode === 'sub') && (
+        <>
+          <div className={`relative bg-slate-900 text-white font-mono p-6 rounded-2xl shadow-inner flex flex-col items-center ${
+            isThreeDigits ? 'w-72' : 'w-56'
+          }`}>
+            {/* 位值標題：百位、十位、個位 */}
+            <div className={`grid text-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-1 mb-2 ${
+              isThreeDigits ? 'grid-cols-3 w-52' : 'grid-cols-2 w-36'
+            }`}>
+              {isThreeDigits && <span><BopomofoText text="百位" showBpmf={bopomofoEnabled ?? false} /></span>}
+              <span><BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /></span>
+              <span><BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /></span>
+            </div>
+
+            {/* 頂端標記區（進位/退位） */}
+            <div className={`grid text-center h-7 items-center mb-1 text-sm ${
+              isThreeDigits ? 'grid-cols-3 w-52' : 'grid-cols-2 w-36'
+            }`}>
+              {isThreeDigits && (
+                <div>
+                  {isAddition ? (
+                    <input
+                      type="text"
+                      maxLength={1}
+                      value={carryHundreds}
+                      onChange={e => setCarryHundreds(e.target.value)}
+                      placeholder="進1"
+                      className="w-7 h-6 text-center text-xs font-bold bg-amber-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-amber-300"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      maxLength={1}
+                      value={borrowHundreds}
+                      onChange={e => setBorrowHundreds(e.target.value)}
+                      placeholder="變幾"
+                      className="w-7 h-6 text-center text-xs font-bold bg-rose-400 text-white rounded-full border border-white focus:outline-none focus:ring-2 ring-rose-300"
+                    />
+                  )}
+                </div>
+              )}
+
+              <div>
+                {isAddition ? (
+                  <input
+                    type="text"
+                    maxLength={1}
+                    value={carryTens}
+                    onChange={e => setCarryTens(e.target.value)}
+                    placeholder="進1"
+                    className="w-7 h-6 text-center text-xs font-bold bg-amber-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-amber-300"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    maxLength={2}
+                    value={borrowTens}
+                    onChange={e => setBorrowTens(e.target.value)}
+                    placeholder="10"
+                    className="w-7 h-6 text-center text-xs font-bold bg-sky-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-sky-300"
+                  />
+                )}
+              </div>
+
+              <div>
+                {!isAddition && (
+                  <input
+                    type="text"
+                    maxLength={2}
+                    value={borrowOnes}
+                    onChange={e => setBorrowOnes(e.target.value)}
+                    placeholder="10"
+                    className="w-7 h-6 text-center text-xs font-bold bg-sky-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-sky-300"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* 第一行（被加數 / 被減數） */}
+            <div className={`relative flex justify-end text-3xl font-black tracking-widest text-slate-100 py-1 ${
+              isThreeDigits ? 'w-52' : 'w-36'
+            }`}>
+              {isThreeDigits && (
+                <span className={`w-16 text-center ${!isAddition && borrowHundreds ? 'line-through text-slate-500' : ''}`}>
+                  {n1Hundreds}
+                </span>
+              )}
+              <span className={`w-16 text-center ${!isAddition && borrowTens ? 'line-through text-slate-500' : ''}`}>
+                {n1Tens}
+              </span>
+              <span className="w-16 text-center">{n1Ones}</span>
+            </div>
+
+            {/* 第二行（運算符號 ＋ 加數 / 減數） */}
+            <div className={`relative flex items-center justify-between text-3xl font-black tracking-widest text-slate-100 py-1 ${
+              isThreeDigits ? 'w-60' : 'w-44'
+            }`}>
+              <span className="text-amber-400 font-sans text-2xl font-black">{isAddition ? '＋' : '－'}</span>
+              <div className={`flex justify-end ${isThreeDigits ? 'w-52' : 'w-36'}`}>
+                {isThreeDigits && <span className="w-16 text-center">{n2Hundreds}</span>}
+                <span className="w-16 text-center">{n2Tens}</span>
+                <span className="w-16 text-center">{n2Ones}</span>
+              </div>
+            </div>
+
+            <div className={`border-b-4 border-amber-400 my-2 ${isThreeDigits ? 'w-60' : 'w-44'}`}></div>
+
+            {/* 答案填寫格 */}
+            <div className={`flex justify-end gap-1.5 pt-1 ${isThreeDigits ? 'w-52' : 'w-36'}`}>
+              {isThreeDigits && (
+                <input
+                  type="text"
+                  maxLength={1}
+                  value={ansHundreds}
+                  onChange={e => setAnsHundreds(e.target.value)}
+                  placeholder="?"
+                  className="w-14 h-12 text-center text-2xl font-black bg-slate-800 text-amber-300 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50"
+                />
+              )}
+              <input
+                type="text"
+                maxLength={1}
+                value={ansTens}
+                onChange={e => setAnsTens(e.target.value)}
+                placeholder="?"
+                className="w-14 h-12 text-center text-2xl font-black bg-slate-800 text-amber-300 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50"
+              />
+              <input
+                type="text"
+                maxLength={1}
+                value={ansOnes}
+                onChange={e => setAnsOnes(e.target.value)}
+                placeholder="?"
+                className="w-14 h-12 text-center text-2xl font-black bg-slate-800 text-amber-300 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50"
+              />
+            </div>
+          </div>
+
+          {/* 計算步驟秘笈小卡 */}
+          <div className="mt-4 w-full text-xs bg-amber-50 p-3.5 rounded-2xl border border-amber-200 text-slate-700">
+            <p className="font-bold text-amber-900 mb-1 flex items-center gap-1">
+              <span>💡</span>
+              <BopomofoText text="計算小撇步：" showBpmf={bopomofoEnabled ?? false} />
+            </p>
+            {isAddition ? (
+              <div className="flex flex-col gap-1">
+                <p><BopomofoText text={`1. 個位對齊算：${n1Ones} ＋ ${n2Ones} ＝ ${n1Ones + n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
+                {n1Ones + n2Ones >= 10 && (
+                  <p className="text-rose-600 font-bold">
+                    👉 <BopomofoText text={`滿十了！個位寫 ${(n1Ones + n2Ones) % 10}，向十位進 1！`} showBpmf={bopomofoEnabled ?? false} />
+                  </p>
+                )}
+                <p><BopomofoText text={`2. 十位對齊算：${n1Tens} ＋ ${n2Tens} ${n1Ones + n2Ones >= 10 ? '＋ 1(進位)' : ''} ＝ ${actualTens}`} showBpmf={bopomofoEnabled ?? false} /></p>
+                {isThreeDigits && (
+                  <p><BopomofoText text={`3. 百位對齊算：${n1Hundreds} ＋ ${n2Hundreds} ＋ 1(進位) ＝ ${actualHundreds}`} showBpmf={bopomofoEnabled ?? false} /></p>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <p><BopomofoText text={`1. 先看個位：${n1Ones} 減 ${n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
+                {n1Ones < n2Ones && (
+                  <p className="text-rose-600 font-bold">
+                    👉 <BopomofoText text={`不夠減！向十位借 1 當 10，10 減 ${n2Ones} 得 ${10 - n2Ones}，再加 ${n1Ones} 得 ${actualOnes}！`} showBpmf={bopomofoEnabled ?? false} />
+                  </p>
+                )}
+                <p><BopomofoText text={`2. 再算十位與百位，依序對齊相減！`} showBpmf={bopomofoEnabled ?? false} /></p>
+              </div>
+            )}
+          </div>
+
+          {interactive && (
+            <button
+              onClick={checkAnswer}
+              disabled={!ansOnes || !ansTens || (isThreeDigits && !ansHundreds)}
+              className="mt-4 w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-2xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
+            >
+              <Check size={18} /> <BopomofoText text="檢查直式算式" showBpmf={bopomofoEnabled ?? false} />
+            </button>
+          )}
+
+          {feedback && (
+            <div className="mt-3 text-center text-sm font-black text-amber-900 animate-bounce-short flex flex-col items-center gap-2">
+              <BopomofoText text={feedback} showBpmf={bopomofoEnabled ?? false} />
+              {feedback.startsWith('🎉') && isG2U2 && (
+                <button
+                  onClick={() => handleSwitchTab('compare')}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 transition"
+                >
+                  <BopomofoText text="👉 前往 ＜、＝、＞ 符號填空挑戰！" showBpmf={bopomofoEnabled ?? false} />
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 模式 A：兩步驟加減解題站 (g2-u6) */}
       {/* ========================================================================= */}
       {tabMode === 'two_step' && (
         <div className="w-full flex flex-col items-center gap-4">
-          {/* 題型切換膠囊按鈕列 */}
           <div className="w-full bg-orange-50 border-2 border-orange-200 rounded-2xl p-2.5 shadow-sm">
             <p className="text-xs font-black text-orange-950 mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1">
@@ -548,7 +786,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           </div>
 
-          {/* 題目故事卡 */}
           <div className="w-full bg-white border-2 border-orange-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-black px-2.5 py-0.5 bg-orange-500 text-white rounded-full flex items-center gap-1">
@@ -564,9 +801,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </p>
           </div>
 
-          {/* 兩步驟動手操作卡片 */}
           <div className="w-full flex flex-col gap-3">
-            {/* 第一步驟卡 */}
             <div className={`p-4 rounded-2xl border-2 transition-all ${
               step1Done
                 ? 'bg-emerald-50 border-emerald-300 shadow-sm'
@@ -616,7 +851,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </div>
             </div>
 
-            {/* 中間步驟傳遞箭頭 */}
             {step1Done && (
               <div className="flex items-center justify-center gap-1 text-xs font-black text-orange-600 animate-bounce-short">
                 <ArrowDown size={16} />
@@ -625,7 +859,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
               </div>
             )}
 
-            {/* 第二步驟卡 */}
             <div className={`p-4 rounded-2xl border-2 transition-all ${
               !step1Done
                 ? 'bg-slate-50 border-slate-200 opacity-60 pointer-events-none'
@@ -671,12 +904,10 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           </div>
 
-          {/* 教學秘訣卡（加法交換律） */}
           <div className="w-full bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-xs text-amber-950 text-center font-bold">
             <BopomofoText text={currentTwoStep.commuteTip} showBpmf={bopomofoEnabled ?? false} />
           </div>
 
-          {/* 回饋訊息 */}
           {twoStepFeedback && (
             <div className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-black text-center ${
               twoStepFeedback.isCorrect ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-rose-100 text-rose-900 border border-rose-300'
@@ -685,7 +916,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             </div>
           )}
 
-          {/* 下一題按鈕 */}
           {twoStepFeedback?.isCorrect && step2Input && (
             <button
               onClick={() => handleSwitchTwoStepQ((twoStepIdx + 1) % twoStepQuestions.length)}
@@ -698,7 +928,7 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 模式 B：二上第四單元專屬【加減互逆小偵探】(g2-u4 預設) */}
+      {/* 模式 B：加減互逆小偵探 (g2-u4) */}
       {/* ========================================================================= */}
       {tabMode === 'inverse' && (
         <div className="w-full flex flex-col items-center gap-4">
@@ -845,147 +1075,6 @@ export const VerticalArithmetic: React.FC<VerticalArithmeticProps> = ({
             )}
           </div>
         </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 模式 C：標準直式加法/減法黑板 */}
-      {/* ========================================================================= */}
-      {(tabMode === 'add' || tabMode === 'sub') && (
-        <>
-          <div className="relative bg-slate-900 text-white font-mono p-6 rounded-2xl shadow-inner w-56 flex flex-col items-center">
-            <div className="grid grid-cols-2 w-36 text-center text-xs font-bold text-amber-400 border-b border-slate-700 pb-1 mb-2">
-              <span><BopomofoText text="十位" showBpmf={bopomofoEnabled ?? false} /></span>
-              <span><BopomofoText text="個位" showBpmf={bopomofoEnabled ?? false} /></span>
-            </div>
-
-            <div className="grid grid-cols-2 w-36 text-center h-7 items-center mb-1 text-sm">
-              <div>
-                {isAddition ? (
-                  requiresRegroup && (
-                    <input
-                      type="text"
-                      maxLength={1}
-                      value={carry}
-                      onChange={e => setCarry(e.target.value)}
-                      placeholder="進1"
-                      className="w-7 h-6 text-center text-xs font-bold bg-amber-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-amber-300"
-                    />
-                  )
-                ) : (
-                  requiresRegroup && (
-                    <input
-                      type="text"
-                      maxLength={1}
-                      value={borrowTens}
-                      onChange={e => setBorrowTens(e.target.value)}
-                      placeholder="變幾"
-                      className="w-7 h-6 text-center text-xs font-bold bg-rose-400 text-white rounded-full border border-white focus:outline-none focus:ring-2 ring-rose-300"
-                    />
-                  )
-                )}
-              </div>
-
-              <div>
-                {!isAddition && requiresRegroup && (
-                  <input
-                    type="text"
-                    maxLength={2}
-                    value={borrowOnes}
-                    onChange={e => setBorrowOnes(e.target.value)}
-                    placeholder="10"
-                    className="w-7 h-6 text-center text-xs font-bold bg-sky-400 text-slate-950 rounded-full border border-white focus:outline-none focus:ring-2 ring-sky-300"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="relative flex justify-end w-36 text-3xl font-black tracking-widest text-slate-100 py-1">
-              <span className={`w-16 text-center ${!isAddition && borrowTens ? 'line-through text-slate-500' : ''}`}>
-                {n1Tens}
-              </span>
-              <span className="w-16 text-center">{n1Ones}</span>
-            </div>
-
-            <div className="relative flex items-center justify-between w-44 text-3xl font-black tracking-widest text-slate-100 py-1">
-              <span className="text-amber-400 font-sans text-2xl font-black">{isAddition ? '＋' : '－'}</span>
-              <div className="flex w-36 justify-end">
-                <span className="w-16 text-center">{n2Tens}</span>
-                <span className="w-16 text-center">{n2Ones}</span>
-              </div>
-            </div>
-
-            <div className="w-44 border-b-4 border-amber-400 my-2"></div>
-
-            <div className="flex justify-end w-36 gap-1 pt-1">
-              <input
-                type="text"
-                maxLength={1}
-                value={ansTens}
-                onChange={e => setAnsTens(e.target.value)}
-                placeholder="?"
-                className="w-14 h-12 text-center text-2xl font-black bg-slate-800 text-amber-300 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50"
-              />
-              <input
-                type="text"
-                maxLength={1}
-                value={ansOnes}
-                onChange={e => setAnsOnes(e.target.value)}
-                placeholder="?"
-                className="w-14 h-12 text-center text-2xl font-black bg-slate-800 text-amber-300 rounded-xl border-2 border-amber-400 focus:outline-none focus:ring-4 ring-amber-300/50"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 w-full text-xs bg-amber-50 p-3 rounded-xl border border-amber-200 text-slate-700">
-            {isAddition ? (
-              <div>
-                <p className="font-bold text-amber-900 mb-1">💡 <BopomofoText text="計算小撇步：" showBpmf={bopomofoEnabled ?? false} /></p>
-                <p><BopomofoText text={`1. 先算個位：${n1Ones} + ${n2Ones} = ${n1Ones + n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
-                {requiresRegroup ? (
-                  <p className="text-rose-600 font-bold">👉 <BopomofoText text={`滿十了！個位填 ${(n1Ones + n2Ones) % 10}，十位頭上寫小小的 1！`} showBpmf={bopomofoEnabled ?? false} /></p>
-                ) : (
-                  <p className="text-emerald-700 font-bold">👉 <BopomofoText text={`沒滿十，個位直接填 ${n1Ones + n2Ones}。`} showBpmf={bopomofoEnabled ?? false} /></p>
-                )}
-                <p><BopomofoText text={`2. 再算十位：${n1Tens} + ${n2Tens} ${requiresRegroup ? '+ 1(進位)' : ''} = ${actualAnsTens}`} showBpmf={bopomofoEnabled ?? false} /></p>
-              </div>
-            ) : (
-              <div>
-                <p className="font-bold text-amber-900 mb-1">💡 <BopomofoText text="計算小撇步：" showBpmf={bopomofoEnabled ?? false} /></p>
-                <p><BopomofoText text={`1. 先看個位：${n1Ones} 減 ${n2Ones}`} showBpmf={bopomofoEnabled ?? false} /></p>
-                {requiresRegroup ? (
-                  <p className="text-rose-600 font-bold">👉 <BopomofoText text={`不夠減！把十位 ${n1Tens} 劃掉借1變 ${n1Tens - 1}，個位拿到 10，10 - ${n2Ones} + ${n1Ones} = ${actualAnsOnes}！`} showBpmf={bopomofoEnabled ?? false} /></p>
-                ) : (
-                  <p className="text-emerald-700 font-bold">👉 <BopomofoText text={`夠減，個位填 ${n1Ones - n2Ones}。`} showBpmf={bopomofoEnabled ?? false} /></p>
-                )}
-                <p><BopomofoText text={`2. 再算十位：${requiresRegroup ? n1Tens - 1 : n1Tens} - ${n2Tens} = ${actualAnsTens}`} showBpmf={bopomofoEnabled ?? false} /></p>
-              </div>
-            )}
-          </div>
-
-          {interactive && (
-            <button
-              onClick={checkAnswer}
-              disabled={!ansOnes || !ansTens}
-              className="mt-4 w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-black rounded-2xl shadow-md btn-fun disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
-            >
-              <Check size={18} /> <BopomofoText text="檢查直式算式" showBpmf={bopomofoEnabled ?? false} />
-            </button>
-          )}
-
-          {feedback && (
-            <div className="mt-3 text-center text-sm font-black text-amber-900 animate-bounce-short flex flex-col items-center gap-2">
-              <BopomofoText text={feedback} showBpmf={bopomofoEnabled ?? false} />
-              {feedback.startsWith('🎉') && isG2U2 && (
-                <button
-                  onClick={() => handleSwitchTab('compare')}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 transition"
-                >
-                  <BopomofoText text="👉 前往 ＜、＝、＞ 符號填空挑戰！" showBpmf={bopomofoEnabled ?? false} />
-                </button>
-              )}
-            </div>
-          )}
-        </>
       )}
 
       {/* ========================================================================= */}
