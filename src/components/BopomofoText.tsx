@@ -36,34 +36,34 @@ export const BopomofoText: React.FC<BopomofoTextProps> = ({
           );
         }
 
-        // 台灣標準國小教科書：注音直排於國字右側（粗體黑體、超清晰對比）
+        // 台灣標準國小教育部審定本課本排版：標楷體國字＋右側緊湊直排注音
         const { symbols, tone } = parseBpmfTone(item.bpmf);
 
         return (
           <span
             key={idx}
-            className="inline-flex items-center leading-none mx-[1.5px] my-[1px] select-none align-middle"
+            className="inline-flex items-center leading-none mx-[2px] my-[1.5px] select-none align-middle"
           >
-            {/* 國字本體（超粗黑體 font-black，清晰醒目） */}
-            <span className="text-inherit leading-none font-black tracking-normal">
+            {/* 國字本體（國小標準標楷體，字正腔圓、筆畫分明） */}
+            <span className="text-inherit leading-none textbook-char tracking-normal font-semibold">
               {item.char}
             </span>
 
-            {/* 國字右側垂直直排注音欄（顯著加粗加黑、比例放大） */}
-            <span className="bpmf-col inline-flex flex-row items-center ml-[2.5px] mr-[1.5px] select-none">
-              {/* 輕聲置於注音符號正上方（顯著放大醒目圓點） */}
-              <span className="flex flex-col items-center justify-center text-[0.62em] leading-[0.9] text-slate-900 font-black tracking-tighter">
+            {/* 國字右側垂直直排注音欄（緊湊對齊、高清晰度） */}
+            <span className="bpmf-col inline-flex flex-row items-center ml-[2px] mr-[1.5px] select-none">
+              {/* 輕聲置於注音符號正上方（置中美觀圓點） */}
+              <span className="flex flex-col items-center justify-center text-[0.58em] leading-[0.88] text-slate-900 bpmf-symbol tracking-tighter">
                 {tone === '˙' && (
-                  <span className="text-[1.5em] font-black -mb-[3px] leading-none text-rose-600 font-mono">˙</span>
+                  <span className="text-[1.3em] font-black -mb-[2px] leading-none text-slate-800 font-mono">˙</span>
                 )}
                 {symbols.map((sym, sIdx) => (
-                  <span key={sIdx} className="leading-none font-black">{sym}</span>
+                  <span key={sIdx} className="leading-none bpmf-symbol">{sym}</span>
                 ))}
               </span>
 
-              {/* 二聲、三聲、四聲標記於注音符號右側（特大顯眼粗體聲調：0.95em，清晰分明） */}
+              {/* 二聲、三聲、四聲標記於注音符號右側（國小課本標準聲調位置） */}
               {tone && tone !== '˙' && (
-                <span className="text-[0.95em] leading-none text-rose-600 font-black ml-[1.5px] self-center select-none font-sans drop-shadow-[0_1px_0_rgba(225,29,72,0.2)]">
+                <span className="text-[0.75em] leading-none text-slate-800 bpmf-symbol ml-[1px] self-center select-none">
                   {tone}
                 </span>
               )}
