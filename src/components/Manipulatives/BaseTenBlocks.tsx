@@ -208,13 +208,13 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 soundFx.playPop();
                 setActiveTab('estimate');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all flex items-center gap-2 shadow-sm ${
                 activeTab === 'estimate'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-blue-950 hover:bg-blue-50'
+                  ? 'bg-blue-600 text-white shadow-md scale-105 ring-2 ring-blue-300'
+                  : 'text-blue-950 bg-blue-50/80 hover:bg-blue-100'
               }`}
             >
-              <span>🎯</span>
+              <span className="text-lg">🎯</span>
               <BopomofoText text="超市購物加減估算" showBpmf={bopomofoEnabled ?? false} />
             </button>
           )}
@@ -224,13 +224,13 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               soundFx.playPop();
               setActiveTab('placeValue');
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+            className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all flex items-center gap-2 shadow-sm ${
               activeTab === 'placeValue'
-                ? 'bg-sky-500 text-white shadow-md'
-                : 'text-slate-600 hover:bg-sky-50'
+                ? 'bg-sky-500 text-white shadow-md scale-105 ring-2 ring-sky-300'
+                : 'text-slate-700 bg-slate-100 hover:bg-sky-100'
             }`}
           >
-            <span>🧱</span>
+            <span className="text-lg">🧱</span>
             <BopomofoText text="十進位積木定位板" showBpmf={bopomofoEnabled ?? false} />
           </button>
 
@@ -239,13 +239,13 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               soundFx.playPop();
               setActiveTab('money');
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+            className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all flex items-center gap-2 shadow-sm ${
               activeTab === 'money'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-600 hover:bg-emerald-50'
+                ? 'bg-emerald-600 text-white shadow-md scale-105 ring-2 ring-emerald-300'
+                : 'text-slate-700 bg-slate-100 hover:bg-emerald-100'
             }`}
           >
-            <span>💵</span>
+            <span className="text-lg">💵</span>
             <BopomofoText text="百元紙鈔與錢幣換算" showBpmf={bopomofoEnabled ?? false} />
           </button>
 
@@ -255,13 +255,13 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 soundFx.playPop();
                 setActiveTab('tenPack');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${
+              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all flex items-center gap-2 shadow-sm ${
                 activeTab === 'tenPack'
-                  ? 'bg-amber-500 text-amber-950 shadow-md'
-                  : 'text-slate-600 hover:bg-amber-100'
+                  ? 'bg-amber-500 text-amber-950 shadow-md scale-105 ring-2 ring-amber-300'
+                  : 'text-slate-700 bg-slate-100 hover:bg-amber-100'
               }`}
             >
-              <span>📦</span>
+              <span className="text-lg">📦</span>
               <BopomofoText text="滿10顆拼成一條十" showBpmf={bopomofoEnabled ?? false} />
             </button>
           )}
@@ -497,17 +497,17 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {bills100 === 0 && <span className="text-xs text-slate-300 font-bold">0 張</span>}
                 </div>
-                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-slate-100">
                   <button
                     onClick={() => { soundFx.playPop(); setBills100(p => Math.max(0, p - 1)); }}
-                    className="w-6 h-6 bg-slate-100 rounded font-black text-xs"
+                    className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl font-black text-sm text-slate-700 shadow-sm border border-slate-300 flex items-center justify-center"
                   >
                     -
                   </button>
-                  <span className="font-mono font-black text-sm text-red-600">{bills100}</span>
+                  <span className="font-mono font-black text-base sm:text-lg text-red-600 px-1">{bills100}</span>
                   <button
                     onClick={() => { soundFx.playCoin(); setBills100(p => Math.min(2, p + 1)); }}
-                    className="w-6 h-6 bg-red-500 text-white rounded font-black text-xs"
+                    className="w-8 h-8 sm:w-9 sm:h-9 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-xl font-black text-sm shadow-sm border border-red-600 flex items-center justify-center"
                   >
                     +
                   </button>
@@ -529,18 +529,18 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {coins50 === 0 && coins10 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
                 </div>
-                <div className="flex items-center justify-around w-full mt-2 pt-2 border-t border-slate-100 text-[11px] font-bold">
-                  <div className="flex items-center gap-1">
-                    <span className="text-amber-700">50:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins50(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
-                    <span className="font-mono">{coins50}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins50(p => Math.min(2, p + 1)); }} className="w-5 h-5 bg-amber-400 text-amber-950 rounded">+</button>
+                <div className="flex items-center justify-around w-full mt-3 pt-2.5 border-t border-slate-100 text-xs font-bold gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-amber-700 font-black">50:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins50(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
+                    <span className="font-mono text-sm font-black">{coins50}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins50(p => Math.min(2, p + 1)); }} className="w-7 h-7 bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 rounded-lg border border-amber-500 font-black text-xs flex items-center justify-center">+</button>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-600">10:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins10(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
-                    <span className="font-mono">{coins10}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins10(p => Math.min(9, p + 1)); }} className="w-5 h-5 bg-slate-300 text-slate-900 rounded">+</button>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-600 font-black">10:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins10(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
+                    <span className="font-mono text-sm font-black">{coins10}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins10(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-900 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center">+</button>
                   </div>
                 </div>
               </div>
@@ -560,18 +560,18 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {coins5 === 0 && coins1 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
                 </div>
-                <div className="flex items-center justify-around w-full mt-2 pt-2 border-t border-slate-100 text-[11px] font-bold">
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-600">5:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins5(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
-                    <span className="font-mono">{coins5}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins5(p => Math.min(1, p + 1)); }} className="w-5 h-5 bg-slate-300 text-slate-800 rounded">+</button>
+                <div className="flex items-center justify-around w-full mt-3 pt-2.5 border-t border-slate-100 text-xs font-bold gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-600 font-black">5:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins5(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
+                    <span className="font-mono text-sm font-black">{coins5}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins5(p => Math.min(1, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-800 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center">+</button>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-amber-800">1:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins1(p => Math.max(0, p - 1)); }} className="w-5 h-5 bg-slate-100 rounded">-</button>
-                    <span className="font-mono">{coins1}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins1(p => Math.min(9, p + 1)); }} className="w-5 h-5 bg-amber-700 text-white rounded">+</button>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-amber-800 font-black">1:</span>
+                    <button onClick={() => { soundFx.playPop(); setCoins1(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
+                    <span className="font-mono text-sm font-black">{coins1}</span>
+                    <button onClick={() => { soundFx.playCoin(); setCoins1(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-amber-700 hover:bg-amber-800 active:scale-95 text-white rounded-lg border border-amber-800 font-black text-xs flex items-center justify-center">+</button>
                   </div>
                 </div>
               </div>
@@ -627,35 +627,38 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-1">
+              <div className="flex flex-col items-center gap-1.5">
                 <button
                   onClick={handlePackTen}
                   disabled={ones < 10}
-                  className={`px-3 py-2 rounded-xl font-black text-xs shadow transition flex items-center gap-1 ${
+                  className={`px-4 py-2.5 rounded-2xl font-black text-sm sm:text-base shadow-md transition-all flex items-center gap-2 ${
                     ones >= 10
-                      ? 'bg-amber-500 hover:bg-amber-600 text-amber-950 animate-bounce'
+                      ? 'bg-amber-500 hover:bg-amber-600 text-amber-950 animate-bounce scale-105 ring-2 ring-amber-400'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>滿10顆拼成一條十</span>
-                  <ArrowRight size={14} />
+                  <BopomofoText text="滿10顆拼成一條十" showBpmf={bopomofoEnabled ?? false} />
+                  <ArrowRight size={18} />
                 </button>
-                <span className="text-[10px] text-amber-800">
+                <span className="text-xs text-amber-800 font-bold">
                   {ones >= 10 ? '✨ 滿十了！快點擊打包！' : `還差 ${10 - ones} 顆可打包`}
                 </span>
               </div>
 
               <div className="flex flex-col items-center">
-                <span className="text-xs font-bold text-amber-800 mb-1">個位（散裝一）</span>
-                <div className="flex flex-wrap gap-1 w-28 min-h-[70px] items-center p-1 bg-white rounded-lg border border-amber-200">
+                <span className="text-xs sm:text-sm font-black text-amber-800 mb-1">
+                  <BopomofoText text="個位（散裝一）" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <div className="flex flex-wrap gap-1.5 w-32 min-h-[76px] items-center justify-center p-2 bg-white rounded-xl border-2 border-amber-200 shadow-inner">
                   {Array.from({ length: ones }).map((_, i) => (
-                    <div key={i} className="w-4 h-4 bg-amber-400 border border-amber-600 rounded-sm shadow-sm"></div>
+                    <div key={i} className="w-5 h-5 bg-amber-400 border-2 border-amber-600 rounded shadow-sm"></div>
                   ))}
+                  {ones === 0 && <span className="text-xs text-slate-300 font-bold">0 顆</span>}
                 </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <button onClick={() => setOnes(p => Math.max(0, p - 1))} className="w-5 h-5 bg-slate-100 rounded text-xs font-black">-</button>
-                  <span className="text-xs font-bold font-mono">{ones}</span>
-                  <button onClick={() => setOnes(p => p + 1)} className="w-5 h-5 bg-amber-400 text-amber-950 rounded text-xs font-black">+</button>
+                <div className="flex items-center gap-3 mt-2">
+                  <button onClick={() => setOnes(p => Math.max(0, p - 1))} className="w-8 h-8 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl border border-slate-300 text-sm font-black flex items-center justify-center">-</button>
+                  <span className="text-sm sm:text-base font-black font-mono px-1">{ones}</span>
+                  <button onClick={() => setOnes(p => p + 1)} className="w-8 h-8 bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 rounded-xl border border-amber-500 text-sm font-black flex items-center justify-center">+</button>
                 </div>
               </div>
             </div>
@@ -667,7 +670,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 <span>🔢</span>
                 <BopomofoText text="跳數練習：" showBpmf={bopomofoEnabled ?? false} />
               </span>
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 {[2, 5, 10].map(step => (
                   <button
                     key={step}
@@ -676,10 +679,10 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                       setSkipStep(step as 2 | 5 | 10);
                       setSkipCount(step);
                     }}
-                    className={`px-2 py-0.5 rounded-lg text-xs font-black transition ${
+                    className={`px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all ${
                       skipStep === step
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'bg-indigo-50 text-indigo-900 hover:bg-indigo-100'
+                        ? 'bg-indigo-600 text-white shadow-md scale-105'
+                        : 'bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border border-indigo-200'
                     }`}
                   >
                     {step}個一數
@@ -688,21 +691,21 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-around bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+            <div className="flex items-center justify-around bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
               <button
                 onClick={() => {
                   soundFx.playPop();
                   setSkipCount(p => Math.max(skipStep, p - skipStep));
                 }}
                 disabled={skipCount <= skipStep}
-                className="px-3 py-1.5 bg-white hover:bg-rose-50 text-slate-700 rounded-xl border border-slate-200 text-xs font-black disabled:opacity-30"
+                className="px-4 py-2 bg-white hover:bg-rose-50 text-slate-700 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black disabled:opacity-30 shadow-sm"
               >
                 倒數 -{skipStep}
               </button>
 
               <div className="flex flex-col items-center">
                 <span className="text-xs font-bold text-slate-500">目前數到</span>
-                <span className="text-3xl font-black font-mono text-indigo-600">{skipCount}</span>
+                <span className="text-3xl sm:text-4xl font-black font-mono text-indigo-600">{skipCount}</span>
               </div>
 
               <button
@@ -710,7 +713,7 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   soundFx.playCoin();
                   setSkipCount(p => Math.min(100, p + skipStep));
                 }}
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow btn-fun"
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-black shadow-md btn-fun"
               >
                 跳數 +{skipStep} ➡
               </button>
@@ -741,20 +744,20 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               ))}
             </div>
             {interactive && (
-              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100 w-full justify-center">
+              <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-slate-100 w-full justify-center">
                 <button
                   onClick={() => updateBlocks(Math.max(0, hundreds - 1), tens, ones)}
                   disabled={hundreds <= 0}
-                  className="p-1 rounded bg-slate-100 hover:bg-rose-100 text-slate-700 disabled:opacity-30"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-rose-100 active:scale-95 text-slate-700 disabled:opacity-30 flex items-center justify-center border border-slate-200 shadow-sm"
                 >
-                  <Minus size={12} />
+                  <Minus size={18} />
                 </button>
-                <span className="font-bold text-xs">{hundreds}</span>
+                <span className="font-mono font-black text-base sm:text-lg text-emerald-800 px-1">{hundreds}</span>
                 <button
                   onClick={() => updateBlocks(Math.min(9, hundreds + 1), tens, ones)}
-                  className="p-1 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white flex items-center justify-center border border-emerald-600 shadow-sm"
                 >
-                  <Plus size={12} />
+                  <Plus size={18} />
                 </button>
               </div>
             )}
@@ -779,20 +782,20 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               ))}
             </div>
             {interactive && (
-              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100 w-full justify-center">
+              <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-slate-100 w-full justify-center">
                 <button
                   onClick={() => updateBlocks(hundreds, Math.max(0, tens - 1), ones)}
                   disabled={tens <= 0}
-                  className="p-1 rounded bg-slate-100 hover:bg-rose-100 text-slate-700 disabled:opacity-30"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-rose-100 active:scale-95 text-slate-700 disabled:opacity-30 flex items-center justify-center border border-slate-200 shadow-sm"
                 >
-                  <Minus size={12} />
+                  <Minus size={18} />
                 </button>
-                <span className="font-bold text-xs">{tens}</span>
+                <span className="font-mono font-black text-base sm:text-lg text-sky-800 px-1">{tens}</span>
                 <button
                   onClick={() => updateBlocks(hundreds, Math.min(19, tens + 1), ones)}
-                  className="p-1 rounded bg-slate-100 hover:bg-sky-100 text-slate-700"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white flex items-center justify-center border border-sky-600 shadow-sm"
                 >
-                  <Plus size={12} />
+                  <Plus size={18} />
                 </button>
               </div>
             )}
@@ -813,20 +816,20 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               ))}
             </div>
             {interactive && (
-              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100 w-full justify-center">
+              <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-slate-100 w-full justify-center">
                 <button
                   onClick={() => updateBlocks(hundreds, tens, Math.max(0, ones - 1))}
                   disabled={ones <= 0}
-                  className="p-1 rounded bg-slate-100 hover:bg-rose-100 text-slate-700 disabled:opacity-30"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-rose-100 active:scale-95 text-slate-700 disabled:opacity-30 flex items-center justify-center border border-slate-200 shadow-sm"
                 >
-                  <Minus size={12} />
+                  <Minus size={18} />
                 </button>
-                <span className="font-bold text-xs">{ones}</span>
+                <span className="font-mono font-black text-base sm:text-lg text-amber-800 px-1">{ones}</span>
                 <button
                   onClick={() => updateBlocks(hundreds, tens, Math.min(29, ones + 1))}
-                  className="p-1 rounded bg-slate-100 hover:bg-amber-100 text-slate-700"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-amber-950 flex items-center justify-center border border-amber-600 shadow-sm"
                 >
-                  <Plus size={12} />
+                  <Plus size={18} />
                 </button>
               </div>
             )}
