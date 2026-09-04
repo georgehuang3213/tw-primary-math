@@ -55,10 +55,12 @@ export const BopomofoText: React.FC<BopomofoTextProps> = ({
 
             {/* 國字右側垂直直排注音欄（清晰粗體、再大一點點、高度與國字齊平） */}
             <span className="bpmf-col inline-flex flex-row items-center ml-[1.5px] mr-[1px] select-none justify-center h-[1.25em]">
-              {/* 輕聲置於注音符號正上方（加粗醒目圓點） */}
-              <span className={`flex flex-col items-center justify-center ${symFontSize} leading-[0.88] text-slate-950 bpmf-symbol tracking-tighter`}>
+              {/* 輕聲（˙）標記於第一個注音符號正上方緊貼，二/三/四聲標記於右側 */}
+              <span className={`relative flex flex-col items-center justify-center ${symFontSize} leading-[0.88] text-slate-950 bpmf-symbol tracking-tighter ${tone === '˙' ? 'pt-[0.25em]' : ''}`}>
                 {tone === '˙' && (
-                  <span className="text-[1.15em] font-black -mb-[1px] leading-none text-slate-950 font-mono">˙</span>
+                  <span className="absolute -top-[0.18em] left-1/2 -translate-x-1/2 text-[1.1em] font-black leading-none text-slate-950 pointer-events-none select-none font-mono">
+                    ˙
+                  </span>
                 )}
                 {symbols.map((sym, sIdx) => (
                   <span key={sIdx} className="leading-none bpmf-symbol font-black">{sym}</span>
