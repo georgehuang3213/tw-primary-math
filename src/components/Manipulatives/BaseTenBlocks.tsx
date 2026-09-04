@@ -197,9 +197,9 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-amber-50/80 p-4 sm:p-6 rounded-3xl border-2 border-amber-200 max-w-2xl mx-auto w-full">
+    <div className="flex flex-col gap-4 bg-amber-50/80 p-4 sm:p-6 rounded-3xl border-2 border-amber-200 max-w-4xl mx-auto w-full">
       {/* 頂部切換模式按鈕 */}
-      <div className="flex items-center justify-between flex-wrap gap-2 bg-white/90 p-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
+      <div className="flex items-center justify-between flex-wrap gap-2.5 bg-white/95 p-2 rounded-2xl border-2 border-amber-300 shadow-sm">
         <div className="flex items-center gap-1.5 flex-wrap">
           {/* 若為估算單元，優先顯示「加減估算」分頁 */}
           {isEstimateUnit && (
@@ -486,10 +486,13 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center border-2 border-emerald-100 rounded-2xl p-3 bg-emerald-50/40">
-              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-rose-700 mb-2"><BopomofoText text="百位（100元紙鈔）" showBpmf={bopomofoEnabled ?? false} /></span>
-                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center border-2 border-emerald-100 rounded-2xl p-3.5 bg-emerald-50/40">
+              {/* 百位 */}
+              <div className="flex flex-col items-center justify-between bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-sm min-h-[210px]">
+                <span className="text-xs sm:text-sm font-black text-rose-700 mb-1">
+                  <BopomofoText text="百位（100元紙鈔）" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center my-auto py-2">
                   {Array.from({ length: bills100 }).map((_, i) => (
                     <div key={i} className="px-3 py-1.5 bg-red-600 border-2 border-red-800 text-white font-black text-xs rounded-lg shadow-sm">
                       💵 100元
@@ -497,14 +500,14 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {bills100 === 0 && <span className="text-xs text-slate-300 font-bold">0 張</span>}
                 </div>
-                <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-slate-100">
+                <div className="w-full flex items-center justify-center gap-3 mt-2 pt-2.5 border-t border-slate-100">
                   <button
                     onClick={() => { soundFx.playPop(); setBills100(p => Math.max(0, p - 1)); }}
                     className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl font-black text-sm text-slate-700 shadow-sm border border-slate-300 flex items-center justify-center"
                   >
                     -
                   </button>
-                  <span className="font-mono font-black text-base sm:text-lg text-red-600 px-1">{bills100}</span>
+                  <span className="font-mono font-black text-base sm:text-lg text-red-600 px-2">{bills100}</span>
                   <button
                     onClick={() => { soundFx.playCoin(); setBills100(p => Math.min(2, p + 1)); }}
                     className="w-8 h-8 sm:w-9 sm:h-9 bg-red-500 hover:bg-red-600 active:scale-95 text-white rounded-xl font-black text-sm shadow-sm border border-red-600 flex items-center justify-center"
@@ -514,9 +517,12 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-sky-700 mb-2"><BopomofoText text="十位（50元 / 10元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
-                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center">
+              {/* 十位 */}
+              <div className="flex flex-col items-center justify-between bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-sm min-h-[210px]">
+                <span className="text-xs sm:text-sm font-black text-sky-700 mb-1">
+                  <BopomofoText text="十位（50元 / 10元硬幣）" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <div className="flex flex-wrap gap-1.5 justify-center min-h-[64px] items-center my-auto py-2">
                   {Array.from({ length: coins50 }).map((_, i) => (
                     <div key={i} className="w-8 h-8 rounded-full bg-amber-400 border border-amber-600 text-amber-950 font-black text-[10px] flex items-center justify-center shadow-sm">
                       50
@@ -529,25 +535,39 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {coins50 === 0 && coins10 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
                 </div>
-                <div className="flex items-center justify-around w-full mt-3 pt-2.5 border-t border-slate-100 text-xs font-bold gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-amber-700 font-black">50:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins50(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
-                    <span className="font-mono text-sm font-black">{coins50}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins50(p => Math.min(2, p + 1)); }} className="w-7 h-7 bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 rounded-lg border border-amber-500 font-black text-xs flex items-center justify-center">+</button>
+                {/* 2組垂直堆疊排列，保證按鈕完全落在卡片邊界內 */}
+                <div className="flex flex-col gap-1.5 w-full mt-2 pt-2.5 border-t border-slate-100 text-xs font-bold">
+                  <div className="flex items-center justify-between px-2 py-1 bg-amber-50/70 rounded-lg border border-amber-100">
+                    <span className="text-amber-800 font-black flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+                      50元:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => { soundFx.playPop(); setCoins50(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-white hover:bg-slate-100 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center shadow-xs">-</button>
+                      <span className="font-mono text-sm font-black w-5 text-center">{coins50}</span>
+                      <button onClick={() => { soundFx.playCoin(); setCoins50(p => Math.min(2, p + 1)); }} className="w-7 h-7 bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 rounded-lg border border-amber-500 font-black text-xs flex items-center justify-center shadow-xs">+</button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-600 font-black">10:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins10(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
-                    <span className="font-mono text-sm font-black">{coins10}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins10(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-900 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center">+</button>
+                  <div className="flex items-center justify-between px-2 py-1 bg-slate-50 rounded-lg border border-slate-200">
+                    <span className="text-slate-700 font-black flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-slate-300 inline-block"></span>
+                      10元:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => { soundFx.playPop(); setCoins10(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-white hover:bg-slate-100 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center shadow-xs">-</button>
+                      <span className="font-mono text-sm font-black w-5 text-center">{coins10}</span>
+                      <button onClick={() => { soundFx.playCoin(); setCoins10(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-900 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center shadow-xs">+</button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col items-center bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                <span className="text-xs font-black text-amber-800 mb-2"><BopomofoText text="個位（5元 / 1元硬幣）" showBpmf={bopomofoEnabled ?? false} /></span>
-                <div className="flex flex-wrap gap-1 justify-center min-h-[64px] items-center">
+              {/* 個位 */}
+              <div className="flex flex-col items-center justify-between bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-sm min-h-[210px]">
+                <span className="text-xs sm:text-sm font-black text-amber-800 mb-1">
+                  <BopomofoText text="個位（5元 / 1元硬幣）" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <div className="flex flex-wrap gap-1 justify-center min-h-[64px] items-center my-auto py-2">
                   {Array.from({ length: coins5 }).map((_, i) => (
                     <div key={i} className="w-6 h-6 rounded-full bg-slate-300 border border-slate-400 text-slate-800 font-black text-[9px] flex items-center justify-center shadow-sm">
                       5
@@ -560,33 +580,53 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
                   ))}
                   {coins5 === 0 && coins1 === 0 && <span className="text-xs text-slate-300 font-bold">0 元</span>}
                 </div>
-                <div className="flex items-center justify-around w-full mt-3 pt-2.5 border-t border-slate-100 text-xs font-bold gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-600 font-black">5:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins5(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
-                    <span className="font-mono text-sm font-black">{coins5}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins5(p => Math.min(1, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-800 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center">+</button>
+                {/* 2組垂直堆疊排列，保證按鈕完全落在卡片邊界內 */}
+                <div className="flex flex-col gap-1.5 w-full mt-2 pt-2.5 border-t border-slate-100 text-xs font-bold">
+                  <div className="flex items-center justify-between px-2 py-1 bg-slate-50 rounded-lg border border-slate-200">
+                    <span className="text-slate-700 font-black flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-slate-300 inline-block"></span>
+                      5元:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => { soundFx.playPop(); setCoins5(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-white hover:bg-slate-100 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center shadow-xs">-</button>
+                      <span className="font-mono text-sm font-black w-5 text-center">{coins5}</span>
+                      <button onClick={() => { soundFx.playCoin(); setCoins5(p => Math.min(1, p + 1)); }} className="w-7 h-7 bg-slate-300 hover:bg-slate-400 active:scale-95 text-slate-800 rounded-lg border border-slate-400 font-black text-xs flex items-center justify-center shadow-xs">+</button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-amber-800 font-black">1:</span>
-                    <button onClick={() => { soundFx.playPop(); setCoins1(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center">-</button>
-                    <span className="font-mono text-sm font-black">{coins1}</span>
-                    <button onClick={() => { soundFx.playCoin(); setCoins1(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-amber-700 hover:bg-amber-800 active:scale-95 text-white rounded-lg border border-amber-800 font-black text-xs flex items-center justify-center">+</button>
+                  <div className="flex items-center justify-between px-2 py-1 bg-amber-50/70 rounded-lg border border-amber-200">
+                    <span className="text-amber-900 font-black flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-600 inline-block"></span>
+                      1元:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => { soundFx.playPop(); setCoins1(p => Math.max(0, p - 1)); }} className="w-7 h-7 bg-white hover:bg-slate-100 active:scale-95 rounded-lg border border-slate-300 font-black text-xs flex items-center justify-center shadow-xs">-</button>
+                      <span className="font-mono text-sm font-black w-5 text-center">{coins1}</span>
+                      <button onClick={() => { soundFx.playCoin(); setCoins1(p => Math.min(9, p + 1)); }} className="w-7 h-7 bg-amber-700 hover:bg-amber-800 active:scale-95 text-white rounded-lg border border-amber-800 font-black text-xs flex items-center justify-center shadow-xs">+</button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-emerald-100/70 p-3.5 rounded-2xl border border-emerald-300 flex items-center justify-between flex-wrap gap-2 text-xs sm:text-sm font-black text-emerald-950">
-              <div className="flex items-center gap-1">
-                <span><BopomofoText text="💰 錢幣點數總金額：" showBpmf={bopomofoEnabled ?? false} /></span>
-                <span className="text-emerald-700 font-mono text-base">{bills100}<BopomofoText text="張百元" showBpmf={bopomofoEnabled ?? false} /></span>
-                <span>＋</span>
-                <span className="text-sky-700 font-mono text-base">{coins50 * 50 + coins10 * 10}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></span>
-                <span>＋</span>
-                <span className="text-amber-700 font-mono text-base">{coins5 * 5 + coins1 * 1}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} /></span>
+            <div className="bg-emerald-100/80 p-4 rounded-2xl border border-emerald-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm font-black text-emerald-950">
+              <div className="flex items-center flex-wrap gap-2 justify-center sm:justify-start">
+                <span className="flex items-center gap-1">
+                  <span>💰</span>
+                  <BopomofoText text="錢幣點數總金額：" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <span className="text-emerald-800 font-mono text-base bg-white/70 px-2 py-0.5 rounded-md border border-emerald-200">
+                  {bills100}<BopomofoText text="張百元" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <span className="font-black text-emerald-800">＋</span>
+                <span className="text-sky-800 font-mono text-base bg-white/70 px-2 py-0.5 rounded-md border border-emerald-200">
+                  {coins50 * 50 + coins10 * 10}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} />
+                </span>
+                <span className="font-black text-emerald-800">＋</span>
+                <span className="text-amber-800 font-mono text-base bg-white/70 px-2 py-0.5 rounded-md border border-emerald-200">
+                  {coins5 * 5 + coins1 * 1}<BopomofoText text="元" showBpmf={bopomofoEnabled ?? false} />
+                </span>
               </div>
-              <div className="text-base sm:text-lg font-mono text-rose-600 font-black">
+              <div className="text-base sm:text-lg font-mono text-rose-600 font-black bg-white px-3 py-1 rounded-xl border border-rose-200 shadow-xs">
                 ＝ {totalMoney} 元
               </div>
             </div>
