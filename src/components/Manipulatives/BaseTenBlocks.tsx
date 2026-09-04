@@ -479,10 +479,10 @@ export const BaseTenBlocks: React.FC<BaseTenBlocksProps> = ({
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
                 <span>🏦</span>
-                <span>操作百元紙鈔與硬幣，觀察三位數百位、十位、個位定位板：</span>
+                <BopomofoText text="操作百元紙鈔與硬幣，觀察三位數百位、十位、個位定位板：" showBpmf={bopomofoEnabled ?? false} />
               </span>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                💡 10 個 10 元 ＝ 1 張 100 元！2 個 50 元 ＝ 1 張 100 元！
+                <BopomofoText text="💡 10 個 10 元 ＝ 1 張 100 元！2 個 50 元 ＝ 1 張 100 元！" showBpmf={bopomofoEnabled ?? false} />
               </span>
             </div>
 

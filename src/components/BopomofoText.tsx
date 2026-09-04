@@ -30,7 +30,7 @@ export const BopomofoText: React.FC<BopomofoTextProps> = ({
         // 非中文字（如數字、運算符號、標點、英文字母）直接輸出
         if (!item.isChinese || !showBpmf || !item.bpmf) {
           return (
-            <span key={idx} className="text-inherit inline-block tracking-normal font-black">
+            <span key={idx} className="text-inherit inline-block tracking-normal font-semibold textbook-char">
               {item.char}
             </span>
           );
