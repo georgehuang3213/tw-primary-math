@@ -36,25 +36,29 @@ export const BopomofoText: React.FC<BopomofoTextProps> = ({
           );
         }
 
-        // 台灣標準國小教育部審定本課本排版：標楷體國字＋右側緊湊直排注音
+        // 台灣標準國小教育部審定本課本排版：國字與右側直排注音等高協調
         const { symbols, tone } = parseBpmfTone(item.bpmf);
+
+        // 依據注音符號個數（1~3個）動態調整每個注音符號的字級，使注音欄總高度與國字高度保持一致
+        const symCount = symbols.length || 1;
+        const symFontSize = symCount === 1 ? 'text-[0.62em]' : symCount === 2 ? 'text-[0.52em]' : 'text-[0.45em]';
 
         return (
           <span
             key={idx}
-            className="inline-flex items-center leading-none mx-[2px] my-[1.5px] select-none align-middle"
+            className="inline-flex items-center leading-none mx-[1.5px] my-[1px] select-none align-middle"
           >
             {/* 國字本體（國小標準標楷體，字正腔圓、筆畫分明） */}
             <span className="text-inherit leading-none textbook-char tracking-normal font-semibold">
               {item.char}
             </span>
 
-            {/* 國字右側垂直直排注音欄（緊湊對齊、高清晰度） */}
-            <span className="bpmf-col inline-flex flex-row items-center ml-[2px] mr-[1.5px] select-none">
+            {/* 國字右側垂直直排注音欄（與國字本體同高、完美比例） */}
+            <span className="bpmf-col inline-flex flex-row items-center ml-[2px] mr-[1px] select-none h-[1em] justify-center">
               {/* 輕聲置於注音符號正上方（置中美觀圓點） */}
-              <span className="flex flex-col items-center justify-center text-[0.58em] leading-[0.88] text-slate-900 bpmf-symbol tracking-tighter">
+              <span className={`flex flex-col items-center justify-center ${symFontSize} leading-[0.92] text-slate-900 bpmf-symbol tracking-tighter`}>
                 {tone === '˙' && (
-                  <span className="text-[1.3em] font-black -mb-[2px] leading-none text-slate-800 font-mono">˙</span>
+                  <span className="text-[1.1em] font-black -mb-[2px] leading-none text-slate-800 font-mono">˙</span>
                 )}
                 {symbols.map((sym, sIdx) => (
                   <span key={sIdx} className="leading-none bpmf-symbol">{sym}</span>
@@ -63,7 +67,7 @@ export const BopomofoText: React.FC<BopomofoTextProps> = ({
 
               {/* 二聲、三聲、四聲標記於注音符號右側（國小課本標準聲調位置） */}
               {tone && tone !== '˙' && (
-                <span className="text-[0.75em] leading-none text-slate-800 bpmf-symbol ml-[1px] self-center select-none">
+                <span className="text-[0.68em] leading-none text-slate-800 bpmf-symbol ml-[0.5px] self-center select-none">
                   {tone}
                 </span>
               )}
